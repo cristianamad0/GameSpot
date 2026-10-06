@@ -41,11 +41,15 @@ public class Usuario {
     @Builder.Default
     private Rol rol = Rol.CLIENTE;
 
-    @Column(name = "puntos_fidelidad", nullable = false)
+    /**
+     * Saldo de puntos. Lo mantiene la base de datos con cada movimiento de puntos;
+     * Hibernate solo lo lee para no sobrescribirlo con un valor desactualizado.
+     */
+    @Column(name = "puntos_fidelidad", nullable = false, insertable = false, updatable = false)
     @Builder.Default
     private Integer puntosFidelidad = 0;
 
-    @Column(name = "fecha_registro", nullable = false, updatable = false)
+    @Column(name = "fecha_registro", nullable = false, updatable = false, columnDefinition = "timestamptz")
     private LocalDateTime fechaRegistro;
 
     @PrePersist
