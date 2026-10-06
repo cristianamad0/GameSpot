@@ -2,20 +2,20 @@ spring:
   application:
     name: backend
   datasource:
-    url: jdbc:h2:mem:gamespot;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
+    # Base de datos en Supabase. La contraseña se toma de la variable de entorno
+    # SUPABASE_DB_CONTRASENA: nunca escribirla aquí (la Definition of Done
+    # bloquea credenciales en el código).
+    url: "${SUPABASE_DB_URL:jdbc:postgresql://db.wczlrqrertriwlmrlasz.supabase.co:5432/postgres?sslmode=require}"
+    username: "${SUPABASE_DB_USUARIO:postgres}"
+    password: "${SUPABASE_DB_CONTRASENA:}"
+    hikari:
+      maximum-pool-size: 5
   jpa:
+    open-in-view: false
     hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+      # El esquema lo define src/main/resources/db/esquema.sql. Hibernate solo
+      # verifica que las entidades coincidan con las tablas; no crea ni borra nada.
+      ddl-auto: validate
 
 app:
   cli:
