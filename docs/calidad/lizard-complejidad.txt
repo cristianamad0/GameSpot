@@ -1,0 +1,88 @@
+================================================
+  NLOC    CCN   token  PARAM  length  location  
+------------------------------------------------
+      33      1    226      1      45 Notificacion::GeneratedValue@33-77@src/main/java/com/usta/gamespot/model/Notificacion.java
+      32      1    223      1      48 Pago::GeneratedValue@44-91@src/main/java/com/usta/gamespot/model/Pago.java
+       3      1     13      0       3 Pago::alActualizar@94-96@src/main/java/com/usta/gamespot/model/Pago.java
+      21      1    161      1      32 Usuario::GeneratedValue@27-58@src/main/java/com/usta/gamespot/model/Usuario.java
+       3      1     13      0       3 ConfiguracionNegocio::alGuardar@45-47@src/main/java/com/usta/gamespot/model/ConfiguracionNegocio.java
+      38      1    278      1      57 Reserva::GeneratedValue@40-96@src/main/java/com/usta/gamespot/model/Reserva.java
+       3      1     13      0       3 Reserva::alActualizar@99-101@src/main/java/com/usta/gamespot/model/Reserva.java
+      20      1    132      1      28 MovimientoPuntos::GeneratedValue@39-66@src/main/java/com/usta/gamespot/model/MovimientoPuntos.java
+      19      1    129      1      26 Modalidad::GeneratedValue@29-54@src/main/java/com/usta/gamespot/model/Modalidad.java
+       3      1     13      0       3 Modalidad::alActualizar@57-59@src/main/java/com/usta/gamespot/model/Modalidad.java
+      19      1    138      1      27 Equipo::GeneratedValue@32-58@src/main/java/com/usta/gamespot/model/Equipo.java
+       3      1     13      0       3 Equipo::alActualizar@61-63@src/main/java/com/usta/gamespot/model/Equipo.java
+       3      1     11      0       3 SecurityConfig::passwordEncoder@31-33@src/main/java/com/usta/gamespot/config/SecurityConfig.java
+       3      1     16      1       3 SecurityConfig::authenticationManager@36-38@src/main/java/com/usta/gamespot/config/SecurityConfig.java
+       7      1     37      2       7 SecurityConfig::authenticationProvider@41-47@src/main/java/com/usta/gamespot/config/SecurityConfig.java
+      13      1    100      1      14 SecurityConfig::filterChain@50-63@src/main/java/com/usta/gamespot/config/SecurityConfig.java
+      10      1     84      0      12 SecurityConfig::corsConfigurationSource@66-77@src/main/java/com/usta/gamespot/config/SecurityConfig.java
+       5      1     25      0       5 obtener@10-14@src/main/java/com/usta/gamespot/repository/ConfiguracionNegocioRepository.java
+       3      1     14      1       3 EmailYaRegistradoException::EmailYaRegistradoException@4-6@src/main/java/com/usta/gamespot/exception/EmailYaRegistradoException.java
+       4      1     39      1       4 GlobalExceptionHandler::manejarEmailDuplicado@17-20@src/main/java/com/usta/gamespot/exception/GlobalExceptionHandler.java
+       4      1     35      1       4 GlobalExceptionHandler::manejarCredencialesInvalidas@23-26@src/main/java/com/usta/gamespot/exception/GlobalExceptionHandler.java
+       7      1     74      1       8 GlobalExceptionHandler::manejarValidacion@29-36@src/main/java/com/usta/gamespot/exception/GlobalExceptionHandler.java
+       9      1     75      1      10 UsuarioDetailsService::loadUserByUsername@20-29@src/main/java/com/usta/gamespot/service/UsuarioDetailsService.java
+      15      2    147      1      19 AuthService::registrar@28-46@src/main/java/com/usta/gamespot/service/AuthService.java
+      10      1    101      1      15 AuthService::iniciarSesion@48-62@src/main/java/com/usta/gamespot/service/AuthService.java
+       4      1     36      1       4 AuthController::registrar@25-28@src/main/java/com/usta/gamespot/controller/AuthController.java
+       4      1     29      1       4 AuthController::iniciarSesion@31-34@src/main/java/com/usta/gamespot/controller/AuthController.java
+       3      1     20      0       3 JwtService::getSigningKey@24-26@src/main/java/com/usta/gamespot/security/JwtService.java
+      10      1     67      1      11 JwtService::generarToken@28-38@src/main/java/com/usta/gamespot/security/JwtService.java
+       3      1     17      1       3 JwtService::extraerEmail@40-42@src/main/java/com/usta/gamespot/security/JwtService.java
+       4      2     36      2       4 JwtService::esTokenValido@44-47@src/main/java/com/usta/gamespot/security/JwtService.java
+       3      1     25      1       3 JwtService::estaExpirado@49-51@src/main/java/com/usta/gamespot/security/JwtService.java
+       8      1     52      2       8 JwtService::extraerClaim@53-60@src/main/java/com/usta/gamespot/security/JwtService.java
+      21      6    179      3      27 JwtAuthFilter::doFilterInternal@29-55@src/main/java/com/usta/gamespot/security/JwtAuthFilter.java
+       3      1     20      1       3 BackendApplication::main@20-22@src/main/java/com/usta/gamespot/BackendApplication.java
+      19      2    170      2      21 BackendApplication::ConditionalOnProperty@25-45@src/main/java/com/usta/gamespot/BackendApplication.java
+       8      2     44      1       9 BackendApplication::leerDato@47-55@src/main/java/com/usta/gamespot/BackendApplication.java
+37 file analyzed.
+==============================================================
+NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
+--------------------------------------------------------------
+     31       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/model/HorarioAtencion.java
+      5       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/model/CanalNotificacion.java
+      5       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/model/Rol.java
+     62      33.0     1.0      226.0         1     src/main/java/com/usta/gamespot/model/Notificacion.java
+     68      17.5     1.0      118.0         2     src/main/java/com/usta/gamespot/model/Pago.java
+     39      21.0     1.0      161.0         1     src/main/java/com/usta/gamespot/model/Usuario.java
+      8       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/model/EstadoPago.java
+     12       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/model/EstadoReserva.java
+     37       3.0     1.0       13.0         1     src/main/java/com/usta/gamespot/model/ConfiguracionNegocio.java
+     72      20.5     1.0      145.5         2     src/main/java/com/usta/gamespot/model/Reserva.java
+     49      20.0     1.0      132.0         1     src/main/java/com/usta/gamespot/model/MovimientoPuntos.java
+     48      11.0     1.0       71.0         2     src/main/java/com/usta/gamespot/model/Modalidad.java
+      5       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/model/TipoMovimientoPuntos.java
+      5       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/model/TipoNotificacion.java
+     51      11.0     1.0       75.5         2     src/main/java/com/usta/gamespot/model/Equipo.java
+     15       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/dto/RegistroRequest.java
+     10       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/dto/LoginRequest.java
+     13       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/dto/ApiError.java
+      9       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/dto/AuthResponse.java
+     66       7.2     1.0       49.6         5     src/main/java/com/usta/gamespot/config/SecurityConfig.java
+     29       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/ReservaRepository.java
+      7       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/MovimientoPuntosRepository.java
+     11       5.0     1.0       25.0         1     src/main/java/com/usta/gamespot/repository/ConfiguracionNegocioRepository.java
+      7       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/ModalidadRepository.java
+      8       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/UsuarioRepository.java
+      9       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/NotificacionRepository.java
+      7       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/HorarioAtencionRepository.java
+      7       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/EquipoRepository.java
+     11       0.0     0.0        0.0         0     src/main/java/com/usta/gamespot/repository/PagoRepository.java
+      6       3.0     1.0       14.0         1     src/main/java/com/usta/gamespot/exception/EmailYaRegistradoException.java
+     30       5.0     1.0       49.3         3     src/main/java/com/usta/gamespot/exception/GlobalExceptionHandler.java
+     25       9.0     1.0       75.0         1     src/main/java/com/usta/gamespot/service/UsuarioDetailsService.java
+     49      12.5     1.5      124.0         2     src/main/java/com/usta/gamespot/service/AuthService.java
+     26       4.0     1.0       32.5         2     src/main/java/com/usta/gamespot/controller/AuthController.java
+     49       5.2     1.2       36.2         6     src/main/java/com/usta/gamespot/security/JwtService.java
+     44      21.0     6.0      179.0         1     src/main/java/com/usta/gamespot/security/JwtAuthFilter.java
+     46      10.0     1.7       78.0         3     src/main/java/com/usta/gamespot/BackendApplication.java
+
+===============================================================================================================
+No thresholds exceeded (cyclomatic_complexity > 15 or length > 1000 or nloc > 1000000 or parameter_count > 100)
+==========================================================================================
+Total nloc   Avg.NLOC  AvgCCN  Avg.token   Fun Cnt  Warning cnt   Fun Rt   nloc Rt
+------------------------------------------------------------------------------------------
+       981      10.3     1.2       75.8       37            0      0.00    0.00
