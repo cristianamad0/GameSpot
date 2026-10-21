@@ -8,28 +8,30 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * CACS-2: Formulario de registro / login.
- * Expone los dos endpoints que consume el frontend Angular.
+ * CACS-2: Formulario de registro / login. Expone los dos endpoints que consume el frontend Angular.
  */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @PostMapping("/registro")
-    public ResponseEntity<AuthResponse> registrar(@Valid @RequestBody RegistroRequest request) {
-        AuthResponse respuesta = authService.registrar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
-    }
+  @PostMapping("/registro")
+  public ResponseEntity<AuthResponse> registrar(@Valid @RequestBody RegistroRequest request) {
+    AuthResponse respuesta = authService.registrar(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> iniciarSesion(@Valid @RequestBody LoginRequest request) {
-        AuthResponse respuesta = authService.iniciarSesion(request);
-        return ResponseEntity.ok(respuesta);
-    }
+  @PostMapping("/login")
+  public ResponseEntity<AuthResponse> iniciarSesion(@Valid @RequestBody LoginRequest request) {
+    AuthResponse respuesta = authService.iniciarSesion(request);
+    return ResponseEntity.ok(respuesta);
+  }
 }

@@ -60,8 +60,7 @@ class AuthServiceTests {
   @DisplayName("CP-05 No se permite registrar un correo ya registrado")
   void noPermiteCorreoYaRegistrado() {
     authService.registrar(new RegistroRequest("Primero", "repetido@gamespot.test", CONTRASENA));
-    RegistroRequest segundo =
-        new RegistroRequest("Segundo", "repetido@gamespot.test", CONTRASENA);
+    RegistroRequest segundo = new RegistroRequest("Segundo", "repetido@gamespot.test", CONTRASENA);
 
     assertThrows(EmailYaRegistradoException.class, () -> authService.registrar(segundo));
   }
@@ -82,7 +81,8 @@ class AuthServiceTests {
   void registroGuardaCorreoNormalizado() {
     AuthResponse respuesta =
         authService.registrar(
-            new RegistroRequest("Cliente Espacios", "  Cliente.Espacios@GameSpot.test ", CONTRASENA));
+            new RegistroRequest(
+                "Cliente Espacios", "  Cliente.Espacios@GameSpot.test ", CONTRASENA));
 
     assertEquals("cliente.espacios@gamespot.test", respuesta.email());
     assertTrue(usuarioRepository.findByEmail("cliente.espacios@gamespot.test").isPresent());
@@ -91,7 +91,8 @@ class AuthServiceTests {
   @Test
   @DisplayName("D-03 Se inicia sesión con el correo escrito con otras mayúsculas")
   void iniciaSesionConCorreoEnOtrasMayusculas() {
-    authService.registrar(new RegistroRequest("Cliente Login", "login.mayus@gamespot.test", CONTRASENA));
+    authService.registrar(
+        new RegistroRequest("Cliente Login", "login.mayus@gamespot.test", CONTRASENA));
 
     AuthResponse respuesta =
         authService.iniciarSesion(new LoginRequest(" Login.MAYUS@gamespot.test", CONTRASENA));
