@@ -1,0 +1,10 @@
+# Configuración local de IntelliJ IDEA: depende del JDK y de la máquina de cada
+# integrante. IntelliJ la regenera al importar backend/pom.xml. Solo se comparte
+# el estilo de código (.idea/codeStyles/), según ESTANDARES.md.
+.idea/*
+!.idea/codeStyles/
+*.iml
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
