@@ -22,5 +22,8 @@ app:
     registration:
       enabled: true
   jwt:
-    secret: cambio-este-valormuy-secreto-GameSpot-2026
+    # Secreto para firmar los tokens: se toma de la variable de entorno JWT_SECRETO
+    # (al menos 32 caracteres). Sin valor por defecto, para que la aplicación no
+    # arranque con un secreto conocido.
+    secret: "${JWT_SECRETO}"
     expiration-ms: 3600000

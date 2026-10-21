@@ -65,7 +65,18 @@ Requisitos: JDK 21.
    variables). Si la red no tiene IPv6, definir también `SUPABASE_DB_URL` y
    `SUPABASE_DB_USUARIO` con los datos del "Session pooler" (botón Connect del
    proyecto en Supabase).
-2. Desde `backend/`:
+2. Definir la variable de entorno `JWT_SECRETO` con el secreto que firma los
+   tokens de sesión. Debe tener al menos 32 caracteres (jjwt rechaza los más
+   cortos) y no se escribe en ningún archivo del repositorio. Para generar uno:
+
+   ```bash
+   openssl rand -base64 48
+   ```
+
+   Sin esta variable la aplicación no arranca. Las pruebas no la necesitan:
+   usan el valor de `backend/src/test/resources/config/application.yaml`, que
+   solo sirve para pruebas.
+3. Desde `backend/`:
 
    ```bash
    ./mvnw spring-boot:run
