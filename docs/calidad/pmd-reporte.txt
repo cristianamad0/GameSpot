@@ -1,0 +1,2 @@
+controller/AuthController.java:11:	UnnecessaryImport:	Unused import 'org.springframework.web.bind.annotation.*'
+model/Usuario.java:3:	UnnecessaryImport:	Unused import 'jakarta.persistence.*'

@@ -9,7 +9,7 @@ Las capas principales de la arquitectura son:
 - `backend/src/main/java/com/usta/gamespot/controller/`: controladores REST como `AuthController`
 - `backend/src/main/java/com/usta/gamespot/service/`: lógica de negocio como `AuthService`
 - `backend/src/main/java/com/usta/gamespot/repository/`: repositorios de Spring Data
-- `backend/src/main/java/com/usta/gamespot/model/`: entidades JPA (`Usuario`, `Rol`)
+- `backend/src/main/java/com/usta/gamespot/model/`: entidades JPA (`Usuario`, `Reserva`, `Equipo`, `Pago`, `MovimientoPuntos`, etc.) y sus enumeraciones
 - `backend/src/main/java/com/usta/gamespot/dto/`: DTOs de entrada y salida
 - `backend/src/main/java/com/usta/gamespot/config/`: configuración de seguridad y de la aplicación
 - `backend/src/main/java/com/usta/gamespot/security/`: generación y validación de JWT
@@ -32,7 +32,7 @@ Ejecuta los comandos desde el directorio `backend` salvo que se indique lo contr
 - Compilar sin ejecutar pruebas:
   - `./mvnw -DskipTests compile`
 
-No hay una tarea de lint dedicada definida en este repositorio. El proyecto depende de la compilación y pruebas con Maven, y además de las reglas de formato del equipo en `ESTANDARES.md` (Google Java Style e IntelliJ reformat-on-save).
+No hay una tarea de lint dedicada en Maven; el último análisis estático (PMD, Checkstyle, Lizard) está en `docs/calidad/analisis-estatico.md`. El proyecto depende de la compilación y pruebas con Maven, y además de las reglas de formato del equipo en `ESTANDARES.md` (Google Java Style e IntelliJ reformat-on-save).
 
 ## Notas de arquitectura de alto nivel
 
@@ -61,7 +61,7 @@ No hay una tarea de lint dedicada definida en este repositorio. El proyecto depe
 
 - La configuración principal de Spring está en `backend/src/main/resources/application.yaml`.
 - El proyecto espera PostgreSQL y la configuración de JWT antes de ejecutar localmente.
-- Para las pruebas, Testcontainers levanta automáticamente un contenedor de PostgreSQL; no hace falta una base de datos local extra para ejecutar `./mvnw test`.
+- Para las pruebas, Testcontainers levanta automáticamente un contenedor de PostgreSQL; no hace falta una base de datos local extra para ejecutar `./mvnw test`, pero Docker debe estar en ejecución.
 
 ## Estilo de trabajo para este código
 
