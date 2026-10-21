@@ -26,13 +26,14 @@ public class AuthService {
     private final UsuarioDetailsService usuarioDetailsService;
 
     public AuthResponse registrar(RegistroRequest request) {
-        if (usuarioRepository.existsByEmail(request.email())) {
-            throw new EmailYaRegistradoException(request.email());
+        String correo = UsuarioDetailsService.normalizarCorreo(request.email());
+        if (usuarioRepository.existsByEmail(correo)) {
+            throw new EmailYaRegistradoException(correo);
         }
 
         Usuario usuario = Usuario.builder()
                 .nombre(request.nombre())
-                .email(request.email())
+                .email(correo)
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .rol(Rol.CLIENTE)
                 .build();
@@ -48,11 +49,12 @@ public class AuthService {
     public AuthResponse iniciarSesion(LoginRequest request) {
         // Si las credenciales son invalidas, esto lanza BadCredentialsException,
         // manejada por el GlobalExceptionHandler como 401.
+        String correo = UsuarioDetailsService.normalizarCorreo(request.email());
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+                new UsernamePasswordAuthenticationToken(correo, request.password())
         );
 
-        Usuario usuario = usuarioRepository.findByEmail(request.email())
+        Usuario usuario = usuarioRepository.findByEmail(correo)
                 .orElseThrow();
 
         UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario.getEmail());

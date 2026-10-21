@@ -10,15 +10,25 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioDetailsService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
 
+    /**
+     * Deja el correo en la forma en que se guarda: sin espacios a los lados y en minúsculas.
+     * Así "Cliente@Correo.com" y "cliente@correo.com" son el mismo usuario (defecto D-03).
+     */
+    public static String normalizarCorreo(String correo) {
+        return correo == null ? null : correo.trim().toLowerCase(Locale.ROOT);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+        Usuario usuario = usuarioRepository.findByEmail(normalizarCorreo(email))
                 .orElseThrow(() -> new UsernameNotFoundException("No existe un usuario con el correo: " + email));
 
         return new User(
