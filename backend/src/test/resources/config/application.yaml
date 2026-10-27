@@ -1,0 +1,5 @@
+# Configuración que se suma a src/main/resources/application.yaml solo en las pruebas.
+app:
+  jwt:
+    # Valor exclusivo para pruebas: no es un secreto y nunca se usa fuera de ellas.
+    secret: "secreto-solo-para-pruebas-automatizadas-gamespot"

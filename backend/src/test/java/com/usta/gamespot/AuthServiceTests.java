@@ -60,8 +60,7 @@ class AuthServiceTests {
   @DisplayName("CP-05 No se permite registrar un correo ya registrado")
   void noPermiteCorreoYaRegistrado() {
     authService.registrar(new RegistroRequest("Primero", "repetido@gamespot.test", CONTRASENA));
-    RegistroRequest segundo =
-        new RegistroRequest("Segundo", "repetido@gamespot.test", CONTRASENA);
+    RegistroRequest segundo = new RegistroRequest("Segundo", "repetido@gamespot.test", CONTRASENA);
 
     assertThrows(EmailYaRegistradoException.class, () -> authService.registrar(segundo));
   }
@@ -75,6 +74,31 @@ class AuthServiceTests {
         new RegistroRequest("Segundo", "cliente.mayus@gamespot.test", CONTRASENA);
 
     assertThrows(EmailYaRegistradoException.class, () -> authService.registrar(segundo));
+  }
+
+  @Test
+  @DisplayName("D-03 El correo se guarda sin espacios y en minúsculas")
+  void registroGuardaCorreoNormalizado() {
+    AuthResponse respuesta =
+        authService.registrar(
+            new RegistroRequest(
+                "Cliente Espacios", "  Cliente.Espacios@GameSpot.test ", CONTRASENA));
+
+    assertEquals("cliente.espacios@gamespot.test", respuesta.email());
+    assertTrue(usuarioRepository.findByEmail("cliente.espacios@gamespot.test").isPresent());
+  }
+
+  @Test
+  @DisplayName("D-03 Se inicia sesión con el correo escrito con otras mayúsculas")
+  void iniciaSesionConCorreoEnOtrasMayusculas() {
+    authService.registrar(
+        new RegistroRequest("Cliente Login", "login.mayus@gamespot.test", CONTRASENA));
+
+    AuthResponse respuesta =
+        authService.iniciarSesion(new LoginRequest(" Login.MAYUS@gamespot.test", CONTRASENA));
+
+    assertFalse(respuesta.token().isBlank());
+    assertEquals("login.mayus@gamespot.test", respuesta.email());
   }
 
   @ParameterizedTest(name = "correo registrado={0}, contraseña correcta={1} -> autentica={2}")
