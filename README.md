@@ -38,7 +38,7 @@ GameSpot/
 │       │   └── service/          Lógica de negocio
 │       ├── main/resources/
 │       │   ├── application.yaml
-│       │   └── db/               esquema.sql y borrar_esquema.sql
+│       │   └── db/               esquema.sql, borrar_esquema.sql y migraciones (V2...)
 │       └── test/java/...         Pruebas de integración y unitarias
 ├── docs/calidad/                 Reporte de análisis estático (PMD, Checkstyle, Lizard)
 └── ESTANDARES.md                 Acuerdos del equipo, DoR, DoD y revisión de código
@@ -55,6 +55,13 @@ PostgreSQL en Supabase. El esquema completo está en
 1. Si ya existen tablas y todavía no hay datos reales, ejecutar
    `backend/src/main/resources/db/borrar_esquema.sql`.
 2. Ejecutar `backend/src/main/resources/db/esquema.sql`.
+
+**Aplicar un cambio sobre un esquema que ya tiene datos.** Los cambios
+posteriores van en scripts de migración numerados en la misma carpeta
+(`V2_datos_negocio.sql`, ...). Cada uno se ejecuta una sola vez en el SQL
+Editor, el mismo día en que se fusiona su PR, y va dentro de una transacción.
+`esquema.sql` ya incluye todos los cambios, así que una base nueva no
+necesita las migraciones.
 
 ## Ejecutar el backend
 
@@ -101,6 +108,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `dto/RegistroRequestValidacionTest` | Validaciones del formulario de registro (no necesita Docker) | CP-02 a CP-04 |
 | `AuthServiceTests` | Registro e inicio de sesión | CP-01, CP-05 a CP-07 |
 | `ReglasBaseDatosTests` | Reglas de reservas, pagos y puntos en la base de datos | CP-08 a CP-16 |
+| `DatosNegocioTests` | Equipos, horario de atención y configuración reales del negocio | CP-17 a CP-20 |
 
 ## Calidad de código
 
