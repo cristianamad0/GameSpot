@@ -26,3 +26,26 @@ pruebas y pendientes. La entrada más reciente va al final.
   - Revisar en Supabase si hay correos repetidos por mayúsculas o guardados sin
     normalizar, y corregirlos antes de desplegar (consultas en la descripción
     del PR).
+
+## 2026-10-27 — Datos reales del negocio
+
+- **Tarjeta:** sin tarjeta propia (datos entregados por el propietario el 8/10/2026).
+- **Rama:** `feat/datos-negocio`
+- **Qué se hizo:**
+  - `configuracion_negocio.valor_adelanto_pesos` pasa a `porcentaje_adelanto`
+    (de 1 a 100) en `esquema.sql` y en la entidad `ConfiguracionNegocio`
+    (campo `porcentajeAdelanto`).
+  - Datos iniciales reales: 6 equipos (`Xbox 360 #1`, `Xbox Series S #1` a
+    `#4` y `Sala VIP Xbox Series X`), 7 horarios (lunes a viernes de 14:00 a
+    22:00; sábado y domingo de 15:00 a 21:00) y la configuración `(50, 1, 15)`.
+  - `db/V2_datos_negocio.sql` aplica el mismo cambio sobre el esquema que ya
+    existe en Supabase, dentro de `begin; ... commit;`. Se comprobó en dos
+    PostgreSQL 17 temporales: el esquema anterior más V2 queda igual al
+    `esquema.sql` nuevo (mismo DDL, mismas restricciones y mismos datos).
+- **Pruebas:** `./mvnw clean test`: 57 pruebas, 0 fallos, 0 errores. Nueva
+  clase `DatosNegocioTests` (CP-17 a CP-20): equipos, horario de cada día,
+  configuración y valores límite del porcentaje (0, 1, 100 y 101).
+- **Pendientes:**
+  - Ejecutar `V2_datos_negocio.sql` en Supabase el mismo día en que se fusione
+    el PR; después, Cristian Amado hace `git pull`.
+  - La Tarea 5 (Proveedor 1) no empieza hasta que V2 esté aplicado en Supabase.
