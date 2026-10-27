@@ -109,7 +109,9 @@ create table public.horarios_atencion (
 -- Parámetros del negocio en una sola fila (id siempre = 1).
 create table public.configuracion_negocio (
   id                    smallint primary key default 1 check (id = 1),
-  valor_adelanto_pesos  integer not null check (valor_adelanto_pesos > 0),
+  -- Porcentaje del precio de la reserva que se cobra como adelanto.
+  porcentaje_adelanto   integer not null
+                        check (porcentaje_adelanto between 1 and 100),
   puntos_por_hora       integer not null check (puntos_por_hora >= 0),
   -- Minutos que se aparta el bloque mientras el cliente paga en Wompi.
   minutos_espera_pago   integer not null default 15
@@ -404,19 +406,29 @@ insert into public.modalidades (nombre, tarifa_hora_pesos) values
   ('Xbox Series S', 6000),
   ('Sala VIP Xbox Series X', 7000);
 
--- AJUSTAR: un equipo por modalidad como punto de partida; reemplazar con el
--- número real de consolas que entregue el propietario.
+-- Equipos reales entregados por el propietario (8/10/2026): 1 Xbox 360,
+-- 4 Xbox Series S y 1 Xbox Series X en la Sala VIP.
 insert into public.equipos (modalidad_id, nombre)
-select id, nombre || ' #1' from public.modalidades order by id;
+select m.id, e.nombre
+  from (values
+          ('Xbox 360', 'Xbox 360 #1'),
+          ('Xbox Series S', 'Xbox Series S #1'),
+          ('Xbox Series S', 'Xbox Series S #2'),
+          ('Xbox Series S', 'Xbox Series S #3'),
+          ('Xbox Series S', 'Xbox Series S #4'),
+          ('Sala VIP Xbox Series X', 'Sala VIP Xbox Series X')
+       ) as e (modalidad, nombre)
+  join public.modalidades m on m.nombre = e.modalidad;
 
--- AJUSTAR: valores de EJEMPLO, pendientes de confirmar con el propietario.
+-- Adelanto del 50 % del precio, 1 punto por hora jugada y 15 minutos para pagar.
 insert into public.configuracion_negocio
-  (valor_adelanto_pesos, puntos_por_hora, minutos_espera_pago)
+  (porcentaje_adelanto, puntos_por_hora, minutos_espera_pago)
 values
-  (2000, 10, 15);
+  (50, 1, 15);
 
--- AJUSTAR: horario de atención real. Ejemplo:
--- insert into public.horarios_atencion (dia_semana, hora_apertura, hora_cierre) values
---   (1, '14:00', '22:00'), (2, '14:00', '22:00'), (3, '14:00', '22:00'),
---   (4, '14:00', '22:00'), (5, '14:00', '23:00'), (6, '10:00', '23:00'),
---   (7, '10:00', '21:00');
+-- Horario de atención: lunes a viernes de 14:00 a 22:00; sábado y domingo de
+-- 15:00 a 21:00 (1 = lunes ... 7 = domingo).
+insert into public.horarios_atencion (dia_semana, hora_apertura, hora_cierre) values
+  (1, '14:00', '22:00'), (2, '14:00', '22:00'), (3, '14:00', '22:00'),
+  (4, '14:00', '22:00'), (5, '14:00', '22:00'),
+  (6, '15:00', '21:00'), (7, '15:00', '21:00');
