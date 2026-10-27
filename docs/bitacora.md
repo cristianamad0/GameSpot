@@ -27,6 +27,23 @@ pruebas y pendientes. La entrada más reciente va al final.
     normalizar, y corregirlos antes de desplegar (consultas en la descripción
     del PR).
 
+## 2026-10-27 — Mantenimiento: cobertura con JaCoCo
+
+- **Tarjeta:** sin tarjeta propia (mantenimiento del repositorio).
+- **Rama:** `feat/mantenimiento-calidad`
+- **Qué se hizo:**
+  - Se agregó jacoco-maven-plugin 0.8.13 al `pom.xml`. `prepare-agent` queda
+    en su fase por defecto (`initialize`) para que el agente esté activo antes
+    de las pruebas, y `report` corre en la fase `test`. `./mvnw test` genera
+    `backend/target/site/jacoco/index.html`.
+  - Revisión de ramas remotas: `feat/plan-calidad` y `feat/corregir-defectos`
+    ya están integradas en `dev` y se pueden borrar. No se borró ninguna.
+- **Pruebas:** `./mvnw clean test`: 43 pruebas, 0 fallos, 0 errores. Cobertura
+  de líneas: 60,3 % (instrucciones: 62,2 %). La meta de 70 % o más se trabaja
+  en la Tarea 5, con las pruebas de los endpoints.
+- **Pendientes:**
+  - Decidir si se borran las ramas ya integradas.
+
 ## 2026-10-27 — Datos reales del negocio
 
 - **Tarjeta:** sin tarjeta propia (datos entregados por el propietario el 8/10/2026).
