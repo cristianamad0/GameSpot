@@ -27,3 +27,8 @@ app:
     # arranque con un secreto conocido.
     secret: "${JWT_SECRETO}"
     expiration-ms: 3600000
+  reservas:
+    expiracion:
+      # CACS-12: cada cuánto se pasan a EXPIRADA las reservas no pagadas a tiempo.
+      habilitada: true
+      intervalo-ms: 60000

@@ -3,3 +3,8 @@ app:
   jwt:
     # Valor exclusivo para pruebas: no es un secreto y nunca se usa fuera de ellas.
     secret: "secreto-solo-para-pruebas-automatizadas-gamespot"
+  reservas:
+    expiracion:
+      # Las pruebas llaman a ExpiracionReservasService directamente; la tarea
+      # programada no debe correr en segundo plano mientras tanto.
+      habilitada: false
