@@ -4,6 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Datos para registrar un cliente.
+ *
+ * @param nombre nombre del cliente, entre 2 y 120 caracteres
+ * @param email correo del cliente
+ * @param password contraseña de al menos 8 caracteres
+ */
 public record RegistroRequest(
     @NotBlank(message = "El nombre es obligatorio")
         @Size(min = 2, max = 120, message = "El nombre debe tener entre 2 y 120 caracteres")

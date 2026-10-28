@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/** Registro e inicio de sesión de usuarios. */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,6 +26,13 @@ public class AuthService {
   private final AuthenticationManager authenticationManager;
   private final UsuarioDetailsService usuarioDetailsService;
 
+  /**
+   * Registra un cliente nuevo con la contraseña cifrada y le genera un token.
+   *
+   * @param request datos del registro
+   * @return el token y los datos del usuario creado
+   * @throws EmailYaRegistradoException si el correo ya tiene cuenta
+   */
   public AuthResponse registrar(RegistroRequest request) {
     String correo = UsuarioDetailsService.normalizarCorreo(request.email());
     if (usuarioRepository.existsByEmail(correo)) {
@@ -48,6 +56,12 @@ public class AuthService {
         token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol());
   }
 
+  /**
+   * Valida las credenciales y genera un token.
+   *
+   * @param request credenciales del usuario
+   * @return el token y los datos del usuario
+   */
   public AuthResponse iniciarSesion(LoginRequest request) {
     // Si las credenciales son invalidas, esto lanza BadCredentialsException,
     // manejada por el GlobalExceptionHandler como 401.

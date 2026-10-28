@@ -11,15 +11,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
+/** Punto de entrada de la aplicación GameSpot. */
 @SpringBootApplication
 public class BackendApplication {
 
   private static final BufferedReader READER = new BufferedReader(new InputStreamReader(System.in));
 
+  /**
+   * Arranca el contexto de Spring Boot.
+   *
+   * @param args argumentos de la línea de comandos
+   */
   public static void main(String[] args) {
     SpringApplication.run(BackendApplication.class, args);
   }
 
+  /**
+   * Registra un cliente desde la consola al arrancar. Solo se activa si la propiedad
+   * {@code app.cli.registration.enabled} vale {@code true}.
+   *
+   * @param authService servicio que hace el registro
+   * @return la tarea que se ejecuta al iniciar la aplicación
+   */
   @Bean
   @ConditionalOnProperty(name = "app.cli.registration.enabled", havingValue = "true")
   public CommandLineRunner registrarClientePorConsola(AuthService authService) {
