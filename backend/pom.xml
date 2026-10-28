@@ -140,6 +140,26 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Estilo Google: ./mvnw checkstyle:check falla si hay advertencias.
+                 Por ahora solo revisa el módulo de autenticación (CACS-13). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>10.26.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>google_checks.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <violationSeverity>warning</violationSeverity>
+                    <includes>com/usta/gamespot/BackendApplication.java,com/usta/gamespot/config/**/*.java,com/usta/gamespot/controller/**/*.java,com/usta/gamespot/dto/**/*.java,com/usta/gamespot/exception/**/*.java,com/usta/gamespot/security/**/*.java,com/usta/gamespot/service/**/*.java,com/usta/gamespot/model/Usuario.java,com/usta/gamespot/model/Rol.java</includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
