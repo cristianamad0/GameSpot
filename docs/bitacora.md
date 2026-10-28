@@ -66,3 +66,24 @@ pruebas y pendientes. La entrada más reciente va al final.
   - Ejecutar `V2_datos_negocio.sql` en Supabase el mismo día en que se fusione
     el PR; después, Cristian Amado hace `git pull`.
   - La Tarea 5 (Proveedor 1) no empieza hasta que V2 esté aplicado en Supabase.
+
+## 2026-10-28 — Cierre de DT-01: estilo Google con Checkstyle
+
+- **Tarjeta:** CACS-13 (DT-01), criterio "Checkstyle reporta 0 advertencias en
+  el módulo de autenticación".
+- **Rama:** `feat/cerrar-dt01` (PR #12 hacia `dev`)
+- **Qué se hizo:**
+  - Se agregó maven-checkstyle-plugin 3.6.0 (Checkstyle 10.26.1) al `pom.xml`
+    con `google_checks.xml`. `./mvnw checkstyle:check` falla ante cualquier
+    advertencia y revisa solo el módulo de autenticación: `BackendApplication`,
+    `config`, `controller`, `dto`, `exception`, `security`, `service`,
+    `model/Usuario` y `model/Rol` (15 archivos).
+  - Antes había 32 advertencias, todas de Javadoc faltante: 19
+    `MissingJavadocMethod` y 13 `MissingJavadocType`. Se completó el Javadoc
+    en 14 archivos, solo comentarios y sin cambios de lógica. Ahora quedan 0.
+- **Pruebas:** `./mvnw test`: 57 pruebas, 0 fallos, 0 errores.
+- **Pendientes:**
+  - `repository/` tiene 20 advertencias de Javadoc faltante y no entra en la
+    verificación. Decidir si se incluye más adelante.
+  - Checkstyle guarda caché en `target/checkstyle-cachefile`; para verificar
+    desde cero usar `./mvnw clean checkstyle:check`.
