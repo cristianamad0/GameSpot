@@ -87,3 +87,29 @@ pruebas y pendientes. La entrada más reciente va al final.
     verificación. Decidir si se incluye más adelante.
   - Checkstyle guarda caché en `target/checkstyle-cachefile`; para verificar
     desde cero usar `./mvnw clean checkstyle:check`.
+
+## 2026-10-28 — Expiración de reservas no pagadas
+
+- **Tarjeta:** CACS-12 (HU-05).
+- **Rama:** `feat/expiracion-reservas`
+- **Qué se hizo:**
+  - `ExpiracionReservasService.expirarVencidas()` (`@Transactional`) llama a
+    `reservaRepository.expirarPendientes()` y registra en el log cuántas
+    reservas expiraron (INFO si fue al menos una, DEBUG si fueron 0).
+  - `ExpiracionReservasTarea` la ejecuta con `@Scheduled(fixedDelay)`: el
+    intervalo se cuenta desde que termina la ejecución anterior, así no se
+    solapan. `ProgramacionConfig` habilita `@EnableScheduling`.
+  - Propiedades en `application.yaml`: `app.reservas.expiracion.habilitada`
+    (`true`) y `app.reservas.expiracion.intervalo-ms` (`60000`). En la
+    configuración de pruebas la tarea queda apagada.
+  - Se comprobó una vez con la tarea encendida y un intervalo de 200 ms: se
+    ejecuta sola en el hilo `scheduling-1`.
+- **Pruebas:** `./mvnw test`: 61 pruebas, 0 fallos, 0 errores. Nueva clase
+  `ExpiracionReservasTests` (CP-21a a CP-21d): la reserva vencida pasa a
+  EXPIRADA y su bloque se puede volver a reservar, la vigente sigue en
+  PENDIENTE_PAGO, la CONFIRMADA no expira aunque tenga el plazo vencido, y la
+  tarea no existe cuando está apagada. `./mvnw checkstyle:check`: 0
+  advertencias.
+- **Pendientes:**
+  - Con varias instancias del backend la tarea correría en cada una. Hoy hay
+    una sola; si se escala, usar un bloqueo (por ejemplo ShedLock).
