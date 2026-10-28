@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/** Carga los usuarios de la base de datos para Spring Security. */
 @Service
 @RequiredArgsConstructor
 public class UsuarioDetailsService implements UserDetailsService {

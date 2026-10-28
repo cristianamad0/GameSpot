@@ -23,12 +23,24 @@ public class AuthController {
 
   private final AuthService authService;
 
+  /**
+   * Registra un cliente nuevo y le devuelve su token.
+   *
+   * @param request datos del registro
+   * @return 201 con el token y los datos del usuario creado
+   */
   @PostMapping("/registro")
   public ResponseEntity<AuthResponse> registrar(@Valid @RequestBody RegistroRequest request) {
     AuthResponse respuesta = authService.registrar(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
   }
 
+  /**
+   * Inicia sesión con correo y contraseña.
+   *
+   * @param request credenciales del usuario
+   * @return 200 con el token y los datos del usuario
+   */
   @PostMapping("/login")
   public ResponseEntity<AuthResponse> iniciarSesion(@Valid @RequestBody LoginRequest request) {
     AuthResponse respuesta = authService.iniciarSesion(request);
