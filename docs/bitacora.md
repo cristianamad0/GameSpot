@@ -169,3 +169,43 @@ pruebas y pendientes. La entrada más reciente va al final.
     (reservas) y CACS-5 (pagos) siguen abiertas.
   - Completar no exige que la hora de la reserva ya haya pasado; decidir si se
     agrega esa regla.
+
+## 2026-11-04 — Pago del adelanto con proveedor simulado
+
+- **Tarjeta:** CACS-5 (HU-05).
+- **Rama:** `feat/anticipos-simulados`
+- **Qué se hizo:**
+  - La tarjeta pasó de Cristian Amado a Cristian Silva por acuerdo del equipo
+    en el Sprint 1 (Amado sigue con CACS-4 y CACS-9).
+  - `ProveedorAnticipos`: interfaz del proveedor de pagos, para cambiar después
+    el simulado por Wompi sin tocar la lógica. `ProveedorAnticiposSimulado` no
+    mueve dinero ni pide datos de tarjeta: responde `APROBADO` o `RECHAZADO`
+    según el campo `resultadoSimulado` (por defecto `APROBADO`).
+  - `PagoAnticipoService` y `PagoAnticipoController`:
+    `POST /api/reservas/{id}/pago`. El monto lo calcula el servidor
+    (`adelantoPesos` × 100 en `montoCentavos`) y cada pago tiene una referencia
+    única `GS-{reserva}-{aleatorio}`. Quien confirma la reserva es el trigger
+    `confirmar_reserva_al_aprobar_pago`; el servicio vuelve a leer la reserva
+    para responder su estado.
+  - Respuestas: 201 con el pago (aprobado o rechazado); 403 si la reserva es de
+    otro usuario (`ReservaAjenaException`); 404 si no existe; 409 si no está
+    `PENDIENTE_PAGO` o si su plazo ya venció aunque la tarea de expiración no
+    haya pasado todavía (`PlazoPagoVencidoException`).
+  - `ReservaRepository.buscarParaPagar` bloquea la reserva (`FOR UPDATE`) para
+    que dos pagos simultáneos se atiendan en orden y el segundo responda 409.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 83 pruebas, 0 fallos, 0 errores. Nueva clase
+  `PagoAnticipoTests` (CP-23a a CP-23k), con MockMvc y tokens JWT reales:
+  pago aprobado que confirma la reserva, aprobado por defecto sin cuerpo,
+  rechazado con reintento, 409 al pagar dos veces, la base rechaza un segundo
+  aprobado, 409 para `EXPIRADA`, `CANCELADA` y plazo vencido, 403 para una
+  reserva ajena, un pago menor al adelanto no confirma, no se guardan datos de
+  tarjeta, 401 sin token y 404. `./mvnw checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - La tarjeta no dice qué HU es; se usó HU-05 (la misma de la expiración por
+    no pagar). Confirmar con el equipo.
+  - Las pruebas crean las reservas directamente en la base porque CACS-4
+    (reservas) sigue abierta. Cuando se fusione, agregar una prueba de punta a
+    punta: crear la reserva con el endpoint de CACS-4 y pagarla.
+  - Cambiar el proveedor simulado por Wompi en entorno de pruebas (llaves en
+    variables de entorno y webhook) queda para otra tarjeta.
