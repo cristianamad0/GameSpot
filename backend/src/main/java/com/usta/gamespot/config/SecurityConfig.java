@@ -69,8 +69,8 @@ public class SecurityConfig {
   }
 
   /**
-   * Cadena de filtros: rutas de autenticación públicas, rutas de administración solo para ADMIN
-   * y el resto autenticado con el filtro JWT.
+   * Cadena de filtros: rutas de autenticación y /error públicas, rutas de administración solo para
+   * ADMIN y el resto autenticado con el filtro JWT.
    *
    * @param http configurador de seguridad HTTP
    * @return la cadena de filtros construida
@@ -84,6 +84,10 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers("/api/auth/**")
+                    .permitAll()
+                    // CACS-14: Spring reenvía los errores (403, 400...) a /error sin el token.
+                    // Si /error exigiera autenticación, todos llegarían al cliente como 401.
+                    .requestMatchers("/error")
                     .permitAll()
                     .requestMatchers("/api/admin/**")
                     .hasRole("ADMIN")
