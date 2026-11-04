@@ -136,6 +136,24 @@ Proyecto **CACS** en `cristiansantiagosilvamunoz.atlassian.net`. Cada cambio
 corresponde a una tarjeta; la historia de usuario va entre paréntesis
 (`CACS-12 (HU-05)`). Al terminar, la tarjeta se pasa a "Listo".
 
+**Todo movimiento de una tarjeta se justifica.** Cada vez que una tarjeta
+cambia de estado, de sprint, de responsable o de prioridad, se deja en ese
+mismo momento un comentario en la tarjeta que diga:
+
+- **Qué cambió:** de dónde a dónde (por ejemplo, "Por hacer → En curso").
+- **Por qué:** el motivo concreto.
+- **Evidencia:** lo que respalda el cambio, cuando aplica: rama, PR, resultado
+  de las pruebas o la decisión del equipo.
+
+Ejemplos:
+
+- `Por hacer → En curso: se empieza en la rama feat/modulo-reservas; cumple la DoR (criterios y estimación registrados).`
+- `En curso → Listo: PR #15 aprobado por Cristian Amado y fusionado en dev; ./mvnw test 70 pruebas, 0 fallos.`
+- `Sprint 2 → Sprint 3: no alcanzó a terminarse porque depende de CACS-5 (pagos), que sigue en curso.`
+
+Un movimiento sin comentario se considera incompleto: quien lo note lo
+señala y quien movió la tarjeta agrega la justificación.
+
 ### Ramas
 
 - `main`: solo código que funciona. `dev`: integración (en ESTANDARES.md
