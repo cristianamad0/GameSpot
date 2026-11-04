@@ -13,7 +13,8 @@ Santo Tomás, sede Villavicencio).
 | Entidades y repositorios JPA | Implementados |
 | Expiración de reservas no pagadas (HU-05) | Implementado: tarea programada cada minuto |
 | Panel de administración de reservas (HU-06) | Implementado: `GET /api/admin/reservas`, `POST /api/admin/reservas/{id}/cancelar`, `POST /api/admin/reservas/{id}/completar` y `GET /api/admin/reservas/expiradas-con-pago` (solo `ADMIN`) |
-| Servicios y endpoints de reservas, pagos y fidelización para el cliente | Pendientes |
+| Pago del adelanto con proveedor simulado (HU-05) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
+| Servicios y endpoints de reservas y fidelización para el cliente | Pendientes |
 
 ## Tecnologías
 
@@ -113,6 +114,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `DatosNegocioTests` | Equipos, horario de atención y configuración reales del negocio | CP-17 a CP-20 |
 | `ExpiracionReservasTests` | Expiración de las reservas no pagadas a tiempo | CP-21a a CP-21d |
 | `AdminReservasTests` | Panel de administración: acceso solo `ADMIN`, listar, cancelar y completar reservas | CP-22a a CP-22k |
+| `PagoAnticipoTests` | Pago del adelanto: aprobado, rechazado y reintento, un solo pago aprobado, reservas no pagables o ajenas, monto menor y sin datos de tarjeta | CP-23a a CP-23k |
 
 ## Calidad de código
 
