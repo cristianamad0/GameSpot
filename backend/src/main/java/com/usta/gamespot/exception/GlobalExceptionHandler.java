@@ -75,6 +75,30 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Responde a un usuario que no existe.
+   *
+   * @param ex excepción con el id buscado
+   * @return 404 con el mensaje de la excepción
+   */
+  @ExceptionHandler(UsuarioNoEncontradoException.class)
+  public ResponseEntity<ApiError> manejarUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(ApiError.de(404, ex.getMessage(), List.of()));
+  }
+
+  /**
+   * Responde a un ajuste de puntos que dejaría el saldo en negativo.
+   *
+   * @param ex excepción con el saldo actual y el ajuste pedido
+   * @return 409 con el mensaje de la excepción
+   */
+  @ExceptionHandler(SaldoPuntosInsuficienteException.class)
+  public ResponseEntity<ApiError> manejarSaldoInsuficiente(SaldoPuntosInsuficienteException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ApiError.de(409, ex.getMessage(), List.of()));
+  }
+
+  /**
    * Responde a credenciales incorrectas en el login.
    *
    * @param ex excepción lanzada por Spring Security
