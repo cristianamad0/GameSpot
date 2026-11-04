@@ -133,3 +133,39 @@ pruebas y pendientes. La entrada más reciente va al final.
   - `.github/copilot-instructions.md` dice que no hay verificación de estilo
     en Maven, pero ya existe `checkstyle:check`. Decidir si se actualiza o se
     elimina.
+
+## 2026-11-04 — Panel de administración de reservas
+
+- **Tarjeta:** CACS-6 (HU-06).
+- **Rama:** `feat/panel-administracion`
+- **Qué se hizo:**
+  - `AdminReservasService` y `AdminReservasController` bajo
+    `/api/admin/reservas`: listar las reservas de un día (hora de Bogotá) con
+    filtros opcionales `equipoId` y `estado`, cancelar con motivo, marcar como
+    completada y ver las reservas que expiraron con un pago aprobado.
+  - Cancelar solo se permite desde `PENDIENTE_PAGO` o `CONFIRMADA` y completar
+    solo desde `CONFIRMADA`; cualquier otro estado responde 409
+    (`TransicionReservaInvalidaException`). Una reserva inexistente responde
+    404 (`ReservaNoEncontradaException`). Sin motivo responde 400 por Bean
+    Validation (`CancelacionReservaRequest`).
+  - Los puntos al completar los sigue otorgando el trigger
+    `otorgar_puntos_al_completar`; el servicio no los calcula.
+  - `SecurityConfig` responde 401 cuando no hay token (antes Spring respondía
+    403 tanto sin token como sin rol).
+  - Nuevas consultas: `ReservaRepository.buscarQueInicianEntre` y
+    `PagoRepository.buscarPorEstadoYEstadoDeReserva`, con `join fetch` del
+    cliente y el equipo.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 72 pruebas, 0 fallos, 0 errores. Nueva clase
+  `AdminReservasTests` (CP-22a a CP-22k), que llama los endpoints con MockMvc y
+  tokens JWT reales: 403 para `CLIENTE` y 401 sin token, listado del día con
+  filtros, cancelación que libera el bloque, 400 sin motivo, 409 en estados
+  finales, puntos otorgados una sola vez, 409 al completar sin estar
+  confirmada, casos de expiradas con pago y 404. `./mvnw checkstyle:check`: 0
+  advertencias.
+- **Pendientes:**
+  - La tarjeta no dice qué HU es; se usó HU-06. Confirmar con el equipo.
+  - Las pruebas crean las reservas directamente en la base porque CACS-4
+    (reservas) y CACS-5 (pagos) siguen abiertas.
+  - Completar no exige que la hora de la reserva ya haya pasado; decidir si se
+    agrega esa regla.

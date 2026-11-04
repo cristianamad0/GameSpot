@@ -18,6 +18,22 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
   List<Reserva> findByEstadoOrderByInicioAsc(EstadoReserva estado);
 
   /**
+   * Panel de administración: reservas que empiezan en [desde, hasta), con su cliente y su equipo
+   * ya cargados, ordenadas por hora de inicio y equipo.
+   */
+  @Query(
+      """
+      select r from Reserva r
+      join fetch r.usuario
+      join fetch r.equipo e
+      where r.inicio >= :desde
+        and r.inicio < :hasta
+      order by r.inicio, e.id
+      """)
+  List<Reserva> buscarQueInicianEntre(
+      @Param("desde") Instant desde, @Param("hasta") Instant hasta);
+
+  /**
    * Reservas de un equipo que ocupan algún bloque entre desde y hasta. Sirve para mostrar los
    * bloques libres y ocupados. Usar con EstadoReserva.QUE_OCUPAN_BLOQUE.
    */
