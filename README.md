@@ -96,6 +96,24 @@ Requisitos: JDK 21.
 La API queda en `http://localhost:8080` y acepta peticiones CORS desde
 `http://localhost:4200`.
 
+**Probar la API a mano sin tocar Supabase.** Con Docker encendido, desde
+`backend/`:
+
+```bash
+./mvnw spring-boot:test-run "-Dspring-boot.run.arguments=--app.cli.registration.enabled=false"
+```
+
+Levanta la API en `http://localhost:8080` con un PostgreSQL temporal que tiene
+el mismo `esquema.sql` y se borra al detenerla (Ctrl+C). No necesita
+`JWT_SECRETO` ni `SUPABASE_DB_CONTRASENA`. Las peticiones se hacen con
+Postman, el HTTP Client de IntelliJ o `curl`. Para tener un administrador, se
+registra un usuario y se le cambia el rol en la base (`docker ps` da el id del
+contenedor):
+
+```bash
+docker exec -i <id-del-contenedor> psql -U test -d test -c "update usuarios set rol='ADMIN' where email='admin@demo.test';"
+```
+
 ## Pruebas
 
 Desde `backend/`:
@@ -117,6 +135,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `AdminReservasTests` | Panel de administración: acceso solo `ADMIN`, listar, cancelar y completar reservas | CP-22a a CP-22k |
 | `PagoAnticipoTests` | Pago del adelanto: aprobado, rechazado y reintento, un solo pago aprobado, reservas no pagables o ajenas, monto menor y sin datos de tarjeta | CP-23a a CP-23k |
 | `PuntosFidelidadTests` | Puntos de fidelización: puntos al completar una sola vez, saldo e historial propios, ajustes del admin con descripción y sin saldo negativo | CP-24a a CP-24i |
+| `RespuestasErrorServidorTests` | Códigos de error con un servidor real (403, 400 y 401), que MockMvc no reproduce | CP-25a a CP-25c |
 
 ## Calidad de código
 

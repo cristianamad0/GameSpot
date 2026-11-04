@@ -267,3 +267,28 @@ pruebas y pendientes. La entrada más reciente va al final.
   comentarios). `./mvnw checkstyle:check`: 0 advertencias.
 - **Pendientes:**
   - Ninguno de los tres puntos queda abierto.
+
+## 2026-11-04 — Errores 403 y 400 que llegaban como 401
+
+- **Tarjeta:** CACS-14 (defecto encontrado al probar la API a mano).
+- **Rama:** `feat/respuestas-de-error`
+- **Qué se hizo:**
+  - Al correr la API con un servidor real, un `CLIENTE` con token recibía 401
+    en `/api/admin/**` (debía ser 403) y un parámetro o cuerpo inválido también
+    daba 401 (debía ser 400). Spring reenvía esos errores a `/error` sin el
+    token, y `SecurityConfig` exigía autenticación en esa ruta.
+  - `SecurityConfig` permite `/error`. Solo devuelve la descripción del error
+    (código, mensaje genérico y ruta), no datos de las rutas protegidas.
+  - Las pruebas con MockMvc no lo detectaban porque MockMvc no hace el reenvío
+    a `/error`. Se agregó `RespuestasErrorServidorTests`, que levanta el
+    servidor en un puerto aleatorio.
+  - README: cómo probar la API a mano con `./mvnw spring-boot:test-run` y un
+    PostgreSQL temporal, sin tocar Supabase.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 95 pruebas, 0 fallos, 0 errores. Nueva clase
+  `RespuestasErrorServidorTests` (CP-25a a CP-25c): 403 para `CLIENTE` sin
+  exponer datos, 400 para fecha y enum inválidos, y 401 sin token. Antes de la
+  corrección, CP-25a y CP-25b fallaban con 401. `./mvnw checkstyle:check`: 0
+  advertencias.
+- **Pendientes:**
+  - Ninguno.
