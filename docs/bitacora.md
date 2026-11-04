@@ -113,3 +113,23 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Con varias instancias del backend la tarea correría en cada una. Hoy hay
     una sola; si se escala, usar un bloqueo (por ejemplo ShedLock).
+
+## 2026-11-04 — Instrucciones de trabajo del repositorio
+
+- **Tarjeta:** sin tarjeta propia (mantenimiento del repositorio).
+- **Rama:** `feat/instrucciones-trabajo`
+- **Qué se hizo:**
+  - Se agregó `INSTRUCCIONES.md` en la raíz: comandos (pruebas, una clase o
+    un método, Checkstyle), arquitectura por capas, reglas del esquema y de
+    las migraciones, convenciones de nombres y Javadoc, cómo escribir las
+    pruebas, y el flujo Jira → rama → commits → PR → bitácora con la lista de
+    lo que debe cumplirse antes de dar una tarea por terminada.
+  - Complementa `ESTANDARES.md` y el README sin reemplazarlos. Aclara que la
+    rama de integración se llama `dev` (en `ESTANDARES.md` aparece como
+    `develop`).
+- **Pruebas:** solo documentación. `./mvnw -DskipTests compile` y
+  `./mvnw checkstyle:check` (0 advertencias) pasan.
+- **Pendientes:**
+  - `.github/copilot-instructions.md` dice que no hay verificación de estilo
+    en Maven, pero ya existe `checkstyle:check`. Decidir si se actualiza o se
+    elimina.
