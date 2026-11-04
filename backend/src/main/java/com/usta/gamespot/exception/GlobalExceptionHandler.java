@@ -26,31 +26,6 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Responde a una reserva que no existe.
-   *
-   * @param ex excepción con el id buscado
-   * @return 404 con el mensaje de la excepción
-   */
-  @ExceptionHandler(ReservaNoEncontradaException.class)
-  public ResponseEntity<ApiError> manejarReservaNoEncontrada(ReservaNoEncontradaException ex) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ApiError.de(404, ex.getMessage(), List.of()));
-  }
-
-  /**
-   * Responde a un cambio de estado que el ciclo de vida de la reserva no permite.
-   *
-   * @param ex excepción con el estado actual y la acción intentada
-   * @return 409 con el mensaje de la excepción
-   */
-  @ExceptionHandler(TransicionReservaInvalidaException.class)
-  public ResponseEntity<ApiError> manejarTransicionInvalida(
-      TransicionReservaInvalidaException ex) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ApiError.de(409, ex.getMessage(), List.of()));
-  }
-
-  /**
    * Responde a credenciales incorrectas en el login.
    *
    * @param ex excepción lanzada por Spring Security

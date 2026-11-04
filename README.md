@@ -11,9 +11,7 @@ Santo Tomás, sede Villavicencio).
 | Registro e inicio de sesión con JWT (HU-01) | Implementado: `POST /api/auth/registro` y `POST /api/auth/login` |
 | Esquema de base de datos (reservas, pagos, puntos, notificaciones, horarios) | Implementado en Supabase con sus reglas (bloques de 30 min, sin cruces, adelanto, puntos) |
 | Entidades y repositorios JPA | Implementados |
-| Expiración de reservas no pagadas (HU-05) | Implementado: tarea programada cada minuto |
-| Panel de administración de reservas (HU-06) | Implementado: `GET /api/admin/reservas`, `POST /api/admin/reservas/{id}/cancelar`, `POST /api/admin/reservas/{id}/completar` y `GET /api/admin/reservas/expiradas-con-pago` (solo `ADMIN`) |
-| Servicios y endpoints de reservas, pagos y fidelización para el cliente | Pendientes |
+| Servicios y endpoints de reservas, pagos, fidelización y administración | Pendientes |
 
 ## Tecnologías
 
@@ -111,8 +109,6 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `AuthServiceTests` | Registro e inicio de sesión | CP-01, CP-05 a CP-07 |
 | `ReglasBaseDatosTests` | Reglas de reservas, pagos y puntos en la base de datos | CP-08 a CP-16 |
 | `DatosNegocioTests` | Equipos, horario de atención y configuración reales del negocio | CP-17 a CP-20 |
-| `ExpiracionReservasTests` | Expiración de las reservas no pagadas a tiempo | CP-21a a CP-21d |
-| `AdminReservasTests` | Panel de administración: acceso solo `ADMIN`, listar, cancelar y completar reservas | CP-22a a CP-22k |
 
 ## Calidad de código
 
