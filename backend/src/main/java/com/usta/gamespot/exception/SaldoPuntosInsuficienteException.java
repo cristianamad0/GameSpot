@@ -1,6 +1,6 @@
 package com.usta.gamespot.exception;
 
-/** CACS-7 (HU-07): se lanza cuando un ajuste dejaría el saldo de puntos en negativo. */
+/** CACS-7 (HU-04): se lanza cuando un ajuste dejaría el saldo de puntos en negativo. */
 public class SaldoPuntosInsuficienteException extends RuntimeException {
   /**
    * Crea la excepción con el saldo actual y el ajuste pedido.

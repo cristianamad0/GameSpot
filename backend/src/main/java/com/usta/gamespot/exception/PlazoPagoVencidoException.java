@@ -1,7 +1,7 @@
 package com.usta.gamespot.exception;
 
 /**
- * CACS-5 (HU-05): se lanza cuando se intenta pagar una reserva PENDIENTE_PAGO cuyo plazo ya venció
+ * CACS-5 (HU-03): se lanza cuando se intenta pagar una reserva PENDIENTE_PAGO cuyo plazo ya venció
  * pero que la tarea de expiración todavía no ha pasado a EXPIRADA.
  */
 public class PlazoPagoVencidoException extends RuntimeException {

@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 /**
- * CACS-5 (HU-05): proveedor de anticipos simulado. No mueve dinero ni pide datos de tarjeta:
+ * CACS-5 (HU-03): proveedor de anticipos simulado. No mueve dinero ni pide datos de tarjeta:
  * responde APROBADO o RECHAZADO según lo que indique la solicitud (APROBADO si no indica nada).
  */
 @Component

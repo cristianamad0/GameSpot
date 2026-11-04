@@ -7,7 +7,7 @@ import com.usta.gamespot.model.Reserva;
 import java.time.Instant;
 
 /**
- * CACS-5 (HU-05): resultado de pagar el adelanto de una reserva.
+ * CACS-5 (HU-03): resultado de pagar el adelanto de una reserva.
  *
  * @param pagoId id del pago registrado
  * @param referencia referencia única del pago

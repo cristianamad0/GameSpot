@@ -1,6 +1,6 @@
 package com.usta.gamespot.exception;
 
-/** CACS-7 (HU-07): se lanza cuando el administrador pide un usuario que no existe. */
+/** CACS-7 (HU-04): se lanza cuando el administrador pide un usuario que no existe. */
 public class UsuarioNoEncontradoException extends RuntimeException {
   /**
    * Crea la excepción con el id buscado en el mensaje.

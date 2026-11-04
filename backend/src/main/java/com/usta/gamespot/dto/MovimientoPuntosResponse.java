@@ -5,7 +5,7 @@ import com.usta.gamespot.model.TipoMovimientoPuntos;
 import java.time.Instant;
 
 /**
- * CACS-7 (HU-07): un movimiento del historial de puntos.
+ * CACS-7 (HU-04): un movimiento del historial de puntos.
  *
  * @param id id del movimiento
  * @param fecha cuándo se registró

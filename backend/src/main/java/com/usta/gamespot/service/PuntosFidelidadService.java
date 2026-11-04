@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * CACS-7 (HU-07): saldo e historial de puntos de fidelización y ajustes manuales del
+ * CACS-7 (HU-04): saldo e historial de puntos de fidelización y ajustes manuales del
  * administrador.
  *
  * <p>Los puntos por horas jugadas los otorga la base de datos al completar una reserva (trigger

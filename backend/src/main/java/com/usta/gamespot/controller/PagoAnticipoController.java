@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * CACS-5 (HU-05): endpoint para que el cliente pague el adelanto de su reserva. Exige un token JWT
+ * CACS-5 (HU-03): endpoint para que el cliente pague el adelanto de su reserva. Exige un token JWT
  * válido (ver SecurityConfig).
  */
 @RestController
