@@ -51,6 +51,30 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Responde a un intento de pagar la reserva de otro usuario.
+   *
+   * @param ex excepción con el id de la reserva
+   * @return 403 con el mensaje de la excepción
+   */
+  @ExceptionHandler(ReservaAjenaException.class)
+  public ResponseEntity<ApiError> manejarReservaAjena(ReservaAjenaException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(ApiError.de(403, ex.getMessage(), List.of()));
+  }
+
+  /**
+   * Responde a un intento de pagar una reserva cuyo plazo de pago ya venció.
+   *
+   * @param ex excepción con el id de la reserva
+   * @return 409 con el mensaje de la excepción
+   */
+  @ExceptionHandler(PlazoPagoVencidoException.class)
+  public ResponseEntity<ApiError> manejarPlazoPagoVencido(PlazoPagoVencidoException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ApiError.de(409, ex.getMessage(), List.of()));
+  }
+
+  /**
    * Responde a credenciales incorrectas en el login.
    *
    * @param ex excepción lanzada por Spring Security
