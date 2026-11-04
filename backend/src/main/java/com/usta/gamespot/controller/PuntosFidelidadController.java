@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * CACS-7 (HU-07): endpoints de puntos de fidelización. La consulta es para cualquier usuario
+ * CACS-7 (HU-04): endpoints de puntos de fidelización. La consulta es para cualquier usuario
  * autenticado; el ajuste manual va bajo /api/admin/** y exige el rol ADMIN (ver SecurityConfig).
  */
 @RestController

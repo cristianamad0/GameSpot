@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Pruebas de los puntos de fidelización (HU-07, CACS-7): saldo e historial del cliente y ajustes
+ * Pruebas de los puntos de fidelización (HU-04, CACS-7): saldo e historial del cliente y ajustes
  * manuales del administrador. Llaman a los endpoints con tokens JWT reales. La configuración del
  * negocio da 1 punto por hora jugada. Cada prueba corre en una transacción que se revierte.
  */

@@ -45,7 +45,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Pruebas del pago del adelanto con el proveedor simulado (HU-05, CACS-5). Llaman al endpoint con
+ * Pruebas del pago del adelanto con el proveedor simulado (HU-03, CACS-5). Llaman al endpoint con
  * un token JWT real. Mientras CACS-4 no exista, las reservas se crean directamente en la base. Cada
  * prueba corre en una transacción que se revierte al terminar.
  */

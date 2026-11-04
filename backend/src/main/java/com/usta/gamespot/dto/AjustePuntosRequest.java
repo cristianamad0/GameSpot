@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
- * CACS-7 (HU-07): ajuste manual de puntos que registra el administrador.
+ * CACS-7 (HU-04): ajuste manual de puntos que registra el administrador.
  *
  * @param puntos puntos a sumar (positivo) o restar (negativo); no puede ser cero
  * @param descripcion por qué se hace el ajuste; obligatoria y de máximo 500 caracteres

@@ -13,8 +13,8 @@ Santo Tomás, sede Villavicencio).
 | Entidades y repositorios JPA | Implementados |
 | Expiración de reservas no pagadas (HU-05) | Implementado: tarea programada cada minuto |
 | Panel de administración de reservas (HU-06) | Implementado: `GET /api/admin/reservas`, `POST /api/admin/reservas/{id}/cancelar`, `POST /api/admin/reservas/{id}/completar` y `GET /api/admin/reservas/expiradas-con-pago` (solo `ADMIN`) |
-| Pago del adelanto con proveedor simulado (HU-05) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
-| Puntos de fidelización (HU-07) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
+| Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
+| Puntos de fidelización (HU-04) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
 | Servicios y endpoints de reservas para el cliente | Pendientes |
 
 ## Tecnologías

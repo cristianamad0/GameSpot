@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * CACS-5 (HU-05): pago del adelanto de una reserva con el proveedor de anticipos.
+ * CACS-5 (HU-03): pago del adelanto de una reserva con el proveedor de anticipos.
  *
  * <p>El servicio registra el pago y guarda la respuesta del proveedor. Quien confirma la reserva
  * es la base de datos (trigger confirmar_reserva_al_aprobar_pago), y solo si el pago cubre el

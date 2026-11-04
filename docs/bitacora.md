@@ -245,3 +245,25 @@ pruebas y pendientes. La entrada más reciente va al final.
   - La tarjeta no dice qué HU es; se usó HU-07. Confirmar con el equipo.
   - El historial no está paginado; si crece mucho, agregar paginación como en
     CACS-3.
+
+## 2026-11-04 — Numeración de historias de usuario y criterio de CACS-6
+
+- **Tarjetas:** CACS-5 (HU-03), CACS-6 (HU-06) y CACS-7 (HU-04).
+- **Rama:** `feat/numeracion-hu`
+- **Qué se hizo:**
+  - Se resolvieron los pendientes de CACS-5, CACS-6 y CACS-7 sobre qué HU
+    implementan. Se toma la numeración que ya usaba `ReglasBaseDatosTests`:
+    HU-02 reservas por bloques, HU-03 pago de adelanto y HU-04 fidelización;
+    HU-05 sigue siendo la expiración (CACS-12) y HU-06 el panel de
+    administración (CACS-6), que no chocan con ninguna.
+  - CACS-5 pasa de HU-05 a HU-03 y CACS-7 de HU-07 a HU-04 en el Javadoc, las
+    pruebas y el README. Las entradas anteriores de esta bitácora se dejan como
+    se escribieron; esta entrada las corrige.
+  - CACS-6, criterio 4: cancelar sin motivo responde 400 (dato de entrada
+    inválido, igual que el resto de validaciones de la API) y cancelar una
+    reserva en estado final responde 409. Se ajustó la descripción de la
+    tarjeta en Jira para que coincida con lo implementado; el código no cambia.
+- **Pruebas:** `./mvnw test`: 92 pruebas, 0 fallos, 0 errores (solo cambian
+  comentarios). `./mvnw checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - Ninguno de los tres puntos queda abierto.

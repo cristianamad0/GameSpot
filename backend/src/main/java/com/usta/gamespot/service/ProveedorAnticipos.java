@@ -4,7 +4,7 @@ import com.usta.gamespot.dto.ResultadoSimulado;
 import com.usta.gamespot.model.EstadoPago;
 
 /**
- * CACS-5 (HU-05): proveedor que cobra el adelanto de una reserva. Hoy lo implementa {@link
+ * CACS-5 (HU-03): proveedor que cobra el adelanto de una reserva. Hoy lo implementa {@link
  * ProveedorAnticiposSimulado} (sin dinero real); más adelante se cambia por Wompi en entorno de
  * pruebas sin tocar {@link PagoAnticipoService}.
  *
