@@ -209,3 +209,39 @@ pruebas y pendientes. La entrada más reciente va al final.
     punta: crear la reserva con el endpoint de CACS-4 y pagarla.
   - Cambiar el proveedor simulado por Wompi en entorno de pruebas (llaves en
     variables de entorno y webhook) queda para otra tarjeta.
+
+## 2026-11-04 — Puntos de fidelización
+
+- **Tarjeta:** CACS-7 (HU-07).
+- **Rama:** `feat/fidelizacion`
+- **Qué se hizo:**
+  - La tarjeta (opcional) pasó del backlog al CACS Sprint 1: Cristian Silva
+    terminó CACS-6 y CACS-5, y esta solo depende de CACS-6, ya fusionada.
+  - `PuntosFidelidadService` y `PuntosFidelidadController`:
+    - `GET /api/puntos`: saldo e historial de puntos del usuario autenticado,
+      del movimiento más reciente al más antiguo (fecha, puntos, tipo,
+      descripción y reserva).
+    - `POST /api/admin/usuarios/{usuarioId}/puntos` (solo `ADMIN`): ajuste
+      manual positivo o negativo. `AjustePuntosRequest` exige descripción
+      (máximo 500 caracteres) y puntos distintos de cero (400 si no).
+  - Un ajuste que dejaría el saldo negativo responde 409
+    (`SaldoPuntosInsuficienteException`); un usuario inexistente, 404
+    (`UsuarioNoEncontradoException`). El servicio bloquea al usuario
+    (`FOR UPDATE`) mientras valida el saldo, y la base lo vuelve a impedir con
+    el `CHECK` de `usuarios.puntos_fidelidad`.
+  - Los puntos por horas jugadas los sigue otorgando el trigger
+    `otorgar_puntos_al_completar`, una sola vez por reserva; el servicio no los
+    calcula.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 92 pruebas, 0 fallos, 0 errores. Nueva clase
+  `PuntosFidelidadTests` (CP-24a a CP-24i), con MockMvc y tokens JWT reales:
+  puntos proporcionales al completar (150 minutos = 2 puntos), una sola vez
+  por reserva, saldo e historial ordenados, cada cliente ve solo lo suyo,
+  401 sin token, ajuste del admin, 400 sin descripción o con cero puntos, 403
+  para `CLIENTE`, 404 para un usuario inexistente y 409 si el saldo quedaría
+  negativo (dejarlo en 0 sí se permite). `./mvnw checkstyle:check`: 0
+  advertencias.
+- **Pendientes:**
+  - La tarjeta no dice qué HU es; se usó HU-07. Confirmar con el equipo.
+  - El historial no está paginado; si crece mucho, agregar paginación como en
+    CACS-3.
