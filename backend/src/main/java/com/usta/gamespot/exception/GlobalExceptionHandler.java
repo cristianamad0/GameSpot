@@ -75,6 +75,42 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Responde a una reserva que no cumple las reglas de bloques u horario.
+   *
+   * @param ex excepción con el motivo
+   * @return 400 con el mensaje de la excepción
+   */
+  @ExceptionHandler(ReservaInvalidaException.class)
+  public ResponseEntity<ApiError> manejarReservaInvalida(ReservaInvalidaException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ApiError.de(400, ex.getMessage(), List.of()));
+  }
+
+  /**
+   * Responde a una reserva que se cruza con otra activa del mismo equipo.
+   *
+   * @param ex excepción lanzada al crear la reserva
+   * @return 409 con el mensaje de la excepción
+   */
+  @ExceptionHandler(BloqueOcupadoException.class)
+  public ResponseEntity<ApiError> manejarBloqueOcupado(BloqueOcupadoException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ApiError.de(409, ex.getMessage(), List.of()));
+  }
+
+  /**
+   * Responde a un equipo que no existe.
+   *
+   * @param ex excepción con el id buscado
+   * @return 404 con el mensaje de la excepción
+   */
+  @ExceptionHandler(EquipoNoEncontradoException.class)
+  public ResponseEntity<ApiError> manejarEquipoNoEncontrado(EquipoNoEncontradoException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(ApiError.de(404, ex.getMessage(), List.of()));
+  }
+
+  /**
    * Responde a un usuario que no existe.
    *
    * @param ex excepción con el id buscado
