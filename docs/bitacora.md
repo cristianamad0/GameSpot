@@ -358,3 +358,23 @@ pruebas y pendientes. La entrada más reciente va al final.
   - El pool de conexiones es de 5 (`maximum-pool-size`); con más tráfico real,
     las peticiones por un mismo equipo esperan su turno. Revisarlo si se
     despliega con más usuarios.
+
+## 2026-11-04 — Detalles del cierre del Sprint 1
+
+- **Tarjeta:** CACS-20 (mantenimiento).
+- **Rama:** `feat/detalles-cierre-sprint1`
+- **Qué se hizo:**
+  - Reservar un equipo fuera de servicio pasa de 400 a **409** con
+    `EquipoFueraDeServicioException`. Sigue la regla acordada en CACS-6: 400
+    cuando los datos enviados son inválidos y 409 cuando el estado del recurso
+    no permite la acción. Resuelve el pendiente de la entrada de CACS-4.
+  - `DatosNegocioTests` tenía dos pruebas con el código CP-18; pasan a CP-18a
+    y CP-18b. Ya no se repite ningún código de caso de prueba.
+  - El pool de conexiones (5, pendiente de la entrada de CACS-9) no se cambia:
+    es una nota para cuando se despliegue con más usuarios, no un defecto.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 132 pruebas, 0 fallos, 0 errores. CP-26n ahora
+  espera 409 y el mensaje "El equipo … está fuera de servicio".
+  `./mvnw checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - Revisar el tamaño del pool de conexiones antes de un despliegue real.
