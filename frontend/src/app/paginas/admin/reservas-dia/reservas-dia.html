@@ -1,0 +1,170 @@
+<div class="filtros gs-tarjeta">
+  <div class="gs-campo filtros__campo">
+    <label for="fecha">Día</label>
+    <input id="fecha" type="date" [ngModel]="fecha()" (ngModelChange)="cambiarFecha($event)" />
+  </div>
+  <div class="gs-campo filtros__campo">
+    <label for="filtro-equipo">Equipo</label>
+    <select
+      id="filtro-equipo"
+      [ngModel]="filtroEquipo()"
+      (ngModelChange)="filtroEquipo.set($event)"
+    >
+      <option [ngValue]="null">Todos los equipos</option>
+      @for (equipo of equipos(); track equipo.id) {
+        <option [ngValue]="equipo.id">{{ equipo.nombre }}</option>
+      }
+    </select>
+  </div>
+  <div class="gs-campo filtros__campo">
+    <label for="filtro-estado">Estado</label>
+    <select
+      id="filtro-estado"
+      [ngModel]="filtroEstado()"
+      (ngModelChange)="filtroEstado.set($event)"
+    >
+      <option [ngValue]="null">Todos los estados</option>
+      @for (estado of estados; track estado) {
+        <option [ngValue]="estado">{{ etiquetasEstado[estado] }}</option>
+      }
+    </select>
+  </div>
+</div>
+
+<p class="resumen" aria-live="polite">
+  @if (cargando()) {
+    Cargando reservas…
+  } @else if (!errorCarga()) {
+    {{ totalFiltradas() }} {{ totalFiltradas() === 1 ? 'reserva' : 'reservas' }}
+  }
+</p>
+
+@if (aviso()) {
+  <div class="aviso" role="status">{{ aviso() }}</div>
+}
+
+@if (errorCarga()) {
+  <div class="gs-alerta" role="alert">
+    {{ errorCarga() }}
+    <button type="button" class="gs-boton gs-boton--secundario" (click)="cargar()">
+      Reintentar
+    </button>
+  </div>
+} @else if (!cargando() && grupos().length === 0) {
+  <div class="vacio gs-tarjeta">
+    <span aria-hidden="true">🎮</span>
+    <p>No hay reservas para este día con los filtros elegidos.</p>
+  </div>
+}
+
+<div class="agenda">
+  @for (grupo of grupos(); track grupo.equipoId) {
+    <section class="equipo" [attr.aria-labelledby]="'equipo-' + grupo.equipoId">
+      <h2 class="equipo__nombre" [id]="'equipo-' + grupo.equipoId">{{ grupo.nombreEquipo }}</h2>
+      <ul class="reservas">
+        @for (reserva of grupo.reservas; track reserva.id) {
+          <li class="gs-tarjeta reserva" [attr.data-reserva]="reserva.id">
+            <div class="reserva__fila">
+              <p class="reserva__horario">{{ hora(reserva.inicio) }} – {{ hora(reserva.fin) }}</p>
+              <gs-estado-reserva [estado]="reserva.estado" />
+            </div>
+            <p class="reserva__cliente">
+              <strong>{{ reserva.nombreCliente }}</strong>
+              <span>{{ reserva.emailCliente }}</span>
+            </p>
+            <p class="reserva__valor">
+              Total {{ pesos(reserva.precioTotalPesos) }} · Adelanto
+              {{ pesos(reserva.adelantoPesos) }}
+              {{ reserva.tieneAnticipoPagado ? '(pagado)' : '(sin pagar)' }}
+            </p>
+            @if (reserva.motivoCancelacion) {
+              <p class="reserva__motivo">Motivo: {{ reserva.motivoCancelacion }}</p>
+            }
+
+            @if (errorDe(reserva)) {
+              <div class="gs-alerta reserva__error" role="alert">{{ errorDe(reserva) }}</div>
+            }
+
+            @switch (accionDe(reserva)) {
+              @case ('cancelar') {
+                <div class="confirmacion">
+                  <div class="gs-campo">
+                    <label [for]="'motivo-' + reserva.id">Motivo de la cancelación</label>
+                    <textarea
+                      [id]="'motivo-' + reserva.id"
+                      rows="2"
+                      maxlength="500"
+                      [ngModel]="motivo()"
+                      (ngModelChange)="motivo.set($event)"
+                    ></textarea>
+                  </div>
+                  <div class="acciones">
+                    <button
+                      type="button"
+                      class="gs-boton gs-boton--peligro"
+                      [disabled]="!motivoValido() || procesando() === reserva.id"
+                      (click)="confirmar(reserva)"
+                    >
+                      {{ procesando() === reserva.id ? 'Cancelando…' : 'Confirmar cancelación' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="gs-boton gs-boton--secundario"
+                      (click)="cerrarAccion()"
+                    >
+                      Volver
+                    </button>
+                  </div>
+                </div>
+              }
+              @case ('completar') {
+                <div class="confirmacion">
+                  <p>¿El cliente ya jugó? Al completarla recibe sus puntos.</p>
+                  <div class="acciones">
+                    <button
+                      type="button"
+                      class="gs-boton gs-boton--primario"
+                      [disabled]="procesando() === reserva.id"
+                      (click)="confirmar(reserva)"
+                    >
+                      {{ procesando() === reserva.id ? 'Guardando…' : 'Sí, completar' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="gs-boton gs-boton--secundario"
+                      (click)="cerrarAccion()"
+                    >
+                      Volver
+                    </button>
+                  </div>
+                </div>
+              }
+              @default {
+                @if (sePuedeCancelar(reserva)) {
+                  <div class="acciones">
+                    @if (reserva.estado === 'CONFIRMADA') {
+                      <button
+                        type="button"
+                        class="gs-boton gs-boton--primario"
+                        (click)="abrirAccion(reserva, 'completar')"
+                      >
+                        Completar
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="gs-boton gs-boton--secundario"
+                      (click)="abrirAccion(reserva, 'cancelar')"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                }
+              }
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

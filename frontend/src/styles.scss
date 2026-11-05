@@ -132,6 +132,17 @@ a {
   box-shadow: 0 0 18px var(--gs-acento-brillo);
 }
 
+/* Acción destructiva, como cancelar una reserva (texto blanco, contraste 4,8:1). */
+.gs-boton--peligro {
+  background: #dc2626;
+  color: #fff;
+}
+
+.gs-boton--peligro:hover:not(:disabled) {
+  background: #b91c1c;
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.35);
+}
+
 .gs-boton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -163,7 +174,8 @@ a {
   font-size: 0.95rem;
 }
 
-.gs-campo input {
+.gs-campo input,
+.gs-campo select {
   min-height: 48px;
   padding: 0 14px;
   background: var(--gs-fondo);
@@ -176,7 +188,8 @@ a {
     box-shadow var(--gs-transicion);
 }
 
-.gs-campo input:focus {
+.gs-campo input:focus,
+.gs-campo select:focus {
   outline: none;
   border-color: var(--gs-acento);
   box-shadow: 0 0 0 3px var(--gs-acento-brillo);
