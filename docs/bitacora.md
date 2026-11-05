@@ -329,3 +329,32 @@ pruebas y pendientes. La entrada más reciente va al final.
   - Una reserva de un equipo fuera de servicio responde 400; confirmar con el
     equipo si debería ser 409.
   - Las pruebas con peticiones realmente simultáneas están en CACS-9.
+
+## 2026-11-04 — Pruebas de reservas y pagos simultáneos
+
+- **Tarjeta:** CACS-9 (objetivo 1: cero dobles reservas).
+- **Rama:** `feat/pruebas-simultaneas` (creada desde `feat/modulo-reservas`,
+  porque depende de CACS-4).
+- **Qué se hizo:**
+  - `PruebasSimultaneasTests` levanta el servidor en un puerto aleatorio y
+    lanza peticiones HTTP reales a la vez (todas esperan a estar listas y
+    salen juntas) contra el PostgreSQL de Testcontainers.
+  - No usa `@Transactional`, porque cada petición corre en su propio hilo:
+    crea usuarios con correos únicos, usa fechas de 2099 que no usa ninguna
+    otra clase y borra sus usuarios, reservas y pagos al terminar cada prueba.
+  - La primera corrida encontró un defecto en CACS-4: con inserciones
+    simultáneas, PostgreSQL abortaba algunas con un deadlock en la restricción
+    `reservas_sin_cruces` y el cliente recibía 500. Se corrigió en la rama de
+    CACS-4 (PR #21) bloqueando el equipo mientras se crea la reserva. Sin esa
+    corrección, esta clase falla.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 132 pruebas, 0 fallos, 0 errores. Nueva clase
+  `PruebasSimultaneasTests` (CP-27a a CP-27e): CP-27a a CP-27d se repiten 5
+  veces cada una y CP-27e corre 16 carreras de 10 reservas seguidas. La clase
+  se corrió 4 veces más (84 ejecuciones) sin fallos intermitentes.
+  `./mvnw clean checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - Este PR se fusiona después del #21 (CACS-4).
+  - El pool de conexiones es de 5 (`maximum-pool-size`); con más tráfico real,
+    las peticiones por un mismo equipo esperan su turno. Revisarlo si se
+    despliega con más usuarios.
