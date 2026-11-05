@@ -37,7 +37,7 @@ public class ReservaController {
    * @param usuario usuario autenticado
    * @return 201 con la reserva en PENDIENTE_PAGO, su precio, adelanto y fecha límite de pago; 400
    *     si el bloque o el horario no son válidos; 404 si el equipo no existe; 409 si el bloque ya
-   *     está ocupado
+   *     está ocupado o el equipo está fuera de servicio
    */
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
