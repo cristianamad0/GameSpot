@@ -292,3 +292,35 @@ pruebas y pendientes. La entrada más reciente va al final.
   advertencias.
 - **Pendientes:**
   - Ninguno.
+
+## 2026-11-04 — Módulo de reservas del cliente
+
+- **Tarjeta:** CACS-4 (HU-02).
+- **Rama:** `feat/modulo-reservas`
+- **Qué se hizo:**
+  - `ReservaService` y `ReservaController`: `POST /api/reservas` crea una
+    reserva en `PENDIENTE_PAGO` y `GET /api/reservas/disponibilidad` muestra los
+    bloques de 30 minutos de un equipo en un día. Ambos exigen token.
+  - El precio sale de la tarifa por hora de la modalidad y el adelanto del
+    `porcentajeAdelanto`; los dos se redondean hacia arriba al peso. El plazo de
+    pago (`expiraEn`) es la hora de creación más `minutosEsperaPago`.
+  - El servicio revisa antes de guardar: bloque en :00 o :30, duración múltiplo
+    de 30, que no haya empezado, que quepa en el horario del día (hora de
+    Bogotá), que el equipo exista y esté en servicio, y que no se cruce con otra
+    reserva activa. Si dos peticiones simultáneas pasan la revisión, la
+    restricción `reservas_sin_cruces` rechaza la segunda y se responde 409.
+  - En la disponibilidad ocupan el bloque las reservas `PENDIENTE_PAGO`,
+    `CONFIRMADA` y `COMPLETADA`; un equipo fuera de servicio no tiene bloques
+    libres.
+  - Excepciones nuevas: `ReservaInvalidaException` (400),
+    `BloqueOcupadoException` (409) y `EquipoNoEncontradoException` (404).
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 111 pruebas, 0 fallos, 0 errores. Nueva clase
+  `ReservasTests` (CP-26a a CP-26p), con al menos un caso por criterio de
+  aceptación y una prueba de punta a punta que crea la reserva con el endpoint
+  y la paga (pendiente que dejó CACS-5). `./mvnw clean checkstyle:check`: 0
+  advertencias.
+- **Pendientes:**
+  - Una reserva de un equipo fuera de servicio responde 400; confirmar con el
+    equipo si debería ser 409.
+  - La prueba con peticiones realmente simultáneas queda para CACS-9.
