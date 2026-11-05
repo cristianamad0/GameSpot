@@ -16,6 +16,7 @@ Santo Tomás, sede Villavicencio).
 | Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
 | Puntos de fidelización (HU-04) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
 | Reservas por bloques de 30 minutos (HU-02) | Implementado: `POST /api/reservas` (crea la reserva en `PENDIENTE_PAGO` con precio, adelanto y plazo de pago) y `GET /api/reservas/disponibilidad?equipoId=&fecha=` (bloques libres y ocupados del día) |
+| Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot. Reservar, mis puntos y el panel muestran "Próximamente" hasta CACS-19, CACS-17 y CACS-18 |
 
 ## Tecnologías
 
@@ -24,6 +25,8 @@ Santo Tomás, sede Villavicencio).
 - PostgreSQL en Supabase
 - Lombok
 - Pruebas: JUnit 5 y Testcontainers (PostgreSQL)
+- Frontend: Angular 22 (componentes standalone, signals, sin zone.js), SCSS y
+  pruebas con Vitest. Necesita Node 24.
 
 ## Estructura
 
@@ -44,6 +47,14 @@ GameSpot/
 │       │   ├── application.yaml
 │       │   └── db/               esquema.sql, borrar_esquema.sql y migraciones (V2...)
 │       └── test/java/...         Pruebas de integración y unitarias
+├── frontend/                     Aplicación web en Angular
+│   └── src/
+│       ├── styles.scss           Identidad visual: colores, tipografía, botones y formularios
+│       └── app/
+│           ├── core/             Sesión (JWT), interceptor, guardas, errores y modelos
+│           ├── compartido/       Componentes reutilizables (estado de una reserva)
+│           ├── diseno/           Barra de navegación
+│           └── paginas/          Una carpeta por pantalla
 ├── docs/calidad/                 Reporte de análisis estático (PMD, Checkstyle, Lizard)
 └── ESTANDARES.md                 Acuerdos del equipo, DoR, DoD y revisión de código
 ```
@@ -114,6 +125,22 @@ contenedor):
 docker exec -i <id-del-contenedor> psql -U test -d test -c "update usuarios set rol='ADMIN' where email='admin@demo.test';"
 ```
 
+## Ejecutar el frontend
+
+Requisitos: Node 24. Con la API corriendo en `http://localhost:8080` (por
+ejemplo con `spring-boot:test-run`), desde `frontend/`:
+
+```bash
+npm ci
+```
+
+```bash
+npm start
+```
+
+La aplicación queda en `http://localhost:4200`. La primera vez, `npm ci`
+instala las dependencias de `package-lock.json`.
+
 ## Pruebas
 
 Desde `backend/`:
@@ -138,6 +165,23 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `RespuestasErrorServidorTests` | Códigos de error con un servidor real (403, 400 y 401), que MockMvc no reproduce | CP-25a a CP-25c |
 | `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio (409), 401 sin token y reserva pagada de punta a punta | CP-26a a CP-26p |
 | `PruebasSimultaneasTests` | Concurrencia real con servidor y PostgreSQL: 10 reservas simultáneas del mismo bloque, bloques que se cruzan en parte, bloques contiguos y otros equipos, pagos simultáneos de una reserva y 16 carreras seguidas sin resultados intermitentes. Sin `@Transactional`: borra lo que crea | CP-27a a CP-27e |
+
+Pruebas del frontend, desde `frontend/` (no necesitan Docker ni la API):
+
+```bash
+npx ng test --watch=false
+```
+
+| Archivo | Qué cubre | Casos |
+| --- | --- | --- |
+| `core/auth/sesion.spec.ts` | Guardar, recuperar y cerrar la sesión; token vencido | CP-F01a a CP-F01d |
+| `core/auth/token.interceptor.spec.ts` | Token en las peticiones a la API, nunca a otros sitios; 401 cierra la sesión | CP-F02a a CP-F02d |
+| `core/auth/guardas.spec.ts` | Rutas protegidas y `/admin` solo para `ADMIN` | CP-F03a a CP-F03d |
+| `core/errores/mensaje-error.spec.ts` | Mensajes de error en español desde `ApiError` | CP-F04a a CP-F04c |
+| `paginas/ingresar/ingresar.spec.ts` | Inicio de sesión, credenciales incorrectas y formulario vacío | CP-F05a a CP-F05c |
+| `paginas/registro/registro.spec.ts` | Registro, validaciones y correo ya registrado | CP-F06a a CP-F06d |
+| `compartido/estado-reserva/estado-reserva.spec.ts` | Estados de reserva con texto, no solo color | CP-F07 |
+| `app.spec.ts` | Enlaces de la barra según el rol | CP-F08a a CP-F08c |
 
 ## Calidad de código
 

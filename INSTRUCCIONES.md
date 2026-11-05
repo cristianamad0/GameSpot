@@ -15,8 +15,15 @@ administración. Proyecto del curso Gerencia de Software (USTA).
 - Java 21, Spring Boot 4 (MVC, Data JPA, Security, Validation), JWT (jjwt
   0.11.5) sin sesiones, Lombok.
 - PostgreSQL en Supabase. Pruebas con JUnit 5 y Testcontainers.
-- Monolito único en `backend/`. Todavía no hay frontend: el CORS ya admite
+- Backend en `backend/`. Frontend en `frontend/` (Angular 22, Node 24), que
+  llama a la API en `http://localhost:8080`; el CORS ya admite
   `http://localhost:4200`.
+- Frontend: código y textos en español, componentes standalone con signals,
+  colores y tipografía desde las variables de `frontend/src/styles.scss`
+  (tema oscuro de Game Spot, contraste AA, estados con texto, usable desde
+  360 px). Antes de un PR: `npx ng test --watch=false`, `npx ng build` y
+  `npx prettier --check "src/**/*.{ts,html,scss}"`. Los casos de prueba del
+  frontend usan el prefijo `CP-F` (`CP-F01a`, ...).
 
 ## Comandos
 
