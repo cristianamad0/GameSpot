@@ -409,3 +409,35 @@ pruebas y pendientes. La entrada más reciente va al final.
   advertencias. El backend no cambia.
 - **Pendientes:**
   - Las pruebas del frontend no corren en `./mvnw test`; se corren aparte.
+
+## 2026-11-04 — Frontend: panel del administrador
+
+- **Tarjeta:** CACS-18 (HU-06 y HU-04).
+- **Rama:** `feat/panel-admin-frontend`
+- **Qué se hizo:**
+  - Backend: `GET /api/admin/usuarios?email=` (`AdminUsuariosController` y
+    `AdminUsuariosService`) busca hasta 10 usuarios por parte del correo, sin
+    distinguir mayúsculas, y responde `UsuarioResumenResponse` (sin datos
+    sensibles). Menos de 3 caracteres responde 400; solo `ADMIN`.
+  - Frontend, `/admin` con tres pestañas protegidas por `adminGuard`:
+    - Reservas del día: agenda por equipo en hora de Bogotá, filtros por día,
+      equipo y estado; cancelar con motivo obligatorio y completar, solo en los
+      estados que lo permiten. La tarjeta se actualiza con la respuesta del
+      backend, sin recargar, y un 409 muestra su mensaje sin cambiar nada.
+    - Expiradas con pago: reservas vencidas con pago aprobado, con monto,
+      fecha y referencia.
+    - Ajustar puntos: buscar al cliente por correo, ver su saldo y registrar
+      un ajuste con descripción; el saldo negativo (409) muestra el mensaje.
+  - `core/formato.ts`: hora y fecha de Bogotá, pesos colombianos y "punto"
+    o "puntos" según la cantidad. Botón `gs-boton--peligro` para cancelar.
+  - Probado contra la API real con reservas en todos los estados: completar,
+    cancelar con motivo, expiradas, ajuste de -5 sobre 1 punto (409) y de +10.
+    Se corrigieron dos detalles vistos al probar: las pestañas con barra de
+    desplazamiento en celular y el texto "1 puntos".
+- **Pruebas:** `./mvnw test`: 137 pruebas, 0 fallos, 0 errores (nueva
+  `AdminUsuariosTests`, CP-28a a CP-28e). `./mvnw checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 48 pruebas, 0 fallos (nuevas
+  CP-F10a a CP-F14d). `npx ng build` y Prettier sin errores.
+- **Pendientes:**
+  - El filtro por equipo usa los equipos que tienen reservas ese día; si se
+    quiere ver todos los equipos, hace falta un endpoint de equipos.
