@@ -441,3 +441,35 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - El filtro por equipo usa los equipos que tienen reservas ese día; si se
     quiere ver todos los equipos, hace falta un endpoint de equipos.
+
+## 2026-11-05 — Datos de demostración para probar en local
+
+- **Tarjeta:** CACS-16.
+- **Rama:** `feat/datos-demostracion`
+- **Qué se hizo:**
+  - `./mvnw spring-boot:test-run` activa ahora el perfil `demo`
+    (`TestBackendApplication` y `src/test/resources/config/application-demo.yaml`).
+    El perfil enciende `app.demo.datos`, apaga el registro por consola (ya no
+    hace falta pasar `--app.cli.registration.enabled=false`) y deja correr la
+    expiración de reservas como en el uso real.
+  - `demo/DatosDemostracion` (en el código de pruebas, así que nunca llega al
+    jar ni corre contra Supabase) crea al arrancar un `ADMIN`, dos clientes,
+    reservas en los cinco estados entre ayer y mañana, pagos simulados
+    (aprobados, uno rechazado y uno aprobado tarde sobre una reserva expirada) y
+    bonos de puntos. Los estados `CONFIRMADA` y `COMPLETADA` y los puntos por
+    horas jugadas los ponen los triggers de la base, como en el uso real. Si
+    los datos ya existen, no los duplica.
+  - Las credenciales son valores de prueba documentados en el README; las
+    contraseñas se guardan con BCrypt.
+  - Se probó a mano con la API en marcha: inicio de sesión del admin y de un
+    cliente, saldo de puntos, panel del día y expiradas con pago.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 143 pruebas, 0 fallos, 0 errores. Nueva clase
+  `DatosDemostracionTests` (CP-29a a CP-29f): con el perfil `demo` se inicia
+  sesión, hay reservas en cada estado, puntos y una expirada con pago, no se
+  duplican y las contraseñas van cifradas; sin el perfil no existe el cargador
+  ni los usuarios. `./mvnw clean checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - La reserva pendiente de demostración tiene plazo de pago hasta su hora de
+    inicio (mañana), no 15 minutos, para que no expire durante una
+    demostración.
