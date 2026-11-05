@@ -27,8 +27,9 @@ public class ConfiguracionNegocio {
 
   @Id private Short id;
 
-  @Column(name = "valor_adelanto_pesos", nullable = false)
-  private Integer valorAdelantoPesos;
+  /** Porcentaje del precio de la reserva que se cobra como adelanto (1 a 100). */
+  @Column(name = "porcentaje_adelanto", nullable = false)
+  private Integer porcentajeAdelanto;
 
   @Column(name = "puntos_por_hora", nullable = false)
   private Integer puntosPorHora;

@@ -39,7 +39,7 @@ No hay una tarea de lint dedicada en Maven; el último análisis estático (PMD,
 - La app es un único servicio backend, no un sistema distribuido. La mayor parte de la lógica de negocio está centrada en los controladores y servicios de Spring MVC.
 - La seguridad se configura en `SecurityConfig` con manejo de JWT sin estado y CORS permitiendo `http://localhost:4200`.
 - `AuthController` expone los endpoints de registro e inicio de sesión bajo `/api/auth`; las rutas de administración se esperan en `/api/admin/**` y requieren rol `ADMIN`.
-- `JwtService` crea y valida tokens usando `app.jwt.secret` y `app.jwt.expiration-ms` desde la configuración de la aplicación.
+- `JwtService` crea y valida tokens usando `app.jwt.secret` (tomado de la variable de entorno `JWT_SECRETO`; en pruebas, de `src/test/resources/config/application.yaml`) y `app.jwt.expiration-ms`.
 - La nomenclatura de entidades sigue convenciones en español, y los nombres de tablas se mantienen en snake_case plural (por ejemplo `usuarios` y `password_hash`).
 - La validación se hace con Jakarta Bean Validation, y las excepciones están centralizadas con `@RestControllerAdvice` en el paquete de exceptions.
 

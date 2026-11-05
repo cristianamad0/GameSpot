@@ -15,49 +15,66 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/** Registro e inicio de sesión de usuarios. */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final UsuarioDetailsService usuarioDetailsService;
+  private final UsuarioRepository usuarioRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
+  private final AuthenticationManager authenticationManager;
+  private final UsuarioDetailsService usuarioDetailsService;
 
-    public AuthResponse registrar(RegistroRequest request) {
-        if (usuarioRepository.existsByEmail(request.email())) {
-            throw new EmailYaRegistradoException(request.email());
-        }
-
-        Usuario usuario = Usuario.builder()
-                .nombre(request.nombre())
-                .email(request.email())
-                .passwordHash(passwordEncoder.encode(request.password()))
-                .rol(Rol.CLIENTE)
-                .build();
-
-        usuarioRepository.save(usuario);
-
-        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario.getEmail());
-        String token = jwtService.generarToken(userDetails);
-
-        return new AuthResponse(token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol());
+  /**
+   * Registra un cliente nuevo con la contraseña cifrada y le genera un token.
+   *
+   * @param request datos del registro
+   * @return el token y los datos del usuario creado
+   * @throws EmailYaRegistradoException si el correo ya tiene cuenta
+   */
+  public AuthResponse registrar(RegistroRequest request) {
+    String correo = UsuarioDetailsService.normalizarCorreo(request.email());
+    if (usuarioRepository.existsByEmail(correo)) {
+      throw new EmailYaRegistradoException(correo);
     }
 
-    public AuthResponse iniciarSesion(LoginRequest request) {
-        // Si las credenciales son invalidas, esto lanza BadCredentialsException,
-        // manejada por el GlobalExceptionHandler como 401.
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
+    Usuario usuario =
+        Usuario.builder()
+            .nombre(request.nombre())
+            .email(correo)
+            .passwordHash(passwordEncoder.encode(request.password()))
+            .rol(Rol.CLIENTE)
+            .build();
 
-        Usuario usuario = usuarioRepository.findByEmail(request.email())
-                .orElseThrow();
+    usuarioRepository.save(usuario);
 
-        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario.getEmail());
-        String token = jwtService.generarToken(userDetails);
+    UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario.getEmail());
+    String token = jwtService.generarToken(userDetails);
 
-        return new AuthResponse(token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol());
-    }
+    return new AuthResponse(
+        token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol());
+  }
+
+  /**
+   * Valida las credenciales y genera un token.
+   *
+   * @param request credenciales del usuario
+   * @return el token y los datos del usuario
+   */
+  public AuthResponse iniciarSesion(LoginRequest request) {
+    // Si las credenciales son invalidas, esto lanza BadCredentialsException,
+    // manejada por el GlobalExceptionHandler como 401.
+    String correo = UsuarioDetailsService.normalizarCorreo(request.email());
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(correo, request.password()));
+
+    Usuario usuario = usuarioRepository.findByEmail(correo).orElseThrow();
+
+    UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario.getEmail());
+    String token = jwtService.generarToken(userDetails);
+
+    return new AuthResponse(
+        token, usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol());
+  }
 }

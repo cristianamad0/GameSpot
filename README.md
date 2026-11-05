@@ -11,7 +11,11 @@ Santo Tomás, sede Villavicencio).
 | Registro e inicio de sesión con JWT (HU-01) | Implementado: `POST /api/auth/registro` y `POST /api/auth/login` |
 | Esquema de base de datos (reservas, pagos, puntos, notificaciones, horarios) | Implementado en Supabase con sus reglas (bloques de 30 min, sin cruces, adelanto, puntos) |
 | Entidades y repositorios JPA | Implementados |
-| Servicios y endpoints de reservas, pagos, fidelización y administración | Pendientes |
+| Expiración de reservas no pagadas (HU-05) | Implementado: tarea programada cada minuto |
+| Panel de administración de reservas (HU-06) | Implementado: `GET /api/admin/reservas`, `POST /api/admin/reservas/{id}/cancelar`, `POST /api/admin/reservas/{id}/completar` y `GET /api/admin/reservas/expiradas-con-pago` (solo `ADMIN`) |
+| Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
+| Puntos de fidelización (HU-04) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
+| Reservas por bloques de 30 minutos (HU-02) | Implementado: `POST /api/reservas` (crea la reserva en `PENDIENTE_PAGO` con precio, adelanto y plazo de pago) y `GET /api/reservas/disponibilidad?equipoId=&fecha=` (bloques libres y ocupados del día) |
 
 ## Tecnologías
 
@@ -38,7 +42,7 @@ GameSpot/
 │       │   └── service/          Lógica de negocio
 │       ├── main/resources/
 │       │   ├── application.yaml
-│       │   └── db/               esquema.sql y borrar_esquema.sql
+│       │   └── db/               esquema.sql, borrar_esquema.sql y migraciones (V2...)
 │       └── test/java/...         Pruebas de integración y unitarias
 ├── docs/calidad/                 Reporte de análisis estático (PMD, Checkstyle, Lizard)
 └── ESTANDARES.md                 Acuerdos del equipo, DoR, DoD y revisión de código
@@ -56,6 +60,13 @@ PostgreSQL en Supabase. El esquema completo está en
    `backend/src/main/resources/db/borrar_esquema.sql`.
 2. Ejecutar `backend/src/main/resources/db/esquema.sql`.
 
+**Aplicar un cambio sobre un esquema que ya tiene datos.** Los cambios
+posteriores van en scripts de migración numerados en la misma carpeta
+(`V2_datos_negocio.sql`, ...). Cada uno se ejecuta una sola vez en el SQL
+Editor, el mismo día en que se fusiona su PR, y va dentro de una transacción.
+`esquema.sql` ya incluye todos los cambios, así que una base nueva no
+necesita las migraciones.
+
 ## Ejecutar el backend
 
 Requisitos: JDK 21.
@@ -65,7 +76,18 @@ Requisitos: JDK 21.
    variables). Si la red no tiene IPv6, definir también `SUPABASE_DB_URL` y
    `SUPABASE_DB_USUARIO` con los datos del "Session pooler" (botón Connect del
    proyecto en Supabase).
-2. Desde `backend/`:
+2. Definir la variable de entorno `JWT_SECRETO` con el secreto que firma los
+   tokens de sesión. Debe tener al menos 32 caracteres (jjwt rechaza los más
+   cortos) y no se escribe en ningún archivo del repositorio. Para generar uno:
+
+   ```bash
+   openssl rand -base64 48
+   ```
+
+   Sin esta variable la aplicación no arranca. Las pruebas no la necesitan:
+   usan el valor de `backend/src/test/resources/config/application.yaml`, que
+   solo sirve para pruebas.
+3. Desde `backend/`:
 
    ```bash
    ./mvnw spring-boot:run
@@ -73,6 +95,24 @@ Requisitos: JDK 21.
 
 La API queda en `http://localhost:8080` y acepta peticiones CORS desde
 `http://localhost:4200`.
+
+**Probar la API a mano sin tocar Supabase.** Con Docker encendido, desde
+`backend/`:
+
+```bash
+./mvnw spring-boot:test-run "-Dspring-boot.run.arguments=--app.cli.registration.enabled=false"
+```
+
+Levanta la API en `http://localhost:8080` con un PostgreSQL temporal que tiene
+el mismo `esquema.sql` y se borra al detenerla (Ctrl+C). No necesita
+`JWT_SECRETO` ni `SUPABASE_DB_CONTRASENA`. Las peticiones se hacen con
+Postman, el HTTP Client de IntelliJ o `curl`. Para tener un administrador, se
+registra un usuario y se le cambia el rol en la base (`docker ps` da el id del
+contenedor):
+
+```bash
+docker exec -i <id-del-contenedor> psql -U test -d test -c "update usuarios set rol='ADMIN' where email='admin@demo.test';"
+```
 
 ## Pruebas
 
@@ -90,6 +130,14 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `dto/RegistroRequestValidacionTest` | Validaciones del formulario de registro (no necesita Docker) | CP-02 a CP-04 |
 | `AuthServiceTests` | Registro e inicio de sesión | CP-01, CP-05 a CP-07 |
 | `ReglasBaseDatosTests` | Reglas de reservas, pagos y puntos en la base de datos | CP-08 a CP-16 |
+| `DatosNegocioTests` | Equipos, horario de atención y configuración reales del negocio | CP-17 a CP-20 |
+| `ExpiracionReservasTests` | Expiración de las reservas no pagadas a tiempo | CP-21a a CP-21d |
+| `AdminReservasTests` | Panel de administración: acceso solo `ADMIN`, listar, cancelar y completar reservas | CP-22a a CP-22k |
+| `PagoAnticipoTests` | Pago del adelanto: aprobado, rechazado y reintento, un solo pago aprobado, reservas no pagables o ajenas, monto menor y sin datos de tarjeta | CP-23a a CP-23k |
+| `PuntosFidelidadTests` | Puntos de fidelización: puntos al completar una sola vez, saldo e historial propios, ajustes del admin con descripción y sin saldo negativo | CP-24a a CP-24i |
+| `RespuestasErrorServidorTests` | Códigos de error con un servidor real (403, 400 y 401), que MockMvc no reproduce | CP-25a a CP-25c |
+| `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio, 401 sin token y reserva pagada de punta a punta | CP-26a a CP-26p |
+| `PruebasSimultaneasTests` | Concurrencia real con servidor y PostgreSQL: 10 reservas simultáneas del mismo bloque, bloques que se cruzan en parte, bloques contiguos y otros equipos, pagos simultáneos de una reserva y 16 carreras seguidas sin resultados intermitentes. Sin `@Transactional`: borra lo que crea | CP-27a a CP-27e |
 
 ## Calidad de código
 
