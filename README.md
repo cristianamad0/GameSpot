@@ -112,19 +112,37 @@ La API queda en `http://localhost:8080` y acepta peticiones CORS desde
 `backend/`:
 
 ```bash
-./mvnw spring-boot:test-run "-Dspring-boot.run.arguments=--app.cli.registration.enabled=false"
+./mvnw spring-boot:test-run
 ```
 
 Levanta la API en `http://localhost:8080` con un PostgreSQL temporal que tiene
 el mismo `esquema.sql` y se borra al detenerla (Ctrl+C). No necesita
 `JWT_SECRETO` ni `SUPABASE_DB_CONTRASENA`. Las peticiones se hacen con
-Postman, el HTTP Client de IntelliJ o `curl`. Para tener un administrador, se
-registra un usuario y se le cambia el rol en la base (`docker ps` da el id del
-contenedor):
+Postman, el HTTP Client de IntelliJ, `curl` o el frontend.
 
-```bash
-docker exec -i <id-del-contenedor> psql -U test -d test -c "update usuarios set rol='ADMIN' where email='admin@demo.test';"
-```
+Este arranque activa el perfil `demo` (`TestBackendApplication` y
+`src/test/resources/config/application-demo.yaml`), que carga datos de
+demostración (CACS-16). Son valores de prueba, no credenciales reales:
+
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| `ADMIN` | `admin@gamespot.demo` | `AdminDemo123` |
+| `CLIENTE` | `laura@gamespot.demo` | `ClienteDemo123` |
+| `CLIENTE` | `andres@gamespot.demo` | `ClienteDemo123` |
+
+Las fechas se calculan al arrancar (hora de Bogotá):
+
+- **Laura:** una reserva `COMPLETADA` ayer (2 horas, con sus puntos) y, para
+  mañana, una `CONFIRMADA`, una `PENDIENTE_PAGO` con un pago rechazado (se
+  puede pagar hasta la hora de inicio) y una `CANCELADA`. Saldo: 12 puntos.
+- **Andrés:** una reserva `CONFIRMADA` hoy a las 20:00 y una `EXPIRADA` ayer
+  cuyo pago se aprobó tarde (aparece en "expiradas con pago" del panel).
+  Saldo: 5 puntos.
+
+El cargador está en el código de pruebas (`demo/DatosDemostracion`), así que
+nunca llega al jar ni corre con la configuración de Supabase; además solo se
+activa con `app.demo.datos=true`. Si se arranca dos veces sobre la misma base,
+no duplica los datos.
 
 ## Ejecutar el frontend
 
@@ -167,6 +185,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `AdminUsuariosTests` | Búsqueda de usuarios por parte del correo: sin distinguir mayúsculas, máximo 10, lista vacía, 400 con menos de 3 caracteres, solo `ADMIN` | CP-28a a CP-28e |
 | `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio (409), 401 sin token y reserva pagada de punta a punta | CP-26a a CP-26p |
 | `PruebasSimultaneasTests` | Concurrencia real con servidor y PostgreSQL: 10 reservas simultáneas del mismo bloque, bloques que se cruzan en parte, bloques contiguos y otros equipos, pagos simultáneos de una reserva y 16 carreras seguidas sin resultados intermitentes. Sin `@Transactional`: borra lo que crea | CP-27a a CP-27e |
+| `DatosDemostracionTests` | Datos de demostración: con el perfil `demo` se inicia sesión como admin y cliente, hay reservas en los cinco estados entre ayer y mañana, puntos y una expirada con pago, no se duplican y las contraseñas van cifradas; sin el perfil no se cargan | CP-29a a CP-29f |
 
 Pruebas del frontend, desde `frontend/` (no necesitan Docker ni la API):
 
