@@ -1,0 +1,64 @@
+<section class="portada">
+  <div class="gs-contenedor portada__contenido">
+    <p class="portada__etiqueta">Sala de videojuegos · Villavicencio</p>
+    <h1 class="portada__titulo">Reserva tu turno y <span>llega a jugar</span></h1>
+    <p class="portada__texto">
+      Aparta tu consola o la sala VIP en bloques de 30 minutos, paga el adelanto en línea y acumula
+      puntos cada vez que juegas.
+    </p>
+    <div class="portada__acciones">
+      @if (sesion.esAdmin()) {
+        <a routerLink="/admin" class="gs-boton gs-boton--primario">Ir al panel</a>
+      } @else if (sesion.estaAutenticado()) {
+        <a routerLink="/reservar" class="gs-boton gs-boton--primario">Reservar ahora</a>
+        <a routerLink="/mis-puntos" class="gs-boton gs-boton--secundario">Ver mis puntos</a>
+      } @else {
+        <a routerLink="/registro" class="gs-boton gs-boton--primario">Crear mi cuenta</a>
+        <a routerLink="/ingresar" class="gs-boton gs-boton--secundario">Ya tengo cuenta</a>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="gs-contenedor seccion" aria-labelledby="titulo-modalidades">
+  <h2 id="titulo-modalidades">Nuestros equipos</h2>
+  <ul class="modalidades">
+    @for (modalidad of modalidades; track modalidad.nombre) {
+      <li class="gs-tarjeta modalidad">
+        <span class="modalidad__icono" aria-hidden="true">{{ modalidad.icono }}</span>
+        <h3>{{ modalidad.nombre }}</h3>
+        <p>{{ modalidad.descripcion }}</p>
+        <span class="modalidad__cantidad">{{ modalidad.cantidad }}</span>
+      </li>
+    }
+  </ul>
+</section>
+
+<section class="gs-contenedor seccion seccion--doble">
+  <div aria-labelledby="titulo-pasos">
+    <h2 id="titulo-pasos">Así de fácil</h2>
+    <ol class="pasos">
+      @for (paso of pasos; track paso.titulo; let numero = $index) {
+        <li class="paso">
+          <span class="paso__numero" aria-hidden="true">{{ numero + 1 }}</span>
+          <div>
+            <h3>{{ paso.titulo }}</h3>
+            <p>{{ paso.texto }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+  </div>
+
+  <div class="gs-tarjeta horario" aria-labelledby="titulo-horario">
+    <h2 id="titulo-horario">Horario</h2>
+    <dl>
+      @for (horario of horarios; track horario.dias) {
+        <div class="horario__fila">
+          <dt>{{ horario.dias }}</dt>
+          <dd>{{ horario.horas }}</dd>
+        </div>
+      }
+    </dl>
+  </div>
+</section>

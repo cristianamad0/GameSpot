@@ -1,0 +1,63 @@
+<header class="barra">
+  <div class="gs-contenedor barra__fila">
+    <a routerLink="/" class="logo" (click)="cerrarMenu()" aria-label="Game Spot, ir al inicio">
+      <span class="logo__icono" aria-hidden="true">▶</span>
+      <span class="logo__texto">GAME<span>SPOT</span></span>
+    </a>
+
+    <button
+      type="button"
+      class="barra__menu"
+      [attr.aria-expanded]="menuAbierto()"
+      aria-controls="navegacion-principal"
+      (click)="alternarMenu()"
+    >
+      <span class="gs-solo-lectores">{{ menuAbierto() ? 'Cerrar menú' : 'Abrir menú' }}</span>
+      <span class="hamburguesa" aria-hidden="true"></span>
+    </button>
+
+    <nav
+      id="navegacion-principal"
+      class="navegacion"
+      [class.navegacion--abierta]="menuAbierto()"
+      aria-label="Principal"
+    >
+      <a
+        routerLink="/"
+        routerLinkActive="activo"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="cerrarMenu()"
+        >Inicio</a
+      >
+
+      @if (sesion.estaAutenticado()) {
+        @if (sesion.esAdmin()) {
+          <a routerLink="/admin" routerLinkActive="activo" (click)="cerrarMenu()">Panel</a>
+        } @else {
+          <a routerLink="/reservar" routerLinkActive="activo" (click)="cerrarMenu()">Reservar</a>
+          <a routerLink="/mis-puntos" routerLinkActive="activo" (click)="cerrarMenu()"
+            >Mis puntos</a
+          >
+        }
+        <div class="usuario">
+          <span class="usuario__nombre">{{ sesion.usuario()?.nombre }}</span>
+          <button
+            type="button"
+            class="gs-boton gs-boton--secundario usuario__salir"
+            (click)="salir()"
+          >
+            Salir
+          </button>
+        </div>
+      } @else {
+        <a routerLink="/ingresar" routerLinkActive="activo" (click)="cerrarMenu()">Ingresar</a>
+        <a
+          routerLink="/registro"
+          class="gs-boton gs-boton--primario navegacion__registro"
+          (click)="cerrarMenu()"
+          >Crear cuenta</a
+        >
+      }
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,223 @@
+/*
+ * CACS-15: identidad visual de Game Spot.
+ * Tema oscuro con acentos neón. Todos los colores de texto cumplen contraste
+ * WCAG AA (4,5:1) sobre el fondo y las superficies. Las demás pantallas usan
+ * estas variables en lugar de colores fijos.
+ */
+:root {
+  color-scheme: dark;
+
+  --gs-fondo: #0b0f1f;
+  --gs-superficie: #141a33;
+  --gs-superficie-2: #1c2445;
+  --gs-borde: #2c3768;
+
+  --gs-texto: #eef1ff;
+  --gs-texto-suave: #aab3d9;
+
+  /* Morado neón: acción principal (texto blanco encima, contraste 5,4:1). */
+  --gs-primario: #9333ea;
+  --gs-primario-hover: #7e22ce;
+  --gs-primario-brillo: rgba(168, 85, 247, 0.45);
+
+  /* Cian neón: acentos, foco y enlaces. */
+  --gs-acento: #22d3ee;
+  --gs-acento-brillo: rgba(34, 211, 238, 0.35);
+
+  --gs-exito: #34d399;
+  --gs-aviso: #fbbf24;
+  --gs-error: #f87171;
+  --gs-error-fondo: rgba(248, 113, 113, 0.12);
+
+  --gs-fuente-titulo: 'Orbitron', 'Segoe UI', sans-serif;
+  --gs-fuente-texto: 'Inter', 'Segoe UI', Roboto, sans-serif;
+
+  --gs-radio: 14px;
+  --gs-radio-pequeno: 10px;
+  --gs-sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --gs-transicion: 160ms ease;
+  --gs-ancho-maximo: 1120px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(147, 51, 234, 0.22), transparent 60%),
+    radial-gradient(700px 400px at -10% 110%, rgba(34, 211, 238, 0.12), transparent 60%),
+    var(--gs-fondo);
+  background-attachment: fixed;
+  color: var(--gs-texto);
+  font-family: var(--gs-fuente-texto);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--gs-fuente-titulo);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+}
+
+a {
+  color: var(--gs-acento);
+}
+
+:focus-visible {
+  outline: 3px solid var(--gs-acento);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.gs-contenedor {
+  width: 100%;
+  max-width: var(--gs-ancho-maximo);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Botones */
+.gs-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid transparent;
+  border-radius: var(--gs-radio-pequeno);
+  font: 600 1rem var(--gs-fuente-texto);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--gs-transicion),
+    box-shadow var(--gs-transicion),
+    transform var(--gs-transicion);
+}
+
+.gs-boton--primario {
+  background: var(--gs-primario);
+  color: #fff;
+  box-shadow: 0 0 0 0 var(--gs-primario-brillo);
+}
+
+.gs-boton--primario:hover:not(:disabled) {
+  background: var(--gs-primario-hover);
+  box-shadow: 0 0 22px var(--gs-primario-brillo);
+  transform: translateY(-1px);
+}
+
+.gs-boton--secundario {
+  background: transparent;
+  color: var(--gs-texto);
+  border-color: var(--gs-borde);
+}
+
+.gs-boton--secundario:hover:not(:disabled) {
+  border-color: var(--gs-acento);
+  box-shadow: 0 0 18px var(--gs-acento-brillo);
+}
+
+.gs-boton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.gs-boton--ancho {
+  width: 100%;
+}
+
+/* Tarjetas */
+.gs-tarjeta {
+  background: linear-gradient(180deg, var(--gs-superficie-2), var(--gs-superficie));
+  border: 1px solid var(--gs-borde);
+  border-radius: var(--gs-radio);
+  box-shadow: var(--gs-sombra);
+  padding: 24px;
+}
+
+/* Formularios */
+.gs-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.gs-campo label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.gs-campo input {
+  min-height: 48px;
+  padding: 0 14px;
+  background: var(--gs-fondo);
+  color: var(--gs-texto);
+  border: 1px solid var(--gs-borde);
+  border-radius: var(--gs-radio-pequeno);
+  font: 400 1rem var(--gs-fuente-texto);
+  transition:
+    border-color var(--gs-transicion),
+    box-shadow var(--gs-transicion);
+}
+
+.gs-campo input:focus {
+  outline: none;
+  border-color: var(--gs-acento);
+  box-shadow: 0 0 0 3px var(--gs-acento-brillo);
+}
+
+.gs-campo input[aria-invalid='true'] {
+  border-color: var(--gs-error);
+}
+
+.gs-campo__error {
+  color: var(--gs-error);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.gs-alerta {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-radius: var(--gs-radio-pequeno);
+  border: 1px solid var(--gs-error);
+  background: var(--gs-error-fondo);
+  color: var(--gs-texto);
+}
+
+.gs-solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

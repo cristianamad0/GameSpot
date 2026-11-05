@@ -378,3 +378,34 @@ pruebas y pendientes. La entrada más reciente va al final.
   `./mvnw checkstyle:check`: 0 advertencias.
 - **Pendientes:**
   - Revisar el tamaño del pool de conexiones antes de un despliegue real.
+
+## 2026-11-04 — Frontend: base Angular, identidad visual e inicio de sesión
+
+- **Tarjeta:** CACS-15 (HU-01).
+- **Rama:** `feat/frontend-base`
+- **Qué se hizo:**
+  - Proyecto Angular 22 en `frontend/` (standalone, signals, sin zone.js,
+    SCSS y Vitest), creado con `ng new`.
+  - Identidad visual en `src/styles.scss`: tema oscuro con acentos neón morado
+    y cian, Orbitron para títulos e Inter para texto, contraste AA, foco
+    visible, botones grandes y respeto a `prefers-reduced-motion`.
+  - Sesión con JWT (`core/auth/sesion.ts`) guardada en `localStorage`, que se
+    cierra sola si el token venció. `tokenInterceptor` envía el token solo a la
+    API y, ante un 401, cierra la sesión y lleva al ingreso; los 401 del login
+    se muestran como credenciales incorrectas. `sesionGuard` y `adminGuard`
+    protegen las rutas; un `CLIENTE` no entra a `/admin`.
+  - Pantallas: inicio (equipos reales y horario), registro, ingreso, 404 y
+    "Próximamente" para reservar (CACS-19), mis puntos (CACS-17) y el panel
+    (CACS-18). Barra de navegación según el rol, con menú para celular.
+  - `mensajeDeError` muestra el `mensaje` de `ApiError` en español.
+    `EstadoReservaEtiqueta` muestra el estado de una reserva con texto y color,
+    lista para las pantallas de las otras tarjetas.
+  - Probado contra la API real (`spring-boot:test-run`): login incorrecto,
+    ingreso de cliente y de admin, `/admin` bloqueado para el cliente, salir,
+    y la vista en 375 px. Se corrigió el mensaje de "repite la contraseña"
+    cuando el campo está vacío.
+- **Pruebas:** `npx ng test --watch=false`: 30 pruebas, 0 fallos (CP-F01a a
+  CP-F08c, al menos una por criterio). `npx ng build` sin errores. Prettier sin
+  advertencias. El backend no cambia.
+- **Pendientes:**
+  - Las pruebas del frontend no corren en `./mvnw test`; se corren aparte.
