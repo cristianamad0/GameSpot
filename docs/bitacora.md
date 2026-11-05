@@ -307,8 +307,13 @@ pruebas y pendientes. La entrada más reciente va al final.
   - El servicio revisa antes de guardar: bloque en :00 o :30, duración múltiplo
     de 30, que no haya empezado, que quepa en el horario del día (hora de
     Bogotá), que el equipo exista y esté en servicio, y que no se cruce con otra
-    reserva activa. Si dos peticiones simultáneas pasan la revisión, la
-    restricción `reservas_sin_cruces` rechaza la segunda y se responde 409.
+    reserva activa. Para que la revisión de cruces sirva con peticiones
+    simultáneas, el equipo se bloquea (`SELECT ... FOR UPDATE`) mientras se crea
+    la reserva; la restricción `reservas_sin_cruces` queda como respaldo y su
+    violación también se responde con 409.
+  - Corrección encontrada por las pruebas de CACS-9: sin el bloqueo, varias
+    inserciones simultáneas chocaban en la restricción de exclusión, PostgreSQL
+    abortaba algunas con un deadlock y el cliente recibía 500 en vez de 409.
   - En la disponibilidad ocupan el bloque las reservas `PENDIENTE_PAGO`,
     `CONFIRMADA` y `COMPLETADA`; un equipo fuera de servicio no tiene bloques
     libres.
@@ -323,4 +328,4 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Una reserva de un equipo fuera de servicio responde 400; confirmar con el
     equipo si debería ser 409.
-  - La prueba con peticiones realmente simultáneas queda para CACS-9.
+  - Las pruebas con peticiones realmente simultáneas están en CACS-9.
