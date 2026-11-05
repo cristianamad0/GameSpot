@@ -1,0 +1,155 @@
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 18px;
+}
+
+.filtros__campo {
+  margin-bottom: 0;
+}
+
+.resumen {
+  margin: 18px 0 10px;
+  color: var(--gs-texto-suave);
+  font-weight: 600;
+}
+
+.aviso {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--gs-exito);
+  border-radius: var(--gs-radio-pequeno);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.gs-alerta {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vacio {
+  text-align: center;
+  color: var(--gs-texto-suave);
+}
+
+.vacio span {
+  font-size: 2rem;
+}
+
+.agenda {
+  display: grid;
+  gap: 28px;
+}
+
+.equipo__nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.equipo__nombre::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gs-acento);
+  box-shadow: 0 0 12px var(--gs-acento-brillo);
+}
+
+.reservas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reserva {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+}
+
+.reserva p {
+  margin: 0;
+}
+
+.reserva__fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reserva__horario {
+  font-family: var(--gs-fuente-titulo);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.reserva__cliente {
+  display: flex;
+  flex-direction: column;
+}
+
+.reserva__cliente span,
+.reserva__valor,
+.reserva__motivo {
+  color: var(--gs-texto-suave);
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.reserva__error {
+  margin: 4px 0 0;
+}
+
+.confirmacion {
+  padding-top: 8px;
+  border-top: 1px solid var(--gs-borde);
+}
+
+.confirmacion textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--gs-fondo);
+  color: var(--gs-texto);
+  border: 1px solid var(--gs-borde);
+  border-radius: var(--gs-radio-pequeno);
+  font: 400 1rem var(--gs-fuente-texto);
+  resize: vertical;
+}
+
+.confirmacion textarea:focus {
+  outline: none;
+  border-color: var(--gs-acento);
+  box-shadow: 0 0 0 3px var(--gs-acento-brillo);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.acciones .gs-boton {
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+@media (max-width: 760px) {
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .reservas {
+    grid-template-columns: 1fr;
+  }
+}

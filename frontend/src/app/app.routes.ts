@@ -2,9 +2,8 @@ import { Routes } from '@angular/router';
 import { adminGuard, sesionGuard } from './core/auth/guardas';
 
 /**
- * CACS-15: rutas de la aplicación. Las pantallas de reservar, mis puntos y el panel muestran
- * "Próximamente" hasta que se hagan sus tarjetas (CACS-19, CACS-17 y CACS-18); al hacerlas, se
- * cambia loadComponent y se quita data.
+ * CACS-15: rutas de la aplicación. Reservar y mis puntos muestran "Próximamente" hasta que se
+ * hagan sus tarjetas (CACS-19 y CACS-17); al hacerlas, se cambia loadComponent y se quita data.
  */
 export const routes: Routes = [
   {
@@ -37,11 +36,29 @@ export const routes: Routes = [
     loadComponent: () => import('./paginas/proximamente/proximamente').then((m) => m.Proximamente),
   },
   {
+    // CACS-18: panel del administrador. La guarda cubre también las rutas hijas.
     path: 'admin',
-    title: 'Panel · Game Spot',
     canActivate: [adminGuard],
-    data: { titulo: 'Panel del administrador', tarjeta: 'CACS-18' },
-    loadComponent: () => import('./paginas/proximamente/proximamente').then((m) => m.Proximamente),
+    loadComponent: () => import('./paginas/admin/admin').then((m) => m.Admin),
+    children: [
+      {
+        path: '',
+        title: 'Reservas del día · Panel · Game Spot',
+        loadComponent: () =>
+          import('./paginas/admin/reservas-dia/reservas-dia').then((m) => m.ReservasDia),
+      },
+      {
+        path: 'expiradas',
+        title: 'Expiradas con pago · Panel · Game Spot',
+        loadComponent: () => import('./paginas/admin/expiradas/expiradas').then((m) => m.Expiradas),
+      },
+      {
+        path: 'puntos',
+        title: 'Ajustar puntos · Panel · Game Spot',
+        loadComponent: () =>
+          import('./paginas/admin/ajuste-puntos/ajuste-puntos').then((m) => m.AjustePuntos),
+      },
+    ],
   },
   {
     path: '**',

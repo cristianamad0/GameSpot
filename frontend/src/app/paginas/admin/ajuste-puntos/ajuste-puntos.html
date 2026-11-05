@@ -1,0 +1,114 @@
+<div class="columnas">
+  <section class="gs-tarjeta" aria-labelledby="titulo-busqueda">
+    <h2 id="titulo-busqueda">1. Busca al cliente</h2>
+    <form class="busqueda" [formGroup]="formularioBusqueda" (ngSubmit)="buscar()" novalidate>
+      <div class="gs-campo busqueda__campo">
+        <label for="busqueda">Correo (o parte de él)</label>
+        <input
+          id="busqueda"
+          type="search"
+          formControlName="email"
+          autocomplete="off"
+          [attr.aria-invalid]="busqueda.invalid && busqueda.touched"
+          aria-describedby="busqueda-error"
+        />
+        @if (busqueda.invalid && busqueda.touched) {
+          <p id="busqueda-error" class="gs-campo__error">Escribe al menos 3 caracteres.</p>
+        }
+      </div>
+      <button type="submit" class="gs-boton gs-boton--secundario" [disabled]="buscando()">
+        {{ buscando() ? 'Buscando…' : 'Buscar' }}
+      </button>
+    </form>
+
+    @if (errorBusqueda()) {
+      <div class="gs-alerta" role="alert">{{ errorBusqueda() }}</div>
+    }
+
+    @if (resultados(); as lista) {
+      @if (lista.length === 0) {
+        <p class="suave" role="status">No hay usuarios con ese correo.</p>
+      } @else {
+        <ul class="resultados" aria-label="Resultados de la búsqueda">
+          @for (usuario of lista; track usuario.id) {
+            <li>
+              <button
+                type="button"
+                class="usuario"
+                [class.usuario--elegido]="seleccionado()?.id === usuario.id"
+                [attr.aria-pressed]="seleccionado()?.id === usuario.id"
+                (click)="elegir(usuario)"
+              >
+                <span class="usuario__datos">
+                  <strong>{{ usuario.nombre }}</strong>
+                  <span>{{ usuario.email }}</span>
+                </span>
+                <span class="usuario__saldo">{{ usuario.puntosFidelidad }} pts</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    }
+  </section>
+
+  <section class="gs-tarjeta" aria-labelledby="titulo-ajuste">
+    <h2 id="titulo-ajuste">2. Registra el ajuste</h2>
+    @if (seleccionado(); as usuario) {
+      <p class="cliente">
+        <strong>{{ usuario.nombre }}</strong> tiene
+        <span class="saldo">{{ textoPuntos(usuario.puntosFidelidad) }}</span>
+      </p>
+
+      @if (aviso()) {
+        <div class="aviso" role="status">{{ aviso() }}</div>
+      }
+      @if (errorAjuste()) {
+        <div class="gs-alerta" role="alert">{{ errorAjuste() }}</div>
+      }
+
+      <form [formGroup]="ajuste" (ngSubmit)="guardar()" novalidate>
+        <div class="gs-campo">
+          <label for="puntos">Puntos</label>
+          <input
+            id="puntos"
+            type="number"
+            step="1"
+            formControlName="puntos"
+            [attr.aria-invalid]="invalido('puntos')"
+            aria-describedby="puntos-ayuda puntos-error"
+          />
+          <p id="puntos-ayuda" class="ayuda">Positivo para sumar, negativo para restar (canjes).</p>
+          @if (invalido('puntos')) {
+            <p id="puntos-error" class="gs-campo__error">Escribe un número distinto de cero.</p>
+          }
+        </div>
+
+        <div class="gs-campo">
+          <label for="descripcion">Descripción</label>
+          <input
+            id="descripcion"
+            type="text"
+            maxlength="500"
+            formControlName="descripcion"
+            [attr.aria-invalid]="invalido('descripcion')"
+            aria-describedby="descripcion-error"
+          />
+          @if (invalido('descripcion')) {
+            <p id="descripcion-error" class="gs-campo__error">Explica el motivo del ajuste.</p>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="gs-boton gs-boton--primario gs-boton--ancho"
+          [disabled]="guardando()"
+        >
+          {{ guardando() ? 'Guardando…' : 'Registrar ajuste' }}
+        </button>
+      </form>
+    } @else {
+      <p class="suave">Busca y elige un cliente para ajustar sus puntos.</p>
+    }
+  </section>
+</div>
