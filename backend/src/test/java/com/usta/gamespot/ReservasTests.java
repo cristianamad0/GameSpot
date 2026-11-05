@@ -338,7 +338,7 @@ class ReservasTests {
   }
 
   @Test
-  @DisplayName("CP-26n Un equipo fuera de servicio no tiene bloques libres ni se puede reservar")
+  @DisplayName("CP-26n Un equipo fuera de servicio no tiene bloques libres y reservarlo da 409")
   void equipoFueraDeServicio() throws Exception {
     xbox360.setEstaDisponible(false);
     equipoRepository.saveAndFlush(xbox360);
@@ -346,7 +346,12 @@ class ReservasTests {
     consultarDisponibilidad("2099-03-09")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.bloques[0].estaLibre").value(false));
-    reservar(xbox360.getId(), LUNES_TRES_PM, 60).andExpect(status().isBadRequest());
+    // CACS-20: los datos son válidos; lo impide el estado del equipo, por eso es 409 y no 400.
+    reservar(xbox360.getId(), LUNES_TRES_PM, 60)
+        .andExpect(status().isConflict())
+        .andExpect(
+            jsonPath("$.mensaje")
+                .value("El equipo " + xbox360.getNombre() + " está fuera de servicio"));
   }
 
   // Criterio 6: un usuario sin token recibe 401.
