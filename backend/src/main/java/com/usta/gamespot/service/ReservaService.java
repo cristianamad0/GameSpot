@@ -36,8 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p>Las reglas de bloques y de cruces también las garantiza la base de datos (restricciones
  * reservas_bloques_30_min y reservas_sin_cruces). El servicio las revisa antes para responder con
- * un mensaje claro, y traduce la violación de reservas_sin_cruces cuando dos peticiones
- * simultáneas pasan la revisión al mismo tiempo.
+ * un mensaje claro. Para que la revisión de cruces sea confiable con peticiones simultáneas,
+ * bloquea el equipo mientras crea la reserva (CACS-9); la restricción queda como respaldo.
  */
 @Service
 @RequiredArgsConstructor
@@ -68,7 +68,10 @@ public class ReservaService {
    */
   @Transactional
   public ReservaResponse crear(CrearReservaRequest request, String emailUsuario) {
-    Equipo equipo = buscarEquipo(request.equipoId());
+    Equipo equipo =
+        equipoRepository
+            .buscarParaReservar(request.equipoId())
+            .orElseThrow(() -> new EquipoNoEncontradoException(request.equipoId()));
     if (!esReservable(equipo)) {
       throw new ReservaInvalidaException(
           "El equipo " + equipo.getNombre() + " está fuera de servicio");
@@ -109,7 +112,7 @@ public class ReservaService {
     try {
       return ReservaResponse.de(reservaRepository.saveAndFlush(reserva));
     } catch (DataIntegrityViolationException ex) {
-      // Otra petición tomó el bloque entre la revisión de cruces y el guardado.
+      // Respaldo: con el equipo bloqueado no debería pasar, pero la base tiene la última palabra.
       if (String.valueOf(ex.getMostSpecificCause().getMessage())
           .contains(RESTRICCION_SIN_CRUCES)) {
         throw new BloqueOcupadoException();
