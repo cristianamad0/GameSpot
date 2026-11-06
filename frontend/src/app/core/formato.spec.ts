@@ -1,4 +1,4 @@
-import { hoyEnNegocio, horaNegocio, pesos, textoPuntos } from './formato';
+import { hoyEnNegocio, horaNegocio, pesos, textoPuntos, tiempoRestante } from './formato';
 
 describe('Formatos del negocio (CACS-18)', () => {
   it('CP-F14a muestra las horas en la zona de Bogotá (UTC-5)', () => {
@@ -20,5 +20,14 @@ describe('Formatos del negocio (CACS-18)', () => {
     expect(textoPuntos(-1)).toBe('-1 punto');
     expect(textoPuntos(8)).toBe('8 puntos');
     expect(textoPuntos(0)).toBe('0 puntos');
+  });
+});
+
+describe('Cuenta regresiva del pago (CACS-17)', () => {
+  it('CP-F14e el tiempo restante se muestra en horas, minutos o segundos, nunca negativo', () => {
+    expect(tiempoRestante(65 * 60_000)).toBe('1 h 05 min');
+    expect(tiempoRestante(14 * 60_000 + 9_000)).toBe('14 min 09 s');
+    expect(tiempoRestante(45_000)).toBe('45 s');
+    expect(tiempoRestante(-5_000)).toBe('0 s');
   });
 });
