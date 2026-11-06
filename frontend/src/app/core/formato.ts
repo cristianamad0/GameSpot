@@ -43,3 +43,22 @@ export function textoPuntos(cantidad: number): string {
 export function hoyEnNegocio(ahora: Date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: ZONA_NEGOCIO }).format(ahora);
 }
+
+/**
+ * Tiempo que falta en palabras cortas, para la cuenta regresiva del pago: "1 h 05 min",
+ * "14 min 09 s" o "45 s". Cero o negativo es "0 s".
+ */
+export function tiempoRestante(milisegundos: number): string {
+  const totalSegundos = Math.max(0, Math.floor(milisegundos / 1000));
+  const horas = Math.floor(totalSegundos / 3600);
+  const minutos = Math.floor((totalSegundos % 3600) / 60);
+  const segundos = totalSegundos % 60;
+  const dosDigitos = (n: number) => n.toString().padStart(2, '0');
+  if (horas > 0) {
+    return `${horas} h ${dosDigitos(minutos)} min`;
+  }
+  if (minutos > 0) {
+    return `${minutos} min ${dosDigitos(segundos)} s`;
+  }
+  return `${segundos} s`;
+}

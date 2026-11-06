@@ -1,0 +1,55 @@
+<section class="gs-contenedor pagina">
+  <header class="encabezado">
+    <p class="encabezado__etiqueta">Fidelización</p>
+    <h1>Mis puntos</h1>
+  </header>
+
+  @if (cargando()) {
+    <p aria-live="polite">Cargando tus puntos…</p>
+  } @else if (error()) {
+    <div class="gs-alerta" role="alert">{{ error() }}</div>
+  } @else if (saldo(); as s) {
+    <div class="columnas">
+      <section class="gs-tarjeta saldo" aria-labelledby="titulo-saldo">
+        <h2 id="titulo-saldo">Tu saldo</h2>
+        <p class="saldo__valor">
+          <span class="saldo__numero">{{ s.saldoPuntos }}</span>
+          <span class="saldo__unidad">{{ s.saldoPuntos === 1 ? 'punto' : 'puntos' }}</span>
+        </p>
+        <p class="suave">Ganas puntos por cada hora que juegas en Game Spot.</p>
+        <a routerLink="/reservar" class="gs-boton gs-boton--primario gs-boton--ancho">Reservar</a>
+      </section>
+
+      <section class="gs-tarjeta" aria-labelledby="titulo-historial">
+        <h2 id="titulo-historial">Historial</h2>
+        @if (movimientos().length === 0) {
+          <div class="vacio" role="status">
+            <span aria-hidden="true">🎮</span>
+            <p>Aún no tienes movimientos. Juega en Game Spot y aquí verás los puntos que ganes.</p>
+          </div>
+        } @else {
+          <ul class="movimientos">
+            @for (movimiento of movimientos(); track movimiento.id) {
+              <li class="movimiento" [attr.data-movimiento]="movimiento.id">
+                <div class="movimiento__datos">
+                  <strong>{{ tipos[movimiento.tipo] }}</strong>
+                  @if (movimiento.descripcion) {
+                    <span>{{ movimiento.descripcion }}</span>
+                  }
+                  <time class="suave" [attr.datetime]="movimiento.fecha">{{
+                    fechaHora(movimiento.fecha)
+                  }}</time>
+                </div>
+                <span
+                  class="movimiento__puntos"
+                  [class.movimiento__puntos--resta]="movimiento.puntos < 0"
+                  >{{ conSigno(movimiento.puntos) }}</span
+                >
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</section>

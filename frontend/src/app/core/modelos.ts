@@ -84,6 +84,35 @@ export interface MovimientoPuntos {
   reservaId: number | null;
 }
 
+/** Reserva tal como la ve el cliente que la hizo (ReservaResponse del backend). */
+export interface Reserva {
+  id: number;
+  equipoId: number;
+  nombreEquipo: string;
+  inicio: string;
+  fin: string;
+  precioTotalPesos: number;
+  adelantoPesos: number;
+  estado: EstadoReserva;
+  /** Límite para pagar el adelanto; null cuando ya no está PENDIENTE_PAGO. */
+  expiraEn: string | null;
+}
+
+/** Resultado que se le pide al proveedor de anticipos simulado (ResultadoSimulado del backend). */
+export type ResultadoSimulado = 'APROBADO' | 'RECHAZADO';
+
+/** Resultado de pagar el adelanto (PagoAnticipoResponse del backend). */
+export interface PagoAnticipo {
+  pagoId: number;
+  referencia: string;
+  montoCentavos: number;
+  estadoPago: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | 'ANULADO' | 'ERROR';
+  reservaId: number;
+  estadoReserva: EstadoReserva;
+  tieneAnticipoPagado: boolean;
+  expiraEn: string | null;
+}
+
 /** Saldo e historial de puntos (SaldoPuntosResponse del backend). */
 export interface SaldoPuntos {
   usuarioId: number;
