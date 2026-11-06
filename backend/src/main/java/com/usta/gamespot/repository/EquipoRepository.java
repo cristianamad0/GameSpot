@@ -22,4 +22,8 @@ public interface EquipoRepository extends JpaRepository<Equipo, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select e from Equipo e join fetch e.modalidad where e.id = :id")
   Optional<Equipo> buscarParaReservar(@Param("id") Long id);
+
+  /** CACS-19: todos los equipos con su modalidad, del más económico al más costoso. */
+  @Query("select e from Equipo e join fetch e.modalidad m order by m.tarifaHoraPesos, e.nombre")
+  List<Equipo> buscarConModalidad();
 }

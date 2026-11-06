@@ -16,7 +16,8 @@ Santo Tomás, sede Villavicencio).
 | Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
 | Puntos de fidelización (HU-04) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
 | Reservas por bloques de 30 minutos (HU-02) | Implementado: `POST /api/reservas` (crea la reserva en `PENDIENTE_PAGO` con precio, adelanto y plazo de pago) y `GET /api/reservas/disponibilidad?equipoId=&fecha=` (bloques libres y ocupados del día) |
-| Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot. Reservar muestra "Próximamente" hasta CACS-19 |
+| Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot |
+| Frontend: reservar un equipo (HU-02) | Implementado en `/reservar`: catálogo de equipos con ícono, modalidad y tarifa; grilla de bloques de 30 minutos del día (libre, ocupado, ya pasó y elegido, con texto); duraciones solo de bloques libres seguidos; precio y adelanto antes de confirmar; al reservar pasa a pagar, y un 409 actualiza la grilla. Backend: `GET /api/catalogo` (equipos, porcentaje de adelanto y plazo de pago) |
 | Frontend: pagar el adelanto y mis puntos (HU-03 y HU-04) | Implementado en `/reservas/:id/pagar` (monto, cuenta regresiva del plazo, aprobado o rechazado y reintento; selector del proveedor simulado solo con `ng serve`) y `/mis-puntos` (saldo e historial). Backend: `GET /api/reservas/{id}` para que el cliente lea su reserva (solo el dueño) |
 | Frontend: panel del administrador (HU-06 y HU-04) | Implementado en `/admin`: reservas del día por equipo con filtros, cancelar con motivo y completar; expiradas con pago aprobado; ajuste de puntos buscando al cliente por correo (`GET /api/admin/usuarios?email=`, solo `ADMIN`) |
 
@@ -187,6 +188,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio (409), 401 sin token y reserva pagada de punta a punta; el cliente lee su reserva (403 ajena, 404 inexistente) | CP-26a a CP-26p, CP-30a a CP-30c |
 | `PruebasSimultaneasTests` | Concurrencia real con servidor y PostgreSQL: 10 reservas simultáneas del mismo bloque, bloques que se cruzan en parte, bloques contiguos y otros equipos, pagos simultáneos de una reserva y 16 carreras seguidas sin resultados intermitentes. Sin `@Transactional`: borra lo que crea | CP-27a a CP-27e |
 | `DatosDemostracionTests` | Datos de demostración: con el perfil `demo` se inicia sesión como admin y cliente, hay reservas en los cinco estados entre ayer y mañana, puntos y una expirada con pago, no se duplican y las contraseñas van cifradas; sin el perfil no se cargan | CP-29a a CP-29f |
+| `CatalogoTests` | Catálogo de equipos: modalidad, tarifa y orden, adelanto del 50 % y 15 minutos para pagar, equipo fuera de servicio y 401 sin token | CP-31a a CP-31c |
 
 Pruebas del frontend, desde `frontend/` (no necesitan Docker ni la API):
 
@@ -211,7 +213,8 @@ npx ng test --watch=false
 | `core/formato.spec.ts` | Hora y fecha de Bogotá, pesos, singular o plural de puntos y cuenta regresiva | CP-F14a a CP-F14e |
 | `paginas/pagar-adelanto/pagar-adelanto.spec.ts` | Pagar el adelanto: aprobado y confirmada, rechazado con reintento, plazo vencido, 403 y 404 al cargar, 409 al pagar, sin selector fuera de la demostración y reserva ya confirmada | CP-F15a a CP-F15g |
 | `paginas/mis-puntos/mis-puntos.spec.ts` | Mis puntos: saldo, historial del más reciente al más antiguo con signo, estado vacío y error | CP-F16a a CP-F16c |
-| `paginas/cliente/rutas-cliente.spec.ts` | Mis puntos y pagar el adelanto exigen sesión | CP-F17 |
+| `paginas/cliente/rutas-cliente.spec.ts` | Reservar, mis puntos y pagar el adelanto exigen sesión | CP-F17, CP-F18h |
+| `paginas/reservar/reservar.spec.ts` | Reservar: catálogo con ícono y tarifa, fuera de servicio, disponibilidad con libres, ocupados y pasados, duraciones válidas, precio y adelanto, crear y pasar al pago, 409 que actualiza la grilla, uso con teclado, día sin atención y cálculos | CP-F18a a CP-F18g, CP-F18i, CP-F18j |
 
 ## Calidad de código
 

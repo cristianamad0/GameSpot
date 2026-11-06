@@ -98,6 +98,37 @@ export interface Reserva {
   expiraEn: string | null;
 }
 
+/** Equipo del catálogo (CatalogoResponse.EquipoCatalogo del backend). */
+export interface EquipoCatalogo {
+  id: number;
+  nombre: string;
+  modalidad: string;
+  tarifaHoraPesos: number;
+  estaDisponible: boolean;
+}
+
+/** Catálogo para reservar (CatalogoResponse del backend). */
+export interface Catalogo {
+  porcentajeAdelanto: number;
+  minutosEsperaPago: number;
+  equipos: EquipoCatalogo[];
+}
+
+/** Bloque de 30 minutos de un equipo (DisponibilidadResponse.Bloque del backend). */
+export interface BloqueDisponibilidad {
+  inicio: string;
+  fin: string;
+  estaLibre: boolean;
+}
+
+/** Bloques de un equipo en un día (DisponibilidadResponse del backend). */
+export interface Disponibilidad {
+  equipoId: number;
+  nombreEquipo: string;
+  fecha: string;
+  bloques: BloqueDisponibilidad[];
+}
+
 /** Resultado que se le pide al proveedor de anticipos simulado (ResultadoSimulado del backend). */
 export type ResultadoSimulado = 'APROBADO' | 'RECHAZADO';
 

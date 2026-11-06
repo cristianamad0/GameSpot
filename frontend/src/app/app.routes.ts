@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { adminGuard, sesionGuard } from './core/auth/guardas';
 
 /**
- * CACS-15: rutas de la aplicación. Reservar muestra "Próximamente" hasta que se haga su tarjeta
- * (CACS-19); al hacerla, se cambia loadComponent y se quita data.
+ * CACS-15: rutas de la aplicación. Las pantallas del cliente (CACS-17 y CACS-19) y el panel
+ * (CACS-18) exigen sesión.
  */
 export const routes: Routes = [
   {
@@ -22,11 +22,11 @@ export const routes: Routes = [
     loadComponent: () => import('./paginas/registro/registro').then((m) => m.Registro),
   },
   {
+    // CACS-19 (HU-02): catálogo, disponibilidad y crear la reserva.
     path: 'reservar',
     title: 'Reservar · Game Spot',
     canActivate: [sesionGuard],
-    data: { titulo: 'Reservar un equipo', tarjeta: 'CACS-19' },
-    loadComponent: () => import('./paginas/proximamente/proximamente').then((m) => m.Proximamente),
+    loadComponent: () => import('./paginas/reservar/reservar').then((m) => m.Reservar),
   },
   {
     // CACS-17 (HU-04): saldo e historial de puntos del cliente.

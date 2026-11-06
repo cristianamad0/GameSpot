@@ -1,0 +1,154 @@
+<section class="gs-contenedor pagina">
+  <header class="encabezado">
+    <p class="encabezado__etiqueta">Reservas</p>
+    <h1>Reservar un equipo</h1>
+  </header>
+
+  @if (errorCatalogo()) {
+    <div class="gs-alerta" role="alert">{{ errorCatalogo() }}</div>
+  } @else if (!catalogo()) {
+    <p aria-live="polite">Cargando los equipos…</p>
+  } @else {
+    <section class="paso" aria-labelledby="titulo-equipo">
+      <h2 id="titulo-equipo">1. Elige un equipo</h2>
+      <ul class="equipos">
+        @for (opcion of catalogo()!.equipos; track opcion.id) {
+          <li>
+            <button
+              type="button"
+              class="equipo"
+              [class.equipo--elegido]="equipo()?.id === opcion.id"
+              [attr.aria-pressed]="equipo()?.id === opcion.id"
+              [disabled]="!opcion.estaDisponible"
+              [attr.data-equipo]="opcion.id"
+              (click)="elegirEquipo(opcion)"
+            >
+              <span class="equipo__icono" aria-hidden="true">{{ icono(opcion.modalidad) }}</span>
+              <span class="equipo__datos">
+                <strong>{{ opcion.nombre }}</strong>
+                <span>{{ opcion.modalidad }}</span>
+                @if (opcion.estaDisponible) {
+                  <span class="equipo__tarifa">{{ pesos(opcion.tarifaHoraPesos) }} / hora</span>
+                } @else {
+                  <span class="equipo__fuera">Fuera de servicio</span>
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (equipo(); as elegido) {
+      <section class="paso" aria-labelledby="titulo-horario">
+        <h2 id="titulo-horario">2. Elige el día y la hora</h2>
+        <div class="gs-campo campo-fecha">
+          <label for="fecha">Día</label>
+          <input
+            id="fecha"
+            type="date"
+            [min]="hoy"
+            [value]="fecha()"
+            (change)="cambiarFecha($any($event.target).value)"
+          />
+        </div>
+
+        <ul class="leyenda" aria-label="Significado de los colores">
+          <li><span class="muestra muestra--libre"></span> Libre</li>
+          <li><span class="muestra muestra--ocupado"></span> Ocupado</li>
+          <li><span class="muestra muestra--pasado"></span> Ya pasó</li>
+          <li><span class="muestra muestra--elegido"></span> Elegido</li>
+        </ul>
+
+        @if (cargandoBloques()) {
+          <p aria-live="polite">Cargando los horarios de {{ elegido.nombre }}…</p>
+        } @else if (errorBloques()) {
+          <div class="gs-alerta" role="alert">{{ errorBloques() }}</div>
+        } @else if (vista().length === 0) {
+          <p class="suave" role="status">El local no atiende ese día. Elige otra fecha.</p>
+        } @else {
+          <div class="bloques" role="group" [attr.aria-label]="'Horarios de ' + elegido.nombre">
+            @for (bloque of vista(); track bloque.inicio) {
+              <button
+                type="button"
+                class="bloque"
+                [attr.data-estado]="bloque.estado"
+                [class.bloque--elegido]="estaElegido(bloque)"
+                [attr.aria-pressed]="estaElegido(bloque)"
+                [attr.aria-label]="etiquetaBloque(bloque)"
+                [disabled]="bloque.estado !== 'libre'"
+                (click)="elegirInicio(bloque)"
+              >
+                <span class="bloque__hora">{{ hora(bloque.inicio) }}</span>
+                <span class="bloque__estado">{{
+                  estaElegido(bloque) ? 'Elegido' : textoEstado[bloque.estado]
+                }}</span>
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      @if (inicio()) {
+        <section class="gs-tarjeta paso resumen" aria-labelledby="titulo-confirmar">
+          <h2 id="titulo-confirmar">3. Confirma tu reserva</h2>
+
+          <div class="gs-campo">
+            <label for="duracion">Duración</label>
+            <select
+              id="duracion"
+              [value]="duracionMinutos()"
+              (change)="cambiarDuracion($any($event.target).value)"
+            >
+              @for (minutos of duraciones(); track minutos) {
+                <option [value]="minutos" [selected]="minutos === duracionMinutos()">
+                  {{ textoDuracion(minutos) }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <dl class="detalle">
+            <div>
+              <dt>Equipo</dt>
+              <dd>{{ elegido.nombre }}</dd>
+            </div>
+            <div>
+              <dt>Horario</dt>
+              <dd>{{ hora(inicio()!) }} – {{ hora(fin()!) }}</dd>
+            </div>
+            <div>
+              <dt>Precio total</dt>
+              <dd>{{ pesos(precioTotalPesos()) }}</dd>
+            </div>
+            <div class="detalle__adelanto">
+              <dt>Adelanto</dt>
+              <dd>{{ pesos(adelantoPesos()) }}</dd>
+            </div>
+          </dl>
+          <p class="suave nota">
+            Al reservar tendrás {{ catalogo()!.minutosEsperaPago }} minutos para pagar el adelanto;
+            si no lo pagas, el bloque se libera.
+          </p>
+
+          @if (errorReserva()) {
+            <div class="gs-alerta" role="alert">{{ errorReserva() }}</div>
+          }
+
+          <button
+            type="button"
+            class="gs-boton gs-boton--primario gs-boton--ancho"
+            [disabled]="reservando()"
+            (click)="reservar()"
+          >
+            {{ reservando() ? 'Reservando…' : 'Reservar y pagar el adelanto' }}
+          </button>
+        </section>
+      } @else if (errorReserva()) {
+        <div class="gs-alerta" role="alert">{{ errorReserva() }}</div>
+      }
+    } @else {
+      <p class="suave">Elige un equipo para ver sus horarios.</p>
+    }
+  }
+</section>
