@@ -514,3 +514,44 @@ pruebas y pendientes. La entrada más reciente va al final.
   - En Windows con `core.autocrlf=true`, `prettier --check` sin
     `--end-of-line auto` marca todos los archivos por los finales de línea
     CRLF del checkout; en el repositorio están en LF.
+
+## 2026-11-06 — Frontend: reservar un equipo
+
+- **Tarjeta:** CACS-19 (HU-02).
+- **Rama:** `feat/reservar-frontend` (creada desde `feat/pantallas-cliente`,
+  porque al reservar se pasa a la pantalla de pago de CACS-17).
+- **Qué se hizo:**
+  - Backend: `GET /api/catalogo` (`CatalogoController`, `CatalogoService`,
+    `CatalogoResponse`) con los equipos, su modalidad y tarifa, si están
+    disponibles, el porcentaje de adelanto y los minutos para pagar. Ningún
+    endpoint del cliente exponía la tarifa ni el porcentaje, que la pantalla
+    necesita para mostrar el precio y el adelanto antes de confirmar. El valor
+    que se cobra lo sigue calculando `ReservaService`.
+  - Frontend, `/reservar` (`Reservar`): catálogo en tarjetas con ícono por
+    modalidad (consola o sala) y tarifa; los equipos fuera de servicio no se
+    eligen. Grilla de bloques de 30 minutos del día elegido con cuatro estados
+    con color y texto (libre, ocupado, ya pasó y elegido). Solo se eligen
+    bloques libres y duraciones de bloques libres seguidos. El resumen muestra
+    equipo, horario, precio, adelanto y el plazo de pago. Al reservar pasa a
+    `/reservas/:id/pagar`; un 409 muestra el mensaje y vuelve a cargar la grilla.
+  - Teclado: los bloques son botones con nombre ("4:00 p. m. a 4:30 p. m.,
+    libre"), `aria-pressed` para los elegidos y foco visible.
+  - "Reservar" deja de ser "Próximamente"; el componente `Proximamente` ya no
+    lo usa ninguna ruta.
+  - Probado a mano con los datos de demostración como Andrés: catálogo, la
+    grilla de la Sala VIP con su reserva de hoy ocupada, un 409 real (Laura
+    tomó el bloque por la API mientras Andrés lo tenía elegido), elegir con Tab
+    y Enter, crear la reserva y pasar al pago; a 360 px sin desplazamiento
+    horizontal. Contraste de los colores nuevos entre 4,78:1 y 13,01:1 (AA).
+    Capturas en `docs/capturas/cacs-19/`.
+  - La prueba a mano encontró que el aviso del 409 seguía visible al elegir
+    otro bloque; ahora se borra (CP-F18f lo cubre).
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 149 pruebas, 0 fallos, 0 errores (CP-31a a
+  CP-31c en `CatalogoTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 71 pruebas, 0 fallos (CP-F18a a
+  CP-F18j). `npx ng build` sin errores. `npx prettier --check --end-of-line
+  auto "src/**/*.{ts,html,scss}"` sin cambios.
+- **Pendientes:**
+  - Este PR se fusiona después del #28 (CACS-17).
+  - Decidir si se borra `paginas/proximamente`, que ya no usa ninguna ruta.
