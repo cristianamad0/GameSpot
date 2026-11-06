@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { adminGuard, sesionGuard } from './core/auth/guardas';
 
 /**
- * CACS-15: rutas de la aplicación. Reservar y mis puntos muestran "Próximamente" hasta que se
- * hagan sus tarjetas (CACS-19 y CACS-17); al hacerlas, se cambia loadComponent y se quita data.
+ * CACS-15: rutas de la aplicación. Reservar muestra "Próximamente" hasta que se haga su tarjeta
+ * (CACS-19); al hacerla, se cambia loadComponent y se quita data.
  */
 export const routes: Routes = [
   {
@@ -29,11 +29,19 @@ export const routes: Routes = [
     loadComponent: () => import('./paginas/proximamente/proximamente').then((m) => m.Proximamente),
   },
   {
+    // CACS-17 (HU-04): saldo e historial de puntos del cliente.
     path: 'mis-puntos',
     title: 'Mis puntos · Game Spot',
     canActivate: [sesionGuard],
-    data: { titulo: 'Mis puntos', tarjeta: 'CACS-17' },
-    loadComponent: () => import('./paginas/proximamente/proximamente').then((m) => m.Proximamente),
+    loadComponent: () => import('./paginas/mis-puntos/mis-puntos').then((m) => m.MisPuntos),
+  },
+  {
+    // CACS-17 (HU-03): pago del adelanto. CACS-19 lleva aquí al cliente después de reservar.
+    path: 'reservas/:id/pagar',
+    title: 'Pagar el adelanto · Game Spot',
+    canActivate: [sesionGuard],
+    loadComponent: () =>
+      import('./paginas/pagar-adelanto/pagar-adelanto').then((m) => m.PagarAdelanto),
   },
   {
     // CACS-18: panel del administrador. La guarda cubre también las rutas hijas.

@@ -473,3 +473,44 @@ pruebas y pendientes. La entrada más reciente va al final.
   - La reserva pendiente de demostración tiene plazo de pago hasta su hora de
     inicio (mañana), no 15 minutos, para que no expire durante una
     demostración.
+
+## 2026-11-05 — Frontend: pagar el adelanto y mis puntos
+
+- **Tarjeta:** CACS-17 (HU-03 y HU-04).
+- **Rama:** `feat/pantallas-cliente`
+- **Qué se hizo:**
+  - Backend: `GET /api/reservas/{id}` (`ReservaService.obtenerPropia`) para que
+    el cliente lea su reserva antes de pagar; 403 si es de otro usuario y 404
+    si no existe. No había forma de mostrar el monto y la fecha límite al
+    recargar la página.
+  - Frontend, `/reservas/:id/pagar` (`PagarAdelanto`): equipo, horario,
+    precio, adelanto destacado y lo que se paga en el local; cuenta regresiva
+    del plazo (`role="timer"`, sin anuncios cada segundo); pago aprobado con la
+    reserva `CONFIRMADA` y su referencia; pago rechazado con el motivo y
+    reintento; plazo vencido sin botón de pago; errores 403, 404 y 409 con el
+    mensaje del backend.
+  - El selector "aprobar / rechazar" del proveedor simulado solo aparece con
+    `ng serve` (`PROVEEDOR_SIMULADO`, que vale `isDevMode()`); en un build de
+    producción el pago va sin resultado y el simulado lo aprueba.
+  - Frontend, `/mis-puntos` (`MisPuntos`): saldo destacado e historial del más
+    reciente al más antiguo, con tipo, descripción, fecha y el signo en el
+    texto (no solo el color); estado vacío amigable.
+  - `ClienteApi` agrupa las llamadas del cliente. Las rutas exigen sesión.
+  - Probado a mano con `spring-boot:test-run` y `ng serve` como Laura: pago
+    rechazado, reintento aprobado, mis puntos, y las dos pantallas a 360 px sin
+    desplazamiento horizontal. Contraste de los colores usados entre 5,38:1 y
+    15,23:1 (AA). Capturas en `docs/capturas/cacs-17/`.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 146 pruebas, 0 fallos, 0 errores (CP-30a a
+  CP-30c en `ReservasTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 61 pruebas, 0 fallos (CP-F14e,
+  CP-F15a a CP-F15g, CP-F16a a CP-F16c y CP-F17). `npx ng build` sin errores.
+  `npx prettier --check --end-of-line auto "src/**/*.{ts,html,scss}"` sin
+  cambios.
+- **Pendientes:**
+  - El cliente todavía no tiene una lista de sus reservas: llega a pagar desde
+    la pantalla de reservar (CACS-19) o con el enlace. La lista es el
+    historial de CACS-3.
+  - En Windows con `core.autocrlf=true`, `prettier --check` sin
+    `--end-of-line auto` marca todos los archivos por los finales de línea
+    CRLF del checkout; en el repositorio están en LF.

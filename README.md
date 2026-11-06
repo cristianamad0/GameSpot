@@ -16,7 +16,8 @@ Santo Tomás, sede Villavicencio).
 | Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
 | Puntos de fidelización (HU-04) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
 | Reservas por bloques de 30 minutos (HU-02) | Implementado: `POST /api/reservas` (crea la reserva en `PENDIENTE_PAGO` con precio, adelanto y plazo de pago) y `GET /api/reservas/disponibilidad?equipoId=&fecha=` (bloques libres y ocupados del día) |
-| Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot. Reservar y mis puntos muestran "Próximamente" hasta CACS-19 y CACS-17 |
+| Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot. Reservar muestra "Próximamente" hasta CACS-19 |
+| Frontend: pagar el adelanto y mis puntos (HU-03 y HU-04) | Implementado en `/reservas/:id/pagar` (monto, cuenta regresiva del plazo, aprobado o rechazado y reintento; selector del proveedor simulado solo con `ng serve`) y `/mis-puntos` (saldo e historial). Backend: `GET /api/reservas/{id}` para que el cliente lea su reserva (solo el dueño) |
 | Frontend: panel del administrador (HU-06 y HU-04) | Implementado en `/admin`: reservas del día por equipo con filtros, cancelar con motivo y completar; expiradas con pago aprobado; ajuste de puntos buscando al cliente por correo (`GET /api/admin/usuarios?email=`, solo `ADMIN`) |
 
 ## Tecnologías
@@ -183,7 +184,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `PuntosFidelidadTests` | Puntos de fidelización: puntos al completar una sola vez, saldo e historial propios, ajustes del admin con descripción y sin saldo negativo | CP-24a a CP-24i |
 | `RespuestasErrorServidorTests` | Códigos de error con un servidor real (403, 400 y 401), que MockMvc no reproduce | CP-25a a CP-25c |
 | `AdminUsuariosTests` | Búsqueda de usuarios por parte del correo: sin distinguir mayúsculas, máximo 10, lista vacía, 400 con menos de 3 caracteres, solo `ADMIN` | CP-28a a CP-28e |
-| `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio (409), 401 sin token y reserva pagada de punta a punta | CP-26a a CP-26p |
+| `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio (409), 401 sin token y reserva pagada de punta a punta; el cliente lee su reserva (403 ajena, 404 inexistente) | CP-26a a CP-26p, CP-30a a CP-30c |
 | `PruebasSimultaneasTests` | Concurrencia real con servidor y PostgreSQL: 10 reservas simultáneas del mismo bloque, bloques que se cruzan en parte, bloques contiguos y otros equipos, pagos simultáneos de una reserva y 16 carreras seguidas sin resultados intermitentes. Sin `@Transactional`: borra lo que crea | CP-27a a CP-27e |
 | `DatosDemostracionTests` | Datos de demostración: con el perfil `demo` se inicia sesión como admin y cliente, hay reservas en los cinco estados entre ayer y mañana, puntos y una expirada con pago, no se duplican y las contraseñas van cifradas; sin el perfil no se cargan | CP-29a a CP-29f |
 
@@ -207,7 +208,10 @@ npx ng test --watch=false
 | `paginas/admin/expiradas/expiradas.spec.ts` | Panel: reservas expiradas con pago aprobado | CP-F11a y CP-F11b |
 | `paginas/admin/ajuste-puntos/ajuste-puntos.spec.ts` | Panel: buscar al cliente, ajustar puntos, 409 por saldo negativo y validaciones | CP-F12a a CP-F12d |
 | `paginas/admin/admin.spec.ts` | Todas las rutas del panel protegidas por `adminGuard` | CP-F13 |
-| `core/formato.spec.ts` | Hora y fecha de Bogotá, pesos y singular o plural de puntos | CP-F14a a CP-F14d |
+| `core/formato.spec.ts` | Hora y fecha de Bogotá, pesos, singular o plural de puntos y cuenta regresiva | CP-F14a a CP-F14e |
+| `paginas/pagar-adelanto/pagar-adelanto.spec.ts` | Pagar el adelanto: aprobado y confirmada, rechazado con reintento, plazo vencido, 403 y 404 al cargar, 409 al pagar, sin selector fuera de la demostración y reserva ya confirmada | CP-F15a a CP-F15g |
+| `paginas/mis-puntos/mis-puntos.spec.ts` | Mis puntos: saldo, historial del más reciente al más antiguo con signo, estado vacío y error | CP-F16a a CP-F16c |
+| `paginas/cliente/rutas-cliente.spec.ts` | Mis puntos y pagar el adelanto exigen sesión | CP-F17 |
 
 ## Calidad de código
 

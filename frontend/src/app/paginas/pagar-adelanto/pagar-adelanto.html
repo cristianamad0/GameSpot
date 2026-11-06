@@ -1,0 +1,113 @@
+<section class="gs-contenedor pagina">
+  <header class="encabezado">
+    <p class="encabezado__etiqueta">Tu reserva</p>
+    <h1>Pagar el adelanto</h1>
+  </header>
+
+  @if (cargando()) {
+    <p aria-live="polite">Cargando tu reserva…</p>
+  } @else if (errorCarga()) {
+    <div class="gs-alerta" role="alert">{{ errorCarga() }}</div>
+    <a routerLink="/" class="gs-boton gs-boton--secundario">Volver al inicio</a>
+  } @else if (reserva(); as r) {
+    <div class="columnas">
+      <article class="gs-tarjeta resumen" aria-labelledby="titulo-reserva">
+        <div class="resumen__fila">
+          <h2 id="titulo-reserva">{{ r.nombreEquipo }}</h2>
+          <gs-estado-reserva [estado]="r.estado" />
+        </div>
+        <p class="suave">{{ fechaHora(r.inicio) }} – {{ hora(r.fin) }}</p>
+
+        <dl class="montos">
+          <div>
+            <dt>Precio total</dt>
+            <dd>{{ pesos(r.precioTotalPesos) }}</dd>
+          </div>
+          <div class="montos__adelanto">
+            <dt>Adelanto</dt>
+            <dd>{{ pesos(r.adelantoPesos) }}</dd>
+          </div>
+        </dl>
+        <p class="suave nota">El resto, {{ pesos(saldoEnLocal()) }}, se paga en el local.</p>
+      </article>
+
+      <section class="gs-tarjeta pago" aria-labelledby="titulo-pago">
+        <h2 id="titulo-pago">Pago</h2>
+
+        @if (ultimoPago()?.estadoPago === 'APROBADO') {
+          <div class="aviso aviso--exito" role="status">
+            <strong>¡Pago aprobado!</strong> Tu reserva quedó confirmada.
+            <span class="referencia">Referencia: {{ ultimoPago()!.referencia }}</span>
+          </div>
+          <div class="acciones">
+            <a routerLink="/mis-puntos" class="gs-boton gs-boton--secundario">Ver mis puntos</a>
+            <a routerLink="/" class="gs-boton gs-boton--secundario">Volver al inicio</a>
+          </div>
+        } @else if (plazoVencido()) {
+          <div class="gs-alerta" role="alert">
+            El plazo para pagar venció el {{ fechaHora(r.expiraEn!) }} y el bloque quedará libre.
+            Haz una nueva reserva para jugar.
+          </div>
+          <a routerLink="/reservar" class="gs-boton gs-boton--secundario">Hacer otra reserva</a>
+        } @else if (sePuedePagar()) {
+          @if (ultimoPago()?.estadoPago === 'RECHAZADO') {
+            <div class="gs-alerta" role="alert">
+              El proveedor de pagos rechazó el cobro, así que tu reserva sigue pendiente. Revisa tu
+              medio de pago e intenta de nuevo antes de que venza el plazo.
+            </div>
+          }
+          @if (errorPago()) {
+            <div class="gs-alerta" role="alert">{{ errorPago() }}</div>
+          }
+
+          <p class="plazo">
+            Tienes
+            <strong class="plazo__cuenta" role="timer">{{ tiempoRestante(restanteMs()!) }}</strong>
+            para pagar (hasta el {{ fechaHora(r.expiraEn!) }}).
+          </p>
+
+          @if (esSimulado) {
+            <fieldset class="simulado">
+              <legend>Proveedor simulado (solo demostración)</legend>
+              <label>
+                <input
+                  type="radio"
+                  name="resultado"
+                  value="APROBADO"
+                  [checked]="resultadoSimulado() === 'APROBADO'"
+                  (change)="resultadoSimulado.set('APROBADO')"
+                />
+                Aprobar el pago
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="resultado"
+                  value="RECHAZADO"
+                  [checked]="resultadoSimulado() === 'RECHAZADO'"
+                  (change)="resultadoSimulado.set('RECHAZADO')"
+                />
+                Rechazar el pago
+              </label>
+            </fieldset>
+          }
+
+          <button
+            type="button"
+            class="gs-boton gs-boton--primario gs-boton--ancho"
+            [disabled]="pagando()"
+            (click)="pagar()"
+          >
+            {{ pagando() ? 'Procesando el pago…' : 'Pagar ' + pesos(r.adelantoPesos) }}
+          </button>
+        } @else {
+          @if (errorPago()) {
+            <div class="gs-alerta" role="alert">{{ errorPago() }}</div>
+          }
+          <p class="suave" role="status">Esta reserva no tiene un adelanto pendiente de pago.</p>
+          <a routerLink="/" class="gs-boton gs-boton--secundario">Volver al inicio</a>
+        }
+      </section>
+    </div>
+  }
+</section>
