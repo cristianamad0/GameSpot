@@ -8,7 +8,9 @@ import com.usta.gamespot.dto.ReservaResponse;
 import com.usta.gamespot.exception.BloqueOcupadoException;
 import com.usta.gamespot.exception.EquipoFueraDeServicioException;
 import com.usta.gamespot.exception.EquipoNoEncontradoException;
+import com.usta.gamespot.exception.ReservaAjenaException;
 import com.usta.gamespot.exception.ReservaInvalidaException;
+import com.usta.gamespot.exception.ReservaNoEncontradaException;
 import com.usta.gamespot.model.ConfiguracionNegocio;
 import com.usta.gamespot.model.Equipo;
 import com.usta.gamespot.model.EstadoReserva;
@@ -119,6 +121,28 @@ public class ReservaService {
       }
       throw ex;
     }
+  }
+
+  /**
+   * CACS-17 (HU-03): devuelve una reserva del usuario autenticado, para mostrar su monto y su
+   * fecha límite antes de pagar el adelanto.
+   *
+   * @param reservaId id de la reserva
+   * @param emailUsuario correo del usuario autenticado
+   * @return la reserva con su estado actual
+   * @throws ReservaNoEncontradaException si la reserva no existe
+   * @throws ReservaAjenaException si la reserva es de otro usuario
+   */
+  @Transactional(readOnly = true)
+  public ReservaResponse obtenerPropia(Long reservaId, String emailUsuario) {
+    Reserva reserva =
+        reservaRepository
+            .findById(reservaId)
+            .orElseThrow(() -> new ReservaNoEncontradaException(reservaId));
+    if (!reserva.getUsuario().getEmail().equalsIgnoreCase(emailUsuario)) {
+      throw new ReservaAjenaException(reservaId);
+    }
+    return ReservaResponse.de(reserva);
   }
 
   /**
