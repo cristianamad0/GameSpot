@@ -16,6 +16,10 @@ Santo Tomás, sede Villavicencio).
 | Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
 | Puntos de fidelización (HU-04) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
 | Reservas por bloques de 30 minutos (HU-02) | Implementado: `POST /api/reservas` (crea la reserva en `PENDIENTE_PAGO` con precio, adelanto y plazo de pago) y `GET /api/reservas/disponibilidad?equipoId=&fecha=` (bloques libres y ocupados del día) |
+| Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot |
+| Frontend: reservar un equipo (HU-02) | Implementado en `/reservar`: catálogo de equipos con ícono, modalidad y tarifa; grilla de bloques de 30 minutos del día (libre, ocupado, ya pasó y elegido, con texto); duraciones solo de bloques libres seguidos; precio y adelanto antes de confirmar; al reservar pasa a pagar, y un 409 actualiza la grilla. Backend: `GET /api/catalogo` (equipos, porcentaje de adelanto y plazo de pago) |
+| Frontend: pagar el adelanto y mis puntos (HU-03 y HU-04) | Implementado en `/reservas/:id/pagar` (monto, cuenta regresiva del plazo, aprobado o rechazado y reintento; selector del proveedor simulado solo con `ng serve`) y `/mis-puntos` (saldo e historial). Backend: `GET /api/reservas/{id}` para que el cliente lea su reserva (solo el dueño) |
+| Frontend: panel del administrador (HU-06 y HU-04) | Implementado en `/admin`: reservas del día por equipo con filtros, cancelar con motivo y completar; expiradas con pago aprobado; ajuste de puntos buscando al cliente por correo (`GET /api/admin/usuarios?email=`, solo `ADMIN`) |
 
 ## Tecnologías
 
@@ -24,6 +28,8 @@ Santo Tomás, sede Villavicencio).
 - PostgreSQL en Supabase
 - Lombok
 - Pruebas: JUnit 5 y Testcontainers (PostgreSQL)
+- Frontend: Angular 22 (componentes standalone, signals, sin zone.js), SCSS y
+  pruebas con Vitest. Necesita Node 24.
 
 ## Estructura
 
@@ -44,6 +50,14 @@ GameSpot/
 │       │   ├── application.yaml
 │       │   └── db/               esquema.sql, borrar_esquema.sql y migraciones (V2...)
 │       └── test/java/...         Pruebas de integración y unitarias
+├── frontend/                     Aplicación web en Angular
+│   └── src/
+│       ├── styles.scss           Identidad visual: colores, tipografía, botones y formularios
+│       └── app/
+│           ├── core/             Sesión (JWT), interceptor, guardas, errores y modelos
+│           ├── compartido/       Componentes reutilizables (estado de una reserva)
+│           ├── diseno/           Barra de navegación
+│           └── paginas/          Una carpeta por pantalla
 ├── docs/calidad/                 Reporte de análisis estático (PMD, Checkstyle, Lizard)
 └── ESTANDARES.md                 Acuerdos del equipo, DoR, DoD y revisión de código
 ```
@@ -100,19 +114,53 @@ La API queda en `http://localhost:8080` y acepta peticiones CORS desde
 `backend/`:
 
 ```bash
-./mvnw spring-boot:test-run "-Dspring-boot.run.arguments=--app.cli.registration.enabled=false"
+./mvnw spring-boot:test-run
 ```
 
 Levanta la API en `http://localhost:8080` con un PostgreSQL temporal que tiene
 el mismo `esquema.sql` y se borra al detenerla (Ctrl+C). No necesita
 `JWT_SECRETO` ni `SUPABASE_DB_CONTRASENA`. Las peticiones se hacen con
-Postman, el HTTP Client de IntelliJ o `curl`. Para tener un administrador, se
-registra un usuario y se le cambia el rol en la base (`docker ps` da el id del
-contenedor):
+Postman, el HTTP Client de IntelliJ, `curl` o el frontend.
+
+Este arranque activa el perfil `demo` (`TestBackendApplication` y
+`src/test/resources/config/application-demo.yaml`), que carga datos de
+demostración (CACS-16). Son valores de prueba, no credenciales reales:
+
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| `ADMIN` | `admin@gamespot.demo` | `AdminDemo123` |
+| `CLIENTE` | `laura@gamespot.demo` | `ClienteDemo123` |
+| `CLIENTE` | `andres@gamespot.demo` | `ClienteDemo123` |
+
+Las fechas se calculan al arrancar (hora de Bogotá):
+
+- **Laura:** una reserva `COMPLETADA` ayer (2 horas, con sus puntos) y, para
+  mañana, una `CONFIRMADA`, una `PENDIENTE_PAGO` con un pago rechazado (se
+  puede pagar hasta la hora de inicio) y una `CANCELADA`. Saldo: 12 puntos.
+- **Andrés:** una reserva `CONFIRMADA` hoy a las 20:00 y una `EXPIRADA` ayer
+  cuyo pago se aprobó tarde (aparece en "expiradas con pago" del panel).
+  Saldo: 5 puntos.
+
+El cargador está en el código de pruebas (`demo/DatosDemostracion`), así que
+nunca llega al jar ni corre con la configuración de Supabase; además solo se
+activa con `app.demo.datos=true`. Si se arranca dos veces sobre la misma base,
+no duplica los datos.
+
+## Ejecutar el frontend
+
+Requisitos: Node 24. Con la API corriendo en `http://localhost:8080` (por
+ejemplo con `spring-boot:test-run`), desde `frontend/`:
 
 ```bash
-docker exec -i <id-del-contenedor> psql -U test -d test -c "update usuarios set rol='ADMIN' where email='admin@demo.test';"
+npm ci
 ```
+
+```bash
+npm start
+```
+
+La aplicación queda en `http://localhost:4200`. La primera vez, `npm ci`
+instala las dependencias de `package-lock.json`.
 
 ## Pruebas
 
@@ -136,8 +184,37 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `PagoAnticipoTests` | Pago del adelanto: aprobado, rechazado y reintento, un solo pago aprobado, reservas no pagables o ajenas, monto menor y sin datos de tarjeta | CP-23a a CP-23k |
 | `PuntosFidelidadTests` | Puntos de fidelización: puntos al completar una sola vez, saldo e historial propios, ajustes del admin con descripción y sin saldo negativo | CP-24a a CP-24i |
 | `RespuestasErrorServidorTests` | Códigos de error con un servidor real (403, 400 y 401), que MockMvc no reproduce | CP-25a a CP-25c |
-| `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio, 401 sin token y reserva pagada de punta a punta | CP-26a a CP-26p |
+| `AdminUsuariosTests` | Búsqueda de usuarios por parte del correo: sin distinguir mayúsculas, máximo 10, lista vacía, 400 con menos de 3 caracteres, solo `ADMIN` | CP-28a a CP-28e |
+| `ReservasTests` | Reservas del cliente: precio y adelanto, bloques de :00 o :30 y múltiplos de 30 minutos, horario de cada día, bloques ya pasados, cruces (409), disponibilidad por estado, equipo fuera de servicio (409), 401 sin token y reserva pagada de punta a punta; el cliente lee su reserva (403 ajena, 404 inexistente) | CP-26a a CP-26p, CP-30a a CP-30c |
 | `PruebasSimultaneasTests` | Concurrencia real con servidor y PostgreSQL: 10 reservas simultáneas del mismo bloque, bloques que se cruzan en parte, bloques contiguos y otros equipos, pagos simultáneos de una reserva y 16 carreras seguidas sin resultados intermitentes. Sin `@Transactional`: borra lo que crea | CP-27a a CP-27e |
+| `DatosDemostracionTests` | Datos de demostración: con el perfil `demo` se inicia sesión como admin y cliente, hay reservas en los cinco estados entre ayer y mañana, puntos y una expirada con pago, no se duplican y las contraseñas van cifradas; sin el perfil no se cargan | CP-29a a CP-29f |
+| `CatalogoTests` | Catálogo de equipos: modalidad, tarifa y orden, adelanto del 50 % y 15 minutos para pagar, equipo fuera de servicio y 401 sin token | CP-31a a CP-31c |
+
+Pruebas del frontend, desde `frontend/` (no necesitan Docker ni la API):
+
+```bash
+npx ng test --watch=false
+```
+
+| Archivo | Qué cubre | Casos |
+| --- | --- | --- |
+| `core/auth/sesion.spec.ts` | Guardar, recuperar y cerrar la sesión; token vencido | CP-F01a a CP-F01d |
+| `core/auth/token.interceptor.spec.ts` | Token en las peticiones a la API, nunca a otros sitios; 401 cierra la sesión | CP-F02a a CP-F02d |
+| `core/auth/guardas.spec.ts` | Rutas protegidas y `/admin` solo para `ADMIN` | CP-F03a a CP-F03d |
+| `core/errores/mensaje-error.spec.ts` | Mensajes de error en español desde `ApiError` | CP-F04a a CP-F04c |
+| `paginas/ingresar/ingresar.spec.ts` | Inicio de sesión, credenciales incorrectas y formulario vacío | CP-F05a a CP-F05c |
+| `paginas/registro/registro.spec.ts` | Registro, validaciones y correo ya registrado | CP-F06a a CP-F06d |
+| `compartido/estado-reserva/estado-reserva.spec.ts` | Estados de reserva con texto, no solo color | CP-F07 |
+| `app.spec.ts` | Enlaces de la barra según el rol | CP-F08a a CP-F08c |
+| `paginas/admin/reservas-dia/reservas-dia.spec.ts` | Panel: reservas del día por equipo, filtros, cancelar con motivo, completar, acciones según el estado, 409 y cambio de día | CP-F10a a CP-F10g |
+| `paginas/admin/expiradas/expiradas.spec.ts` | Panel: reservas expiradas con pago aprobado | CP-F11a y CP-F11b |
+| `paginas/admin/ajuste-puntos/ajuste-puntos.spec.ts` | Panel: buscar al cliente, ajustar puntos, 409 por saldo negativo y validaciones | CP-F12a a CP-F12d |
+| `paginas/admin/admin.spec.ts` | Todas las rutas del panel protegidas por `adminGuard` | CP-F13 |
+| `core/formato.spec.ts` | Hora y fecha de Bogotá, pesos, singular o plural de puntos y cuenta regresiva | CP-F14a a CP-F14e |
+| `paginas/pagar-adelanto/pagar-adelanto.spec.ts` | Pagar el adelanto: aprobado y confirmada, rechazado con reintento, plazo vencido, 403 y 404 al cargar, 409 al pagar, sin selector fuera de la demostración y reserva ya confirmada | CP-F15a a CP-F15g |
+| `paginas/mis-puntos/mis-puntos.spec.ts` | Mis puntos: saldo, historial del más reciente al más antiguo con signo, estado vacío y error | CP-F16a a CP-F16c |
+| `paginas/cliente/rutas-cliente.spec.ts` | Reservar, mis puntos y pagar el adelanto exigen sesión | CP-F17, CP-F18h |
+| `paginas/reservar/reservar.spec.ts` | Reservar: catálogo con ícono y tarifa, fuera de servicio, disponibilidad con libres, ocupados y pasados, duraciones válidas, precio y adelanto, crear y pasar al pago, 409 que actualiza la grilla, uso con teclado, día sin atención y cálculos | CP-F18a a CP-F18g, CP-F18i, CP-F18j |
 
 ## Calidad de código
 

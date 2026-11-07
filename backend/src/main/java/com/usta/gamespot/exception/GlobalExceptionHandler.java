@@ -99,6 +99,19 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Responde a una reserva sobre un equipo fuera de servicio.
+   *
+   * @param ex excepción con el nombre del equipo
+   * @return 409 con el mensaje de la excepción
+   */
+  @ExceptionHandler(EquipoFueraDeServicioException.class)
+  public ResponseEntity<ApiError> manejarEquipoFueraDeServicio(
+      EquipoFueraDeServicioException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ApiError.de(409, ex.getMessage(), List.of()));
+  }
+
+  /**
    * Responde a un equipo que no existe.
    *
    * @param ex excepción con el id buscado

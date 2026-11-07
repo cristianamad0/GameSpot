@@ -338,7 +338,7 @@ class ReservasTests {
   }
 
   @Test
-  @DisplayName("CP-26n Un equipo fuera de servicio no tiene bloques libres ni se puede reservar")
+  @DisplayName("CP-26n Un equipo fuera de servicio no tiene bloques libres y reservarlo da 409")
   void equipoFueraDeServicio() throws Exception {
     xbox360.setEstaDisponible(false);
     equipoRepository.saveAndFlush(xbox360);
@@ -346,7 +346,12 @@ class ReservasTests {
     consultarDisponibilidad("2099-03-09")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.bloques[0].estaLibre").value(false));
-    reservar(xbox360.getId(), LUNES_TRES_PM, 60).andExpect(status().isBadRequest());
+    // CACS-20: los datos son válidos; lo impide el estado del equipo, por eso es 409 y no 400.
+    reservar(xbox360.getId(), LUNES_TRES_PM, 60)
+        .andExpect(status().isConflict())
+        .andExpect(
+            jsonPath("$.mensaje")
+                .value("El equipo " + xbox360.getNombre() + " está fuera de servicio"));
   }
 
   // Criterio 6: un usuario sin token recibe 401.
@@ -394,5 +399,53 @@ class ReservasTests {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.montoCentavos").value(250_000))
         .andExpect(jsonPath("$.estadoReserva").value("CONFIRMADA"));
+  }
+
+  // CACS-17: el cliente lee su reserva para la pantalla de pago del adelanto.
+
+  @Test
+  @DisplayName("CP-30a El cliente consulta su reserva con monto, adelanto y fecha límite")
+  void elClienteConsultaSuReserva() throws Exception {
+    Reserva pendiente = reservaEnBase(EstadoReserva.PENDIENTE_PAGO, LUNES_TRES_PM, 60);
+
+    mockMvc
+        .perform(
+            get("/api/reservas/" + pendiente.getId()).header("Authorization", tokenCliente))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(pendiente.getId()))
+        .andExpect(jsonPath("$.nombreEquipo").value(XBOX_360))
+        .andExpect(jsonPath("$.estado").value("PENDIENTE_PAGO"))
+        .andExpect(jsonPath("$.adelantoPesos").value(2500))
+        .andExpect(jsonPath("$.expiraEn").value("2099-03-02T20:00:00Z"));
+  }
+
+  @Test
+  @DisplayName("CP-30b Consultar la reserva de otro cliente responde 403")
+  void reservaAjenaResponde403() throws Exception {
+    Reserva pendiente = reservaEnBase(EstadoReserva.PENDIENTE_PAGO, LUNES_TRES_PM, 60);
+    Usuario otro =
+        usuarioRepository.saveAndFlush(
+            Usuario.builder()
+                .nombre("Otro cliente")
+                .email("otro@gamespot.test")
+                .passwordHash("hash-de-prueba")
+                .rol(Rol.CLIENTE)
+                .build());
+    String tokenOtro =
+        "Bearer "
+            + jwtService.generarToken(usuarioDetailsService.loadUserByUsername(otro.getEmail()));
+
+    mockMvc
+        .perform(get("/api/reservas/" + pendiente.getId()).header("Authorization", tokenOtro))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName("CP-30c Consultar una reserva que no existe responde 404; sin token, 401")
+  void reservaInexistenteResponde404() throws Exception {
+    mockMvc
+        .perform(get("/api/reservas/999999").header("Authorization", tokenCliente))
+        .andExpect(status().isNotFound());
+    mockMvc.perform(get("/api/reservas/999999")).andExpect(status().isUnauthorized());
   }
 }

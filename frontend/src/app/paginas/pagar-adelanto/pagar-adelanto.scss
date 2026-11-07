@@ -1,0 +1,165 @@
+.pagina {
+  padding: 32px 16px 64px;
+}
+
+.encabezado {
+  margin-bottom: 20px;
+}
+
+.encabezado__etiqueta {
+  margin: 0 0 4px;
+  color: var(--gs-acento);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.suave {
+  color: var(--gs-texto-suave);
+}
+
+.columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.resumen__fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.montos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0 8px;
+}
+
+.montos div {
+  padding: 12px 14px;
+  border: 1px solid var(--gs-borde);
+  border-radius: var(--gs-radio-pequeno);
+  background: var(--gs-fondo);
+}
+
+.montos dt {
+  color: var(--gs-texto-suave);
+  font-size: 0.88rem;
+}
+
+.montos dd {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.montos .montos__adelanto {
+  border-color: var(--gs-primario);
+  box-shadow: 0 0 18px var(--gs-primario-brillo);
+}
+
+.montos .montos__adelanto dd {
+  color: var(--gs-acento);
+  font-size: 1.5rem;
+}
+
+.nota {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.pago h2 {
+  margin-bottom: 14px;
+}
+
+.plazo {
+  margin: 0 0 16px;
+}
+
+.plazo__cuenta {
+  color: var(--gs-aviso);
+  font-variant-numeric: tabular-nums;
+}
+
+.simulado {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px dashed var(--gs-borde);
+  border-radius: var(--gs-radio-pequeno);
+}
+
+.simulado legend {
+  padding: 0 6px;
+  color: var(--gs-texto-suave);
+  font-size: 0.88rem;
+}
+
+.simulado label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.simulado input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gs-primario);
+}
+
+.aviso {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: var(--gs-radio-pequeno);
+}
+
+.aviso--exito {
+  border: 1px solid var(--gs-exito);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.referencia {
+  display: block;
+  margin-top: 6px;
+  color: var(--gs-texto-suave);
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+.acciones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gs-alerta {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 760px) {
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .montos {
+    grid-template-columns: 1fr;
+  }
+}

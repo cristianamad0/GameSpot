@@ -64,7 +64,7 @@ class DatosNegocioTests {
   }
 
   @ParameterizedTest(name = "día {0}: de {1} a {2}")
-  @DisplayName("CP-18 El horario de atención de cada día es el del propietario")
+  @DisplayName("CP-18a El horario de atención de cada día es el del propietario")
   @CsvSource({
     "1, 14:00, 22:00",
     "2, 14:00, 22:00",
@@ -82,7 +82,7 @@ class DatosNegocioTests {
   }
 
   @Test
-  @DisplayName("CP-18 Hay un horario para cada uno de los 7 días")
+  @DisplayName("CP-18b Hay un horario para cada uno de los 7 días")
   void hayHorarioParaLosSieteDias() {
     List<HorarioAtencion> horarios = horarioAtencionRepository.findAll();
 

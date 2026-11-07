@@ -1,0 +1,58 @@
+/* CACS-15: estilos compartidos por las pantallas de ingreso y registro. */
+.acceso {
+  display: grid;
+  place-items: center;
+  padding: 48px 16px 64px;
+}
+
+.acceso__tarjeta {
+  width: 100%;
+  max-width: 440px;
+}
+
+.acceso__titulo {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+
+.acceso__subtitulo {
+  color: var(--gs-texto-suave);
+  margin: 0 0 24px;
+}
+
+.acceso__aviso {
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  border-radius: var(--gs-radio-pequeno);
+  border: 1px solid var(--gs-aviso);
+  color: var(--gs-texto);
+}
+
+.clave {
+  position: relative;
+}
+
+.clave input {
+  width: 100%;
+  padding-right: 92px;
+}
+
+.clave__mostrar {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--gs-superficie-2);
+  color: var(--gs-acento);
+  font: 600 0.85rem var(--gs-fuente-texto);
+  cursor: pointer;
+}
+
+.acceso__pie {
+  margin: 20px 0 0;
+  text-align: center;
+  color: var(--gs-texto-suave);
+}

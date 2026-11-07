@@ -358,3 +358,200 @@ pruebas y pendientes. La entrada más reciente va al final.
   - El pool de conexiones es de 5 (`maximum-pool-size`); con más tráfico real,
     las peticiones por un mismo equipo esperan su turno. Revisarlo si se
     despliega con más usuarios.
+
+## 2026-11-04 — Detalles del cierre del Sprint 1
+
+- **Tarjeta:** CACS-20 (mantenimiento).
+- **Rama:** `feat/detalles-cierre-sprint1`
+- **Qué se hizo:**
+  - Reservar un equipo fuera de servicio pasa de 400 a **409** con
+    `EquipoFueraDeServicioException`. Sigue la regla acordada en CACS-6: 400
+    cuando los datos enviados son inválidos y 409 cuando el estado del recurso
+    no permite la acción. Resuelve el pendiente de la entrada de CACS-4.
+  - `DatosNegocioTests` tenía dos pruebas con el código CP-18; pasan a CP-18a
+    y CP-18b. Ya no se repite ningún código de caso de prueba.
+  - El pool de conexiones (5, pendiente de la entrada de CACS-9) no se cambia:
+    es una nota para cuando se despliegue con más usuarios, no un defecto.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 132 pruebas, 0 fallos, 0 errores. CP-26n ahora
+  espera 409 y el mensaje "El equipo … está fuera de servicio".
+  `./mvnw checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - Revisar el tamaño del pool de conexiones antes de un despliegue real.
+
+## 2026-11-04 — Frontend: base Angular, identidad visual e inicio de sesión
+
+- **Tarjeta:** CACS-15 (HU-01).
+- **Rama:** `feat/frontend-base`
+- **Qué se hizo:**
+  - Proyecto Angular 22 en `frontend/` (standalone, signals, sin zone.js,
+    SCSS y Vitest), creado con `ng new`.
+  - Identidad visual en `src/styles.scss`: tema oscuro con acentos neón morado
+    y cian, Orbitron para títulos e Inter para texto, contraste AA, foco
+    visible, botones grandes y respeto a `prefers-reduced-motion`.
+  - Sesión con JWT (`core/auth/sesion.ts`) guardada en `localStorage`, que se
+    cierra sola si el token venció. `tokenInterceptor` envía el token solo a la
+    API y, ante un 401, cierra la sesión y lleva al ingreso; los 401 del login
+    se muestran como credenciales incorrectas. `sesionGuard` y `adminGuard`
+    protegen las rutas; un `CLIENTE` no entra a `/admin`.
+  - Pantallas: inicio (equipos reales y horario), registro, ingreso, 404 y
+    "Próximamente" para reservar (CACS-19), mis puntos (CACS-17) y el panel
+    (CACS-18). Barra de navegación según el rol, con menú para celular.
+  - `mensajeDeError` muestra el `mensaje` de `ApiError` en español.
+    `EstadoReservaEtiqueta` muestra el estado de una reserva con texto y color,
+    lista para las pantallas de las otras tarjetas.
+  - Probado contra la API real (`spring-boot:test-run`): login incorrecto,
+    ingreso de cliente y de admin, `/admin` bloqueado para el cliente, salir,
+    y la vista en 375 px. Se corrigió el mensaje de "repite la contraseña"
+    cuando el campo está vacío.
+- **Pruebas:** `npx ng test --watch=false`: 30 pruebas, 0 fallos (CP-F01a a
+  CP-F08c, al menos una por criterio). `npx ng build` sin errores. Prettier sin
+  advertencias. El backend no cambia.
+- **Pendientes:**
+  - Las pruebas del frontend no corren en `./mvnw test`; se corren aparte.
+
+## 2026-11-04 — Frontend: panel del administrador
+
+- **Tarjeta:** CACS-18 (HU-06 y HU-04).
+- **Rama:** `feat/panel-admin-frontend`
+- **Qué se hizo:**
+  - Backend: `GET /api/admin/usuarios?email=` (`AdminUsuariosController` y
+    `AdminUsuariosService`) busca hasta 10 usuarios por parte del correo, sin
+    distinguir mayúsculas, y responde `UsuarioResumenResponse` (sin datos
+    sensibles). Menos de 3 caracteres responde 400; solo `ADMIN`.
+  - Frontend, `/admin` con tres pestañas protegidas por `adminGuard`:
+    - Reservas del día: agenda por equipo en hora de Bogotá, filtros por día,
+      equipo y estado; cancelar con motivo obligatorio y completar, solo en los
+      estados que lo permiten. La tarjeta se actualiza con la respuesta del
+      backend, sin recargar, y un 409 muestra su mensaje sin cambiar nada.
+    - Expiradas con pago: reservas vencidas con pago aprobado, con monto,
+      fecha y referencia.
+    - Ajustar puntos: buscar al cliente por correo, ver su saldo y registrar
+      un ajuste con descripción; el saldo negativo (409) muestra el mensaje.
+  - `core/formato.ts`: hora y fecha de Bogotá, pesos colombianos y "punto"
+    o "puntos" según la cantidad. Botón `gs-boton--peligro` para cancelar.
+  - Probado contra la API real con reservas en todos los estados: completar,
+    cancelar con motivo, expiradas, ajuste de -5 sobre 1 punto (409) y de +10.
+    Se corrigieron dos detalles vistos al probar: las pestañas con barra de
+    desplazamiento en celular y el texto "1 puntos".
+- **Pruebas:** `./mvnw test`: 137 pruebas, 0 fallos, 0 errores (nueva
+  `AdminUsuariosTests`, CP-28a a CP-28e). `./mvnw checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 48 pruebas, 0 fallos (nuevas
+  CP-F10a a CP-F14d). `npx ng build` y Prettier sin errores.
+- **Pendientes:**
+  - El filtro por equipo usa los equipos que tienen reservas ese día; si se
+    quiere ver todos los equipos, hace falta un endpoint de equipos.
+
+## 2026-11-05 — Datos de demostración para probar en local
+
+- **Tarjeta:** CACS-16.
+- **Rama:** `feat/datos-demostracion`
+- **Qué se hizo:**
+  - `./mvnw spring-boot:test-run` activa ahora el perfil `demo`
+    (`TestBackendApplication` y `src/test/resources/config/application-demo.yaml`).
+    El perfil enciende `app.demo.datos`, apaga el registro por consola (ya no
+    hace falta pasar `--app.cli.registration.enabled=false`) y deja correr la
+    expiración de reservas como en el uso real.
+  - `demo/DatosDemostracion` (en el código de pruebas, así que nunca llega al
+    jar ni corre contra Supabase) crea al arrancar un `ADMIN`, dos clientes,
+    reservas en los cinco estados entre ayer y mañana, pagos simulados
+    (aprobados, uno rechazado y uno aprobado tarde sobre una reserva expirada) y
+    bonos de puntos. Los estados `CONFIRMADA` y `COMPLETADA` y los puntos por
+    horas jugadas los ponen los triggers de la base, como en el uso real. Si
+    los datos ya existen, no los duplica.
+  - Las credenciales son valores de prueba documentados en el README; las
+    contraseñas se guardan con BCrypt.
+  - Se probó a mano con la API en marcha: inicio de sesión del admin y de un
+    cliente, saldo de puntos, panel del día y expiradas con pago.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 143 pruebas, 0 fallos, 0 errores. Nueva clase
+  `DatosDemostracionTests` (CP-29a a CP-29f): con el perfil `demo` se inicia
+  sesión, hay reservas en cada estado, puntos y una expirada con pago, no se
+  duplican y las contraseñas van cifradas; sin el perfil no existe el cargador
+  ni los usuarios. `./mvnw clean checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - La reserva pendiente de demostración tiene plazo de pago hasta su hora de
+    inicio (mañana), no 15 minutos, para que no expire durante una
+    demostración.
+
+## 2026-11-05 — Frontend: pagar el adelanto y mis puntos
+
+- **Tarjeta:** CACS-17 (HU-03 y HU-04).
+- **Rama:** `feat/pantallas-cliente`
+- **Qué se hizo:**
+  - Backend: `GET /api/reservas/{id}` (`ReservaService.obtenerPropia`) para que
+    el cliente lea su reserva antes de pagar; 403 si es de otro usuario y 404
+    si no existe. No había forma de mostrar el monto y la fecha límite al
+    recargar la página.
+  - Frontend, `/reservas/:id/pagar` (`PagarAdelanto`): equipo, horario,
+    precio, adelanto destacado y lo que se paga en el local; cuenta regresiva
+    del plazo (`role="timer"`, sin anuncios cada segundo); pago aprobado con la
+    reserva `CONFIRMADA` y su referencia; pago rechazado con el motivo y
+    reintento; plazo vencido sin botón de pago; errores 403, 404 y 409 con el
+    mensaje del backend.
+  - El selector "aprobar / rechazar" del proveedor simulado solo aparece con
+    `ng serve` (`PROVEEDOR_SIMULADO`, que vale `isDevMode()`); en un build de
+    producción el pago va sin resultado y el simulado lo aprueba.
+  - Frontend, `/mis-puntos` (`MisPuntos`): saldo destacado e historial del más
+    reciente al más antiguo, con tipo, descripción, fecha y el signo en el
+    texto (no solo el color); estado vacío amigable.
+  - `ClienteApi` agrupa las llamadas del cliente. Las rutas exigen sesión.
+  - Probado a mano con `spring-boot:test-run` y `ng serve` como Laura: pago
+    rechazado, reintento aprobado, mis puntos, y las dos pantallas a 360 px sin
+    desplazamiento horizontal. Contraste de los colores usados entre 5,38:1 y
+    15,23:1 (AA). Capturas en `docs/capturas/cacs-17/`.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 146 pruebas, 0 fallos, 0 errores (CP-30a a
+  CP-30c en `ReservasTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 61 pruebas, 0 fallos (CP-F14e,
+  CP-F15a a CP-F15g, CP-F16a a CP-F16c y CP-F17). `npx ng build` sin errores.
+  `npx prettier --check --end-of-line auto "src/**/*.{ts,html,scss}"` sin
+  cambios.
+- **Pendientes:**
+  - El cliente todavía no tiene una lista de sus reservas: llega a pagar desde
+    la pantalla de reservar (CACS-19) o con el enlace. La lista es el
+    historial de CACS-3.
+  - En Windows con `core.autocrlf=true`, `prettier --check` sin
+    `--end-of-line auto` marca todos los archivos por los finales de línea
+    CRLF del checkout; en el repositorio están en LF.
+
+## 2026-11-06 — Frontend: reservar un equipo
+
+- **Tarjeta:** CACS-19 (HU-02).
+- **Rama:** `feat/reservar-frontend` (creada desde `feat/pantallas-cliente`,
+  porque al reservar se pasa a la pantalla de pago de CACS-17).
+- **Qué se hizo:**
+  - Backend: `GET /api/catalogo` (`CatalogoController`, `CatalogoService`,
+    `CatalogoResponse`) con los equipos, su modalidad y tarifa, si están
+    disponibles, el porcentaje de adelanto y los minutos para pagar. Ningún
+    endpoint del cliente exponía la tarifa ni el porcentaje, que la pantalla
+    necesita para mostrar el precio y el adelanto antes de confirmar. El valor
+    que se cobra lo sigue calculando `ReservaService`.
+  - Frontend, `/reservar` (`Reservar`): catálogo en tarjetas con ícono por
+    modalidad (consola o sala) y tarifa; los equipos fuera de servicio no se
+    eligen. Grilla de bloques de 30 minutos del día elegido con cuatro estados
+    con color y texto (libre, ocupado, ya pasó y elegido). Solo se eligen
+    bloques libres y duraciones de bloques libres seguidos. El resumen muestra
+    equipo, horario, precio, adelanto y el plazo de pago. Al reservar pasa a
+    `/reservas/:id/pagar`; un 409 muestra el mensaje y vuelve a cargar la grilla.
+  - Teclado: los bloques son botones con nombre ("4:00 p. m. a 4:30 p. m.,
+    libre"), `aria-pressed` para los elegidos y foco visible.
+  - "Reservar" deja de ser "Próximamente"; el componente `Proximamente` ya no
+    lo usa ninguna ruta.
+  - Probado a mano con los datos de demostración como Andrés: catálogo, la
+    grilla de la Sala VIP con su reserva de hoy ocupada, un 409 real (Laura
+    tomó el bloque por la API mientras Andrés lo tenía elegido), elegir con Tab
+    y Enter, crear la reserva y pasar al pago; a 360 px sin desplazamiento
+    horizontal. Contraste de los colores nuevos entre 4,78:1 y 13,01:1 (AA).
+    Capturas en `docs/capturas/cacs-19/`.
+  - La prueba a mano encontró que el aviso del 409 seguía visible al elegir
+    otro bloque; ahora se borra (CP-F18f lo cubre).
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 149 pruebas, 0 fallos, 0 errores (CP-31a a
+  CP-31c en `CatalogoTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 71 pruebas, 0 fallos (CP-F18a a
+  CP-F18j). `npx ng build` sin errores. `npx prettier --check --end-of-line
+  auto "src/**/*.{ts,html,scss}"` sin cambios.
+- **Pendientes:**
+  - Este PR se fusiona después del #28 (CACS-17).
+  - Decidir si se borra `paginas/proximamente`, que ya no usa ninguna ruta.

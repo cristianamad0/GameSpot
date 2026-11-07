@@ -1,0 +1,14 @@
+# CACS-16: perfil que activa ./mvnw spring-boot:test-run (ver TestBackendApplication).
+# Solo existe en los recursos de pruebas: nunca se carga con la configuración de Supabase.
+app:
+  cli:
+    registration:
+      # Sin el registro por consola, el arranque no se queda esperando datos.
+      enabled: false
+  demo:
+    # Carga el administrador, los clientes y las reservas de demostración (DatosDemostracion).
+    datos: true
+  reservas:
+    expiracion:
+      # En el arranque local la expiración sí corre, como en el uso real.
+      habilitada: true

@@ -6,8 +6,11 @@ import com.usta.gamespot.dto.CrearReservaRequest;
 import com.usta.gamespot.dto.DisponibilidadResponse;
 import com.usta.gamespot.dto.ReservaResponse;
 import com.usta.gamespot.exception.BloqueOcupadoException;
+import com.usta.gamespot.exception.EquipoFueraDeServicioException;
 import com.usta.gamespot.exception.EquipoNoEncontradoException;
+import com.usta.gamespot.exception.ReservaAjenaException;
 import com.usta.gamespot.exception.ReservaInvalidaException;
+import com.usta.gamespot.exception.ReservaNoEncontradaException;
 import com.usta.gamespot.model.ConfiguracionNegocio;
 import com.usta.gamespot.model.Equipo;
 import com.usta.gamespot.model.EstadoReserva;
@@ -61,9 +64,9 @@ public class ReservaService {
    * @param emailUsuario correo del usuario autenticado
    * @return la reserva creada, con su precio, adelanto y fecha límite de pago
    * @throws EquipoNoEncontradoException si el equipo no existe
+   * @throws EquipoFueraDeServicioException si el equipo está fuera de servicio
    * @throws ReservaInvalidaException si el bloque no está alineado a :00 o :30, la duración no es
-   *     múltiplo de 30, el bloque ya empezó, queda fuera del horario o el equipo está fuera de
-   *     servicio
+   *     múltiplo de 30, el bloque ya empezó o queda fuera del horario
    * @throws BloqueOcupadoException si se cruza con otra reserva activa del mismo equipo
    */
   @Transactional
@@ -73,8 +76,7 @@ public class ReservaService {
             .buscarParaReservar(request.equipoId())
             .orElseThrow(() -> new EquipoNoEncontradoException(request.equipoId()));
     if (!esReservable(equipo)) {
-      throw new ReservaInvalidaException(
-          "El equipo " + equipo.getNombre() + " está fuera de servicio");
+      throw new EquipoFueraDeServicioException(equipo.getNombre());
     }
 
     Instant inicio = request.inicio();
@@ -119,6 +121,28 @@ public class ReservaService {
       }
       throw ex;
     }
+  }
+
+  /**
+   * CACS-17 (HU-03): devuelve una reserva del usuario autenticado, para mostrar su monto y su
+   * fecha límite antes de pagar el adelanto.
+   *
+   * @param reservaId id de la reserva
+   * @param emailUsuario correo del usuario autenticado
+   * @return la reserva con su estado actual
+   * @throws ReservaNoEncontradaException si la reserva no existe
+   * @throws ReservaAjenaException si la reserva es de otro usuario
+   */
+  @Transactional(readOnly = true)
+  public ReservaResponse obtenerPropia(Long reservaId, String emailUsuario) {
+    Reserva reserva =
+        reservaRepository
+            .findById(reservaId)
+            .orElseThrow(() -> new ReservaNoEncontradaException(reservaId));
+    if (!reserva.getUsuario().getEmail().equalsIgnoreCase(emailUsuario)) {
+      throw new ReservaAjenaException(reservaId);
+    }
+    return ReservaResponse.de(reserva);
   }
 
   /**
