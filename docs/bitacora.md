@@ -555,3 +555,26 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Este PR se fusiona después del #28 (CACS-17).
   - Decidir si se borra `paginas/proximamente`, que ya no usa ninguna ruta.
+
+## 2026-11-09 — Mantenimiento: frontend en Windows, Prettier y tabla de pruebas
+
+- **Tarjeta:** CACS-23.
+- **Rama:** `feat/mantenimiento-windows`
+- **Qué se hizo:**
+  - `frontend/angular.json`: `cli.analytics: false`. Angular ya no pregunta
+    por los datos de uso, pregunta que dejaba `ng serve` esperando.
+  - `frontend/.prettierrc`: `endOfLine: "auto"`. Con `core.autocrlf=true`, Git
+    deja los archivos en CRLF en Windows y `prettier --check` los marcaba
+    todos; ahora pasa sin opciones extra.
+  - README: en PowerShell, si `npm.ps1` está bloqueado, se usan `npm.cmd` y
+    `npx.cmd` (`npm.cmd start`). Se agrega `BackendApplicationTests` a la
+    tabla de pruebas del backend.
+  - Probado a mano en Windows, sin `NG_CLI_ANALYTICS`: `npm.cmd start` arranca
+    sin preguntar nada y `http://localhost:4200` responde 200.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 149 pruebas, 0 fallos, 0 errores.
+  `./mvnw checkstyle:check`: 0 advertencias. `npx ng test --watch=false`: 71
+  pruebas, 0 fallos. `npx ng build` sin errores. `npx prettier --check
+  "src/**/*.{ts,html,scss}"` sin cambios y sin opciones extra.
+- **Pendientes:**
+  - Ninguno de esta tarjeta.

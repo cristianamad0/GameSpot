@@ -162,6 +162,19 @@ npm start
 La aplicación queda en `http://localhost:4200`. La primera vez, `npm ci`
 instala las dependencias de `package-lock.json`.
 
+En PowerShell de Windows, si `npm` o `npx` fallan porque la ejecución de
+scripts está deshabilitada (`npm.ps1`), usar `npm.cmd` y `npx.cmd` en su lugar:
+
+```bash
+npm.cmd start
+```
+
+El proyecto ya trae desactivada la pregunta de Angular sobre datos de uso
+(`cli.analytics: false` en `angular.json`), así que `npm start` no se queda
+esperando una respuesta. Prettier usa `endOfLine: "auto"`, para que
+`prettier --check` no falle en Windows por los finales de línea CRLF que pone
+Git.
+
 ## Pruebas
 
 Desde `backend/`:
@@ -176,6 +189,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | Clase | Qué cubre | Casos |
 | --- | --- | --- |
 | `dto/RegistroRequestValidacionTest` | Validaciones del formulario de registro (no necesita Docker) | CP-02 a CP-04 |
+| `BackendApplicationTests` | La aplicación arranca: el contexto de Spring carga y las entidades coinciden con `esquema.sql` (`ddl-auto: validate`) | — |
 | `AuthServiceTests` | Registro e inicio de sesión | CP-01, CP-05 a CP-07 |
 | `ReglasBaseDatosTests` | Reglas de reservas, pagos y puntos en la base de datos | CP-08 a CP-16 |
 | `DatosNegocioTests` | Equipos, horario de atención y configuración reales del negocio | CP-17 a CP-20 |
