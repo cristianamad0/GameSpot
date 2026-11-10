@@ -66,6 +66,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./paginas/admin/ajuste-puntos/ajuste-puntos').then((m) => m.AjustePuntos),
       },
+      {
+        // CACS-22 (HU-06): equipos fuera de servicio y tarifas por modalidad.
+        path: 'equipos',
+        title: 'Equipos y tarifas · Panel · Game Spot',
+        loadComponent: () => import('./paginas/admin/equipos/equipos').then((m) => m.Equipos),
+      },
     ],
   },
   {

@@ -1,0 +1,159 @@
+.columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.suave {
+  color: var(--gs-texto-suave);
+}
+
+.explicacion {
+  margin: 0 0 16px;
+  font-size: 0.92rem;
+}
+
+.lista {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.equipo,
+.modalidad {
+  padding: 12px 14px;
+  border: 1px solid var(--gs-borde);
+  border-radius: var(--gs-radio-pequeno);
+  background: var(--gs-fondo);
+}
+
+.equipo__fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.equipo__datos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.equipo__datos span {
+  font-size: 0.9rem;
+}
+
+.futuras {
+  color: var(--gs-aviso);
+  font-weight: 600;
+}
+
+.estado {
+  flex: none;
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estado[data-estado='disponible'] {
+  color: var(--gs-exito);
+}
+
+.estado[data-estado='fuera'] {
+  color: var(--gs-error);
+}
+
+.estado[data-estado='modalidad'] {
+  color: var(--gs-texto-suave);
+}
+
+.equipo__accion {
+  width: 100%;
+}
+
+.confirmacion {
+  padding: 12px;
+  border: 1px solid var(--gs-aviso);
+  border-radius: var(--gs-radio-pequeno);
+}
+
+.confirmacion p {
+  margin: 0 0 12px;
+}
+
+.acciones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modalidad__titulo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.modalidad__campos {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: end;
+}
+
+.modalidad__campos .gs-campo {
+  grid-column: 1 / -1;
+  margin-bottom: 4px;
+}
+
+.activa {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.activa input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gs-primario);
+}
+
+.aviso {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--gs-exito);
+  border-radius: var(--gs-radio-pequeno);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.gs-alerta {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 760px) {
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .modalidad__campos {
+    grid-template-columns: 1fr;
+  }
+}
