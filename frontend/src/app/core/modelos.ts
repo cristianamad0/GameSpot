@@ -132,6 +132,21 @@ export interface Disponibilidad {
 /** Resultado que se le pide al proveedor de anticipos simulado (ResultadoSimulado del backend). */
 export type ResultadoSimulado = 'APROBADO' | 'RECHAZADO';
 
+/** CACS-21: proveedor de pagos activo en el backend (app.pagos.proveedor). */
+export type ProveedorPagos = 'SIMULADO' | 'WOMPI';
+
+/** CACS-21: datos para ir al Web Checkout de Wompi (CheckoutWompiResponse del backend). */
+export interface CheckoutWompi {
+  pagoId: number;
+  referencia: string;
+  montoCentavos: number;
+  moneda: string;
+  llavePublica: string;
+  firmaIntegridad: string;
+  urlRetorno: string;
+  urlCheckout: string;
+}
+
 /** Resultado de pagar el adelanto (PagoAnticipoResponse del backend). */
 export interface PagoAnticipo {
   pagoId: number;

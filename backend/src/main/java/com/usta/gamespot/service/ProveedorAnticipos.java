@@ -4,9 +4,10 @@ import com.usta.gamespot.dto.ResultadoSimulado;
 import com.usta.gamespot.model.EstadoPago;
 
 /**
- * CACS-5 (HU-03): proveedor que cobra el adelanto de una reserva. Hoy lo implementa {@link
- * ProveedorAnticiposSimulado} (sin dinero real); más adelante se cambia por Wompi en entorno de
- * pruebas sin tocar {@link PagoAnticipoService}.
+ * CACS-5 (HU-03): proveedor que cobra el adelanto en una sola llamada. Lo implementa {@link
+ * ProveedorAnticiposSimulado} (sin dinero real). Wompi no cabe en este contrato: el cliente paga
+ * en su Web Checkout y el resultado llega después, por eso tiene su propio flujo en {@link
+ * PagoWompiService} (CACS-21). Los dos guardan el resultado con {@link RegistroResultadoPago}.
  *
  * <p>Ninguna implementación debe guardar llaves, secretos ni datos de tarjeta: las llaves se leen
  * de variables de entorno y los datos de tarjeta solo los maneja el proveedor.

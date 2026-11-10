@@ -1,8 +1,11 @@
 package com.usta.gamespot.service;
 
+import com.usta.gamespot.config.PropiedadesPagos;
+import com.usta.gamespot.config.ProveedorPagos;
 import com.usta.gamespot.dto.PagoAnticipoResponse;
 import com.usta.gamespot.dto.ResultadoSimulado;
 import com.usta.gamespot.exception.PlazoPagoVencidoException;
+import com.usta.gamespot.exception.ProveedorPagosNoDisponibleException;
 import com.usta.gamespot.exception.ReservaAjenaException;
 import com.usta.gamespot.exception.ReservaNoEncontradaException;
 import com.usta.gamespot.exception.TransicionReservaInvalidaException;
@@ -35,6 +38,8 @@ public class PagoAnticipoService {
   private final ReservaRepository reservaRepository;
   private final PagoRepository pagoRepository;
   private final ProveedorAnticipos proveedorAnticipos;
+  private final RegistroResultadoPago registroResultadoPago;
+  private final PropiedadesPagos propiedadesPagos;
   private final EntityManager entityManager;
 
   /**
@@ -50,10 +55,15 @@ public class PagoAnticipoService {
    * @throws ReservaAjenaException si la reserva es de otro usuario
    * @throws TransicionReservaInvalidaException si la reserva no está en PENDIENTE_PAGO
    * @throws PlazoPagoVencidoException si el plazo para pagar ya venció
+   * @throws ProveedorPagosNoDisponibleException si el proveedor activo no es el simulado
    */
   @Transactional
   public PagoAnticipoResponse pagarAdelanto(
       Long reservaId, String emailUsuario, ResultadoSimulado resultadoSimulado) {
+    // CACS-21: con Wompi activo, nadie puede aprobar un pago con el proveedor simulado.
+    if (propiedadesPagos.proveedor() != ProveedorPagos.SIMULADO) {
+      throw new ProveedorPagosNoDisponibleException(propiedadesPagos.proveedor());
+    }
     Reserva reserva =
         reservaRepository
             .buscarParaPagar(reservaId)
@@ -71,17 +81,16 @@ public class PagoAnticipoService {
     ResultadoCobro resultado =
         proveedorAnticipos.cobrar(
             new SolicitudCobro(pago.getReferencia(), pago.getMontoCentavos(), resultadoSimulado));
-    pago.setEstado(resultado.estado());
-    pago.setIdTransaccionWompi(resultado.idTransaccion());
-    pago.setMetodoPago(resultado.metodoPago());
-    pagoRepository.saveAndFlush(pago);
+    registroResultadoPago.registrar(
+        pago, resultado.estado(), resultado.idTransaccion(), resultado.metodoPago(), null);
 
     // El trigger de la base pudo confirmar la reserva: se vuelve a leer.
     entityManager.refresh(reserva);
     return PagoAnticipoResponse.de(pago, reserva);
   }
 
-  private void validarQueSePuedePagar(Reserva reserva, String emailUsuario) {
+  /** Reglas comunes para iniciar un pago (también las usa {@link PagoWompiService}). */
+  static void validarQueSePuedePagar(Reserva reserva, String emailUsuario) {
     if (!reserva.getUsuario().getEmail().equalsIgnoreCase(emailUsuario)) {
       throw new ReservaAjenaException(reserva.getId());
     }
@@ -94,7 +103,7 @@ public class PagoAnticipoService {
   }
 
   /** Referencia única para el proveedor, por ejemplo GS-15-1A2B3C4D5E6F. */
-  private static String nuevaReferencia(Long reservaId) {
+  static String nuevaReferencia(Long reservaId) {
     String aleatorio = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     return "GS-" + reservaId + "-" + aleatorio.toUpperCase(Locale.ROOT);
   }

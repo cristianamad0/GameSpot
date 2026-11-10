@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -88,6 +89,9 @@ public class SecurityConfig {
                     // CACS-14: Spring reenvía los errores (403, 400...) a /error sin el token.
                     // Si /error exigiera autenticación, todos llegarían al cliente como 401.
                     .requestMatchers("/error")
+                    .permitAll()
+                    // CACS-21: Wompi llama el webhook sin token; se valida con el checksum.
+                    .requestMatchers(HttpMethod.POST, "/api/pagos/wompi/eventos")
                     .permitAll()
                     .requestMatchers("/api/admin/**")
                     .hasRole("ADMIN")

@@ -1,11 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { URL_API } from '../../core/configuracion';
 import {
   Catalogo,
+  CheckoutWompi,
   Disponibilidad,
   PagoAnticipo,
+  ProveedorPagos,
   Reserva,
   ResultadoSimulado,
   SaldoPuntos,
@@ -53,6 +55,25 @@ export class ClienteApi {
   ): Observable<PagoAnticipo> {
     const cuerpo = resultadoSimulado ? { resultadoSimulado } : {};
     return this.http.post<PagoAnticipo>(`${this.urlApi}/api/reservas/${reservaId}/pago`, cuerpo);
+  }
+
+  /** CACS-21: proveedor de pagos activo, para saber si se paga con el simulado o con Wompi. */
+  proveedorPagos(): Observable<ProveedorPagos> {
+    return this.http
+      .get<{ proveedor: ProveedorPagos }>(`${this.urlApi}/api/pagos/proveedor`)
+      .pipe(map((respuesta) => respuesta.proveedor));
+  }
+
+  /** CACS-21: crea el pago PENDIENTE y devuelve la URL del Web Checkout de Wompi. */
+  iniciarPagoWompi(reservaId: number): Observable<CheckoutWompi> {
+    return this.http.post<CheckoutWompi>(`${this.urlApi}/api/reservas/${reservaId}/pago/wompi`, {});
+  }
+
+  /** CACS-21: al volver de Wompi, consulta la transacción y registra su resultado. */
+  consultarPagoWompi(reservaId: number, idTransaccion: string): Observable<PagoAnticipo> {
+    return this.http.get<PagoAnticipo>(
+      `${this.urlApi}/api/reservas/${reservaId}/pago/wompi/${encodeURIComponent(idTransaccion)}`,
+    );
   }
 
   misPuntos(): Observable<SaldoPuntos> {
