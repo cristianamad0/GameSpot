@@ -21,10 +21,10 @@ describe('App y barra de navegación (CACS-15, criterios 1 y 3)', () => {
     expect(await enlaces()).toEqual(['Inicio', 'Ingresar', 'Crear cuenta']);
   });
 
-  it('CP-F08b un CLIENTE ve reservar y mis puntos, pero no el panel', async () => {
+  it('CP-F08b un CLIENTE ve reservar, mis reservas y mis puntos, pero no el panel', async () => {
     TestBed.inject(Sesion).abrir(respuestaDePrueba('CLIENTE'));
 
-    expect(await enlaces()).toEqual(['Inicio', 'Reservar', 'Mis puntos']);
+    expect(await enlaces()).toEqual(['Inicio', 'Reservar', 'Mis reservas', 'Mis puntos']);
   });
 
   it('CP-F08c un ADMIN ve el panel', async () => {
