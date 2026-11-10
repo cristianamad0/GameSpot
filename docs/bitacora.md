@@ -555,3 +555,188 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Este PR se fusiona después del #28 (CACS-17).
   - Decidir si se borra `paginas/proximamente`, que ya no usa ninguna ruta.
+
+## 2026-11-09 — Mantenimiento: frontend en Windows, Prettier y tabla de pruebas
+
+- **Tarjeta:** CACS-23.
+- **Rama:** `feat/mantenimiento-windows`
+- **Qué se hizo:**
+  - `frontend/angular.json`: `cli.analytics: false`. Angular ya no pregunta
+    por los datos de uso, pregunta que dejaba `ng serve` esperando.
+  - `frontend/.prettierrc`: `endOfLine: "auto"`. Con `core.autocrlf=true`, Git
+    deja los archivos en CRLF en Windows y `prettier --check` los marcaba
+    todos; ahora pasa sin opciones extra.
+  - README: en PowerShell, si `npm.ps1` está bloqueado, se usan `npm.cmd` y
+    `npx.cmd` (`npm.cmd start`). Se agrega `BackendApplicationTests` a la
+    tabla de pruebas del backend.
+  - Probado a mano en Windows, sin `NG_CLI_ANALYTICS`: `npm.cmd start` arranca
+    sin preguntar nada y `http://localhost:4200` responde 200.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 149 pruebas, 0 fallos, 0 errores.
+  `./mvnw checkstyle:check`: 0 advertencias. `npx ng test --watch=false`: 71
+  pruebas, 0 fallos. `npx ng build` sin errores. `npx prettier --check
+  "src/**/*.{ts,html,scss}"` sin cambios y sin opciones extra.
+- **Pendientes:**
+  - Ninguno de esta tarjeta.
+
+## 2026-11-09 — Pago del adelanto con Wompi (sin llaves todavía)
+
+- **Tarjeta:** CACS-21 (HU-03).
+- **Rama:** `feat/pago-wompi`
+- **Qué se hizo:**
+  - Cambio de alcance acordado por el equipo: Wompi solo muestra las llaves de
+    Sandbox después de activar el comercio con RUT y NIT, y se decidió no
+    activarlo por ahora. La integración se construyó con la API documentada de
+    Wompi y se prueba contra un Wompi simulado; la prueba manual en el Sandbox
+    real queda pendiente de las llaves.
+  - `config/ProveedorPagos`, `PropiedadesPagos` y `PagosConfig`:
+    `app.pagos.proveedor` elige entre `simulado` (por defecto) y `wompi`. Con
+    `wompi` la API no arranca sin `WOMPI_LLAVE_PUBLICA`,
+    `WOMPI_SECRETO_EVENTOS` y `WOMPI_SECRETO_INTEGRIDAD`. No hace falta la
+    llave privada.
+  - `service/PagoWompiService` y `controller/PagoWompiController`:
+    `POST /api/reservas/{id}/pago/wompi` crea el pago `PENDIENTE` y devuelve
+    la URL del Web Checkout con monto y referencia firmados (firma de
+    integridad SHA-256); `POST /api/pagos/wompi/eventos` es el webhook,
+    público y protegido con el checksum del evento (401 si no coincide);
+    `GET /api/reservas/{id}/pago/wompi/{transacción}` consulta la transacción
+    en Wompi al volver del checkout, para registrar el pago aunque el webhook
+    no llegue; `GET /api/pagos/proveedor` le dice al frontend qué flujo usar.
+  - `service/RegistroResultadoPago`: único punto donde se guarda el resultado
+    de un cobro (simulado, webhook o consulta). Es idempotente: un pago
+    APROBADO no vuelve a cambiar. Ahí debe crear CACS-8 la notificación de
+    confirmación.
+  - Si el monto o la moneda del evento no coinciden con el pago, queda en
+    `ERROR` y la reserva no se confirma. Con Wompi activo, el pago simulado
+    responde 409.
+  - Frontend, `/reservas/:id/pagar`: con Wompi, "Pagar con Wompi" lleva al
+    checkout; al volver con `?id=` consulta el resultado y muestra aprobado,
+    rechazado, error o "todavía procesando" con "Consultar de nuevo". Con el
+    simulado todo sigue igual.
+  - Probado a mano con los datos de demostración: con el proveedor simulado
+    el pago de Laura se aprueba y confirma la reserva, el checkout de Wompi
+    responde 409 y el webhook con firma falsa 401.
+  - Sin cambios de esquema: la tabla `pagos` ya tenía las columnas de Wompi.
+- **Pruebas:** `./mvnw test`: 161 pruebas, 0 fallos, 0 errores (CP-32a a
+  CP-32l en `PagoWompiTests`). `./mvnw checkstyle:check`: 0 advertencias.
+  `npx ng test --watch=false`: 75 pruebas, 0 fallos (CP-F19a a CP-F19d).
+  `npx ng build` sin errores. `npx prettier --check` sin cambios.
+- **Pendientes:**
+  - Prueba manual en el Sandbox de Wompi cuando haya llaves (activar el
+    comercio), con las tarjetas de prueba 4242 4242 4242 4242 (aprobada) y
+    4111 1111 1111 1111 (rechazada), y configurar la URL de eventos con un
+    túnel si se quiere probar el webhook en local.
+  - CACS-8 debe crear las notificaciones en `RegistroResultadoPago`.
+
+## 2026-11-09 — Panel: equipos y tarifas
+
+- **Tarjeta:** CACS-22 (HU-06).
+- **Rama:** `feat/gestion-equipos`
+- **Qué se hizo:**
+  - Backend, solo `ADMIN` (`AdminEquiposController`, `AdminEquiposService`):
+    `GET /api/admin/equipos` (modalidad, tarifa, estado y reservas
+    `PENDIENTE_PAGO` o `CONFIRMADA` que aún no empiezan),
+    `PUT /api/admin/equipos/{id}/disponibilidad`, `GET /api/admin/modalidades`
+    y `PUT /api/admin/modalidades/{id}` (tarifa entre 1 y 1.000.000, y si está
+    activa). El tope lo sugirió Cristian Silva en la revisión, para que un error
+    al digitar no deje un precio desbordado; la pantalla lo valida también.
+    Modalidad inexistente responde 404 (`ModalidadNoEncontradaException`).
+  - Las reservas existentes no cambian: guardan su precio y siguen activas aunque
+    el equipo salga de servicio. Las reservas nuevas de un equipo fuera de
+    servicio o de una modalidad desactivada ya respondían 409 (CACS-20).
+  - Frontend, pestaña "Equipos y tarifas" del panel (`Equipos`): estado en
+    texto ("Disponible", "Fuera de servicio", "Modalidad desactivada"); si el
+    equipo tiene reservas futuras pide confirmación y avisa que siguen activas;
+    cada modalidad se edita con su tarifa y una casilla para ofrecerla.
+  - La prueba a mano encontró un error de concordancia con una sola reserva
+    ("Sus 1 reserva futura siguen activas"); ahora dice "Su reserva futura
+    sigue activa" (CP-F20h).
+  - Probado a mano con los datos de demostración como admin: fuera de servicio
+    con confirmación, habilitar, tarifa del Xbox 360 a $8.000 y la reserva
+    pendiente de Laura en ese equipo conserva sus $5.000; a 360 px sin
+    desplazamiento horizontal. Capturas en `docs/capturas/cacs-22/`.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 169 pruebas, 0 fallos, 0 errores, ya con el
+  código de CACS-21 traído de `dev` (CP-33a a CP-33h en `AdminEquiposTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 83 pruebas, 0 fallos (CP-F20a a
+  CP-F20h). `npx ng build` sin errores. `npx prettier --check
+  "src/**/*.{ts,html,scss}"` sin cambios.
+- **Pendientes:**
+  - Cambiar las tarifas en Supabase desde el panel cambia los precios reales
+    de las reservas nuevas: usarlo con cuidado una vez desplegado.
+
+## 2026-11-09 — Historial de reservas y pantalla "Mis reservas"
+
+- **Tarjeta:** CACS-3 (HU-07).
+- **Rama:** `feat/historial-reservas`
+- **Qué se hizo:**
+  - `GET /api/reservas/mias?estado=&pagina=&tamano=` (`ReservaController`,
+    `ReservaService.historialPropio`, `HistorialReservasResponse`): solo las
+    reservas del usuario autenticado, de la más reciente a la más antigua,
+    filtro opcional por estado y 10 por página por defecto (máximo 50).
+    Página negativa, tamaño fuera de 1 a 50 o un estado que no existe
+    responden 400. Usa el índice `reservas_historial_usuario_idx`.
+  - `ReservaRepository`: consultas paginadas con el equipo ya cargado
+    (`@EntityGraph`), para no hacer una consulta por reserva.
+  - Frontend, `/mis-reservas` (`MisReservas`): tarjetas con equipo, horario,
+    precio, adelanto y estado en texto; filtro por estado; "Anterior" y
+    "Siguiente"; las reservas pendientes llevan a "Pagar el adelanto"; sin
+    reservas, mensaje y enlace para reservar. Enlace "Mis reservas" en la
+    barra del cliente.
+  - Probado a mano con los datos de demostración como Laura: sus 4 reservas
+    en orden, filtro por Confirmadas y por Expiradas (sin resultados, con su
+    mensaje), enlace a pagar la pendiente y 360 px sin desplazamiento
+    horizontal. Capturas en `docs/capturas/cacs-3/`.
+  - Se trajo `dev` con CACS-22 (PR #32) y se resolvió el conflicto del README
+    dejando las filas de las dos tarjetas.
+  - Sin cambios de esquema.
+- **Pruebas:** `./mvnw test`: 175 pruebas, 0 fallos, 0 errores (CP-34a a
+  CP-34f en `HistorialReservasTests`). `./mvnw checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 90 pruebas, 0 fallos (CP-F21a a
+  CP-F21g; CP-F08b ahora incluye "Mis reservas"). `npx ng build` y
+  `prettier --check` sin errores.
+- **Pendientes:**
+  - Ninguno de esta tarjeta.
+
+## 2026-11-10 — Notificaciones por correo
+
+- **Tarjeta:** CACS-8 (HU-08).
+- **Rama:** `feat/notificaciones-correo`
+- **Qué se hizo:**
+  - `NotificacionService`: al confirmarse una reserva programa la
+    `CONFIRMACION` para enviarse de inmediato y el `RECORDATORIO` una hora
+    antes del inicio; si falta menos de una hora, solo la confirmación. No
+    duplica si ya existe la confirmación.
+  - Las notificaciones se crean en `RegistroResultadoPago.registrar(...)`, el
+    punto único que se acordó con Cristian Silva en CACS-21: después de
+    guardar un pago APROBADO se vuelve a leer la reserva y, si quedó
+    `CONFIRMADA`, se programan. Sirve igual para el pago simulado, el webhook de
+    Wompi y la consulta de la transacción. Si la reserva ya había expirado, no
+    se programa nada.
+  - `NotificacionesTarea` (`@Scheduled`, cada `app.notificaciones.envio.intervalo-ms`)
+    envía las que ya deben salir, en lotes de 50. Si un envío falla, suma un
+    intento, guarda el error y se reintenta en la siguiente ejecución. La
+    consulta (`buscarPorEnviar`) no trae recordatorios de reservas que ya no
+    están `CONFIRMADA`, así que el de una reserva cancelada nunca sale.
+  - `EnviadorCorreoSmtp` (Gmail por SMTP, `spring-boot-starter-mail`, con
+    timeouts de 10 s). Credenciales solo por `CORREO_USUARIO` y
+    `CORREO_CONTRASENA_APLICACION`; el envío se enciende con
+    `APP_NOTIFICACIONES_HABILITADAS=true` y está apagado en las pruebas.
+  - `PruebasSimultaneasTests` borra también las notificaciones que crean sus
+    pagos aprobados.
+  - Correo real probado a mano con `spring-boot:test-run` y una contraseña de
+    aplicación de la cuenta del equipo: se registró un cliente con esa cuenta,
+    se reservó y se pagó con el proveedor simulado, y la tarea registró
+    "Notificaciones enviadas: 1 de 1" a los 25 segundos. Se comprobó que
+    ninguna credencial quedó en archivos ni en el historial.
+  - Sin cambios de esquema: la tabla `notificaciones` ya existía.
+- **Pruebas:** `./mvnw test`: 184 pruebas, 0 fallos, 0 errores, ya con CACS-3
+  traído de `dev`. Nueva clase `NotificacionesTests` (CP-35a a CP-35i; se
+  renumeraron porque CACS-3 usa CP-34), con el envío de correo simulado.
+  `./mvnw clean checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - Para producción, definir las tres variables de entorno en el servidor.
+  - No hay un tope de reintentos: una dirección que siempre falla se reintenta
+    cada minuto. Si pasa, agregar un máximo de intentos.
+  - En PowerShell, guardar la contraseña de aplicación con comillas simples:
+    con comillas dobles, un `$` se interpreta como variable.

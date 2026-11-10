@@ -124,6 +124,19 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Responde a una modalidad que no existe.
+   *
+   * @param ex excepción con el id buscado
+   * @return 404 con el mensaje de la excepción
+   */
+  @ExceptionHandler(ModalidadNoEncontradaException.class)
+  public ResponseEntity<ApiError> manejarModalidadNoEncontrada(
+      ModalidadNoEncontradaException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(ApiError.de(404, ex.getMessage(), List.of()));
+  }
+
+  /**
    * Responde a un usuario que no existe.
    *
    * @param ex excepción con el id buscado
@@ -145,6 +158,44 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiError> manejarSaldoInsuficiente(SaldoPuntosInsuficienteException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(ApiError.de(409, ex.getMessage(), List.of()));
+  }
+
+  /**
+   * CACS-21: responde a un evento de Wompi con un checksum que no coincide.
+   *
+   * @param ex excepción con un mensaje genérico
+   * @return 401 con el mensaje de la excepción
+   */
+  @ExceptionHandler(FirmaWompiInvalidaException.class)
+  public ResponseEntity<ApiError> manejarFirmaWompiInvalida(FirmaWompiInvalidaException ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(ApiError.de(401, ex.getMessage(), List.of()));
+  }
+
+  /**
+   * CACS-21: responde a un pago con un proveedor que no es el activo.
+   *
+   * @param ex excepción con el proveedor activo
+   * @return 409 con el mensaje de la excepción
+   */
+  @ExceptionHandler(ProveedorPagosNoDisponibleException.class)
+  public ResponseEntity<ApiError> manejarProveedorNoDisponible(
+      ProveedorPagosNoDisponibleException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(ApiError.de(409, ex.getMessage(), List.of()));
+  }
+
+  /**
+   * CACS-21: responde a una transacción de Wompi que no existe o no es de la reserva.
+   *
+   * @param ex excepción con el id de la transacción
+   * @return 404 con el mensaje de la excepción
+   */
+  @ExceptionHandler(TransaccionWompiNoEncontradaException.class)
+  public ResponseEntity<ApiError> manejarTransaccionNoEncontrada(
+      TransaccionWompiNoEncontradaException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(ApiError.de(404, ex.getMessage(), List.of()));
   }
 
   /**

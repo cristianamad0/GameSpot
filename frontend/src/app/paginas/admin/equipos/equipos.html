@@ -1,0 +1,166 @@
+@if (error()) {
+  <div class="gs-alerta" role="alert">{{ error() }}</div>
+}
+
+<div class="columnas">
+  <section class="gs-tarjeta" aria-labelledby="titulo-equipos">
+    <h2 id="titulo-equipos">Equipos</h2>
+    <p class="suave explicacion">
+      Un equipo fuera de servicio no se puede reservar. Sus reservas ya hechas siguen activas.
+    </p>
+
+    @if (avisoEquipos()) {
+      <div class="aviso" role="status">{{ avisoEquipos() }}</div>
+    }
+    @if (errorEquipos()) {
+      <div class="gs-alerta" role="alert">{{ errorEquipos() }}</div>
+    }
+
+    @if (!equipos()) {
+      <p aria-live="polite">Cargando los equipos…</p>
+    } @else {
+      <ul class="lista">
+        @for (equipo of equipos(); track equipo.id) {
+          <li class="equipo" [attr.data-equipo]="equipo.id">
+            <div class="equipo__fila">
+              <div class="equipo__datos">
+                <strong>{{ equipo.nombre }}</strong>
+                <span class="suave"
+                  >{{ equipo.modalidad }} · {{ pesos(equipo.tarifaHoraPesos) }} / hora</span
+                >
+                @if (equipo.reservasActivasFuturas > 0) {
+                  <span class="futuras">{{
+                    textoReservasFuturas(equipo.reservasActivasFuturas)
+                  }}</span>
+                }
+              </div>
+              <span
+                class="estado"
+                [attr.data-estado]="
+                  !equipo.modalidadEstaActiva
+                    ? 'modalidad'
+                    : equipo.estaDisponible
+                      ? 'disponible'
+                      : 'fuera'
+                "
+                >{{ estadoEquipo(equipo) }}</span
+              >
+            </div>
+
+            @if (porConfirmar()?.id === equipo.id) {
+              <div
+                class="confirmacion"
+                role="alertdialog"
+                [attr.aria-label]="'Confirmar ' + equipo.nombre"
+              >
+                <p>
+                  {{ equipo.nombre }} tiene
+                  <strong>{{ textoReservasFuturas(equipo.reservasActivasFuturas) }}</strong
+                  >. {{ seguiranActivas(equipo.reservasActivasFuturas) }} aunque el equipo salga de
+                  servicio. ¿Lo pones fuera de servicio?
+                </p>
+                <div class="acciones">
+                  <button
+                    type="button"
+                    class="gs-boton gs-boton--peligro"
+                    [disabled]="cambiando() === equipo.id"
+                    (click)="confirmarFueraDeServicio()"
+                  >
+                    Sí, fuera de servicio
+                  </button>
+                  <button
+                    type="button"
+                    class="gs-boton gs-boton--secundario"
+                    (click)="cancelarConfirmacion()"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <button
+                type="button"
+                class="gs-boton gs-boton--secundario equipo__accion"
+                [disabled]="cambiando() === equipo.id"
+                [attr.aria-label]="
+                  (equipo.estaDisponible ? 'Poner fuera de servicio ' : 'Habilitar ') +
+                  equipo.nombre
+                "
+                (click)="alternar(equipo)"
+              >
+                {{ equipo.estaDisponible ? 'Poner fuera de servicio' : 'Habilitar' }}
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="gs-tarjeta" aria-labelledby="titulo-tarifas">
+    <h2 id="titulo-tarifas">Tarifas por modalidad</h2>
+    <p class="suave explicacion">
+      La tarifa nueva aplica a las reservas que se creen desde ahora; las que ya existen conservan
+      su precio.
+    </p>
+
+    @if (avisoTarifas()) {
+      <div class="aviso" role="status">{{ avisoTarifas() }}</div>
+    }
+    @if (errorTarifas()) {
+      <div class="gs-alerta" role="alert">{{ errorTarifas() }}</div>
+    }
+
+    @if (!modalidades()) {
+      <p aria-live="polite">Cargando las modalidades…</p>
+    } @else {
+      <ul class="lista">
+        @for (modalidad of modalidades(); track modalidad.id) {
+          <li class="modalidad" [attr.data-modalidad]="modalidad.id">
+            <div class="modalidad__titulo">
+              <strong>{{ modalidad.nombre }}</strong>
+              <span class="suave">{{
+                modalidad.cantidadEquipos === 1
+                  ? '1 equipo'
+                  : modalidad.cantidadEquipos + ' equipos'
+              }}</span>
+            </div>
+            <div class="modalidad__campos">
+              <div class="gs-campo">
+                <label [for]="'tarifa-' + modalidad.id">Tarifa por hora (pesos)</label>
+                <input
+                  [id]="'tarifa-' + modalidad.id"
+                  type="number"
+                  min="1"
+                  max="1000000"
+                  step="100"
+                  inputmode="numeric"
+                  [value]="borradores()[modalidad.id]?.tarifaHoraPesos ?? ''"
+                  [attr.aria-invalid]="tarifaInvalida(modalidad.id)"
+                  (input)="cambiarTarifa(modalidad.id, $any($event.target).value)"
+                />
+              </div>
+              <label class="activa">
+                <input
+                  type="checkbox"
+                  [checked]="borradores()[modalidad.id]?.estaActiva ?? true"
+                  (change)="cambiarActiva(modalidad.id, $any($event.target).checked)"
+                />
+                Se ofrece para reservar
+              </label>
+              <button
+                type="button"
+                class="gs-boton gs-boton--primario"
+                [disabled]="guardando() === modalidad.id"
+                [attr.aria-label]="'Guardar ' + modalidad.nombre"
+                (click)="guardarModalidad(modalidad)"
+              >
+                {{ guardando() === modalidad.id ? 'Guardando…' : 'Guardar' }}
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

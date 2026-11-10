@@ -74,6 +74,28 @@ export interface UsuarioResumen {
   puntosFidelidad: number;
 }
 
+/** Equipo tal como lo ve el administrador (EquipoAdminResponse del backend). */
+export interface EquipoAdmin {
+  id: number;
+  nombre: string;
+  modalidadId: number;
+  modalidad: string;
+  tarifaHoraPesos: number;
+  modalidadEstaActiva: boolean;
+  estaDisponible: boolean;
+  /** Reservas PENDIENTE_PAGO o CONFIRMADA que aún no empiezan. */
+  reservasActivasFuturas: number;
+}
+
+/** Modalidad con su tarifa, para el administrador (ModalidadAdminResponse del backend). */
+export interface ModalidadAdmin {
+  id: number;
+  nombre: string;
+  tarifaHoraPesos: number;
+  estaActiva: boolean;
+  cantidadEquipos: number;
+}
+
 /** Movimiento del historial de puntos (MovimientoPuntosResponse del backend). */
 export interface MovimientoPuntos {
   id: number;
@@ -131,6 +153,30 @@ export interface Disponibilidad {
 
 /** Resultado que se le pide al proveedor de anticipos simulado (ResultadoSimulado del backend). */
 export type ResultadoSimulado = 'APROBADO' | 'RECHAZADO';
+
+/** CACS-3: una página del historial de reservas (HistorialReservasResponse del backend). */
+export interface HistorialReservas {
+  reservas: Reserva[];
+  pagina: number;
+  tamanoPagina: number;
+  totalReservas: number;
+  totalPaginas: number;
+}
+
+/** CACS-21: proveedor de pagos activo en el backend (app.pagos.proveedor). */
+export type ProveedorPagos = 'SIMULADO' | 'WOMPI';
+
+/** CACS-21: datos para ir al Web Checkout de Wompi (CheckoutWompiResponse del backend). */
+export interface CheckoutWompi {
+  pagoId: number;
+  referencia: string;
+  montoCentavos: number;
+  moneda: string;
+  llavePublica: string;
+  firmaIntegridad: string;
+  urlRetorno: string;
+  urlCheckout: string;
+}
 
 /** Resultado de pagar el adelanto (PagoAnticipoResponse del backend). */
 export interface PagoAnticipo {

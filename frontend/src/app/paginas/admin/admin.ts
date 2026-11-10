@@ -26,6 +26,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
         <a routerLink="/admin/puntos" routerLinkActive="activa" ariaCurrentWhenActive="page"
           >Ajustar puntos</a
         >
+        <a routerLink="/admin/equipos" routerLinkActive="activa" ariaCurrentWhenActive="page"
+          >Equipos y tarifas</a
+        >
       </nav>
 
       <router-outlet />

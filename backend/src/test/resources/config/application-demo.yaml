@@ -12,3 +12,8 @@ app:
     expiracion:
       # En el arranque local la expiración sí corre, como en el uso real.
       habilitada: true
+  notificaciones:
+    envio:
+      # CACS-8: para probar un correo real en local, definir CORREO_USUARIO,
+      # CORREO_CONTRASENA_APLICACION y APP_NOTIFICACIONES_HABILITADAS=true.
+      habilitada: "${APP_NOTIFICACIONES_HABILITADAS:false}"
