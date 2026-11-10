@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.usta.gamespot.config.PropiedadesPagos;
 import com.usta.gamespot.config.ProveedorPagos;
 import com.usta.gamespot.dto.TransaccionWompi;
+import com.usta.gamespot.exception.WompiNoRespondeException;
 import com.usta.gamespot.model.Equipo;
 import com.usta.gamespot.model.EstadoPago;
 import com.usta.gamespot.model.EstadoReserva;
@@ -29,6 +31,7 @@ import com.usta.gamespot.security.JwtService;
 import com.usta.gamespot.service.ClienteWompi;
 import com.usta.gamespot.service.UsuarioDetailsService;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +43,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -200,8 +204,36 @@ class PagoWompiTests {
   }
 
   private ResultActions enviarEvento(String cuerpo) throws Exception {
+    wompiConoceLaTransaccionDe(cuerpo);
     return mockMvc.perform(
         post("/api/pagos/wompi/eventos").contentType(MediaType.APPLICATION_JSON).content(cuerpo));
+  }
+
+  /**
+   * CACS-24: el webhook vuelve a leer en Wompi la transacción del evento (la referencia no va
+   * firmada). Aquí el Wompi simulado conoce la transacción tal como viene en el evento.
+   */
+  private void wompiConoceLaTransaccionDe(String cuerpo) {
+    Object transaccion;
+    try {
+      transaccion = com.jayway.jsonpath.JsonPath.read(cuerpo, "$.data.transaction");
+    } catch (com.jayway.jsonpath.PathNotFoundException ex) {
+      return;
+    }
+    if (!(transaccion instanceof java.util.Map<?, ?> datos)) {
+      return;
+    }
+    String id = String.valueOf(datos.get("id"));
+    when(clienteWompi.consultarTransaccion(id))
+        .thenReturn(
+            Optional.of(
+                new TransaccionWompi(
+                    id,
+                    String.valueOf(datos.get("reference")),
+                    String.valueOf(datos.get("status")),
+                    ((Number) datos.get("amount_in_cents")).longValue(),
+                    String.valueOf(datos.get("currency")),
+                    String.valueOf(datos.get("payment_method_type")))));
   }
 
   private Pago leer(Pago pago) {
@@ -449,5 +481,155 @@ class PagoWompiTests {
         IllegalStateException.class, () -> new PropiedadesPagos(ProveedorPagos.WOMPI, sinLlaves));
     assertEquals(
         ProveedorPagos.SIMULADO, new PropiedadesPagos(null, sinLlaves).proveedor());
+  }
+
+  // CACS-24: correcciones de la revisión del pago con Wompi.
+
+  @Test
+  @DisplayName("CP-36a Dos clics en pagar reutilizan el mismo pago PENDIENTE y la misma referencia")
+  void checkoutRepetidoReutilizaElPago() throws Exception {
+    Reserva pendiente = reserva(PLAZO_VIGENTE);
+
+    String primera = referenciaDelCheckout(pendiente);
+    String segunda = referenciaDelCheckout(pendiente);
+
+    assertEquals(primera, segunda);
+    assertEquals(1, pagoRepository.findByReservaId(pendiente.getId()).size());
+  }
+
+  private String referenciaDelCheckout(Reserva reserva) throws Exception {
+    MvcResult resultado =
+        iniciarCheckout(reserva, tokenCliente).andExpect(status().isCreated()).andReturn();
+    return com.jayway.jsonpath.JsonPath.read(
+        resultado.getResponse().getContentAsString(), "$.referencia");
+  }
+
+  @Test
+  @DisplayName(
+      "CP-36b Un segundo pago aprobado de una reserva ya confirmada queda en ERROR, sin error 500")
+  void segundoPagoAprobadoQuedaEnError() throws Exception {
+    Reserva pendiente = reserva(PLAZO_VIGENTE);
+    Pago primero = pagoPendiente(pendiente);
+    // Un segundo checkout abierto antes de esta corrección, con otra referencia.
+    Pago segundo =
+        pagoRepository.saveAndFlush(
+            Pago.builder()
+                .reserva(pendiente)
+                .referencia("GS-" + pendiente.getId() + "-segundo")
+                .montoCentavos(ADELANTO_CENTAVOS)
+                .moneda("COP")
+                .build());
+
+    enviarEvento(evento("tx-primero", primero.getReferencia(), "APPROVED", ADELANTO_CENTAVOS,
+            null))
+        .andExpect(status().isOk());
+    enviarEvento(evento("tx-segundo", segundo.getReferencia(), "APPROVED", ADELANTO_CENTAVOS,
+            null))
+        .andExpect(status().isOk());
+
+    assertEquals(EstadoPago.APROBADO, leer(primero).getEstado());
+    Pago duplicado = leer(segundo);
+    assertEquals(EstadoPago.ERROR, duplicado.getEstado());
+    assertEquals("tx-segundo", duplicado.getIdTransaccionWompi());
+    assertEquals(EstadoReserva.CONFIRMADA, leer(pendiente).getEstado());
+  }
+
+  @Test
+  @DisplayName(
+      "CP-36c Un evento firmado con la referencia cambiada no confirma la reserva de otro")
+  void referenciaCambiadaNoConfirmaOtraReserva() throws Exception {
+    Reserva propia = reserva(PLAZO_VIGENTE);
+    Pago pagoPropio = pagoPendiente(propia);
+    Reserva ajena = reserva(PLAZO_VIGENTE, LAS_TRES_PM.plus(2, ChronoUnit.HOURS));
+    Pago pagoAjeno = pagoPendiente(ajena);
+    // En Wompi la transacción aprobada es la del pago propio.
+    when(clienteWompi.consultarTransaccion("tx-propia"))
+        .thenReturn(
+            Optional.of(
+                new TransaccionWompi(
+                    "tx-propia", pagoPropio.getReferencia(), "APPROVED", ADELANTO_CENTAVOS,
+                    "COP", "CARD")));
+
+    // La referencia no va firmada: se cambia por la del otro pago y el checksum sigue válido.
+    mockMvc
+        .perform(
+            post("/api/pagos/wompi/eventos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    evento("tx-propia", pagoAjeno.getReferencia(), "APPROVED",
+                        ADELANTO_CENTAVOS, null)))
+        .andExpect(status().isOk());
+
+    assertEquals(EstadoPago.PENDIENTE, leer(pagoAjeno).getEstado());
+    assertEquals(EstadoReserva.PENDIENTE_PAGO, leer(ajena).getEstado());
+    assertEquals(EstadoPago.APROBADO, leer(pagoPropio).getEstado());
+  }
+
+  @Test
+  @DisplayName("CP-36d Al volver del checkout, la reserva no está bloqueada mientras se consulta Wompi")
+  void noBloqueaLaReservaDuranteLaConsulta() throws Exception {
+    Reserva pendiente = reserva(PLAZO_VIGENTE);
+    // El pago se crea directo en la base: el checkout bloquearía la reserva en esta misma
+    // transacción de prueba y no se vería si la consulta la bloquea antes de tiempo.
+    Pago pago =
+        pagoRepository.saveAndFlush(
+            Pago.builder()
+                .reserva(pendiente)
+                .referencia("GS-" + pendiente.getId() + "-retorno")
+                .montoCentavos(ADELANTO_CENTAVOS)
+                .moneda("COP")
+                .build());
+    AtomicReference<LockModeType> bloqueoDuranteLaConsulta = new AtomicReference<>();
+    when(clienteWompi.consultarTransaccion("tx-sin-bloqueo"))
+        .thenAnswer(
+            invocacion -> {
+              bloqueoDuranteLaConsulta.set(entityManager.getLockMode(leer(pendiente)));
+              return Optional.of(
+                  new TransaccionWompi(
+                      "tx-sin-bloqueo", pago.getReferencia(), "APPROVED", ADELANTO_CENTAVOS,
+                      "COP", "CARD"));
+            });
+    // Hibernate marca como escritas las filas insertadas en la transacción; se limpia el contexto
+    // para que la consulta lea la reserva desde cero, como en una petición real.
+    entityManager.flush();
+    entityManager.clear();
+
+    mockMvc
+        .perform(
+            get("/api/reservas/" + pendiente.getId() + "/pago/wompi/tx-sin-bloqueo")
+                .header("Authorization", tokenCliente))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.estadoReserva").value("CONFIRMADA"));
+
+    assertNotNull(bloqueoDuranteLaConsulta.get());
+    assertFalse(
+        esBloqueo(bloqueoDuranteLaConsulta.get()),
+        "La reserva estaba bloqueada mientras se esperaba a Wompi");
+    // Después de la consulta sí se bloquea, para registrar el pago.
+    assertTrue(esBloqueo(entityManager.getLockMode(leer(pendiente))));
+  }
+
+  private static boolean esBloqueo(LockModeType modo) {
+    return modo.name().startsWith("PESSIMISTIC");
+  }
+
+  @Test
+  @DisplayName("CP-36e Si Wompi no responde, la consulta da 503 con un mensaje claro")
+  void wompiCaidoResponde503() throws Exception {
+    Reserva pendiente = reserva(PLAZO_VIGENTE);
+    Pago pago = pagoPendiente(pendiente);
+    when(clienteWompi.consultarTransaccion(anyString()))
+        .thenThrow(new WompiNoRespondeException(new RuntimeException("tiempo agotado")));
+
+    mockMvc
+        .perform(
+            get("/api/reservas/" + pendiente.getId() + "/pago/wompi/tx-lenta")
+                .header("Authorization", tokenCliente))
+        .andExpect(status().isServiceUnavailable())
+        .andExpect(
+            jsonPath("$.mensaje")
+                .value("Wompi no respondió. Si ya pagaste, consulta de nuevo en unos segundos"));
+
+    assertEquals(EstadoPago.PENDIENTE, leer(pago).getEstado());
   }
 }
