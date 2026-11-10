@@ -1,0 +1,10 @@
+# Configuración solo para las pruebas: base en memoria y un secreto que no se usa
+# fuera de ellas.
+spring:
+  datasource:
+    url: "jdbc:h2:mem:catalogo-pruebas;DB_CLOSE_DELAY=-1"
+
+app:
+  jwt:
+    secret: "secreto-solo-para-pruebas-del-catalogo-gamespot"
+
