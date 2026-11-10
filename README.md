@@ -13,7 +13,8 @@ Santo Tomás, sede Villavicencio).
 | Entidades y repositorios JPA | Implementados |
 | Expiración de reservas no pagadas (HU-05) | Implementado: tarea programada cada minuto |
 | Panel de administración de reservas (HU-06) | Implementado: `GET /api/admin/reservas`, `POST /api/admin/reservas/{id}/cancelar`, `POST /api/admin/reservas/{id}/completar` y `GET /api/admin/reservas/expiradas-con-pago` (solo `ADMIN`) |
-| Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); el proveedor simulado se cambiará por Wompi en pruebas |
+| Pago del adelanto con proveedor simulado (HU-03) | Implementado: `POST /api/reservas/{id}/pago` (solo el dueño de la reserva); es el proveedor por defecto |
+| Pago del adelanto con Wompi (HU-03) | Implementado con el Web Checkout y el entorno Sandbox: `POST /api/reservas/{id}/pago/wompi`, webhook `POST /api/pagos/wompi/eventos` con verificación del checksum, `GET /api/reservas/{id}/pago/wompi/{transacción}` y `GET /api/pagos/proveedor`. Se activa con `APP_PAGOS_PROVEEDOR=wompi` y las llaves de Wompi (ver "Pagos con Wompi"); falta la prueba manual en el Sandbox real, pendiente de las llaves |
 | Puntos de fidelización (HU-04) | Implementado: `GET /api/puntos` (saldo e historial del cliente) y `POST /api/admin/usuarios/{usuarioId}/puntos` (ajuste manual, solo `ADMIN`) |
 | Reservas por bloques de 30 minutos (HU-02) | Implementado: `POST /api/reservas` (crea la reserva en `PENDIENTE_PAGO` con precio, adelanto y plazo de pago) y `GET /api/reservas/disponibilidad?equipoId=&fecha=` (bloques libres y ocupados del día) |
 | Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot |
@@ -147,6 +148,36 @@ nunca llega al jar ni corre con la configuración de Supabase; además solo se
 activa con `app.demo.datos=true`. Si se arranca dos veces sobre la misma base,
 no duplica los datos.
 
+### Pagos con Wompi (CACS-21)
+
+Por defecto el adelanto se cobra con el proveedor simulado
+(`app.pagos.proveedor=simulado`). Para cobrar con el Web Checkout de Wompi en
+su entorno Sandbox, definir estas variables de entorno y arrancar la API:
+
+| Variable | Valor |
+| --- | --- |
+| `APP_PAGOS_PROVEEDOR` | `wompi` |
+| `WOMPI_LLAVE_PUBLICA` | Llave pública de pruebas del comercio (empieza por `pub_test_`) |
+| `WOMPI_SECRETO_EVENTOS` | Secreto de eventos de pruebas (`test_events_...`) |
+| `WOMPI_SECRETO_INTEGRIDAD` | Secreto de integridad de pruebas (`test_integrity_...`) |
+
+Las llaves salen del panel de comercios de Wompi en modo Sandbox y nunca se
+escriben en archivos del repositorio. Con `wompi` y sin llaves, la API no
+arranca; además, el pago simulado responde 409, para que nadie apruebe un
+pago sin pasar por Wompi. La llave privada no hace falta: la API solo
+consulta transacciones, que es una operación pública de Wompi.
+
+El flujo: la pantalla de pago pide `POST /api/reservas/{id}/pago/wompi`, que
+crea el pago `PENDIENTE` y devuelve la URL del checkout con el monto y la
+referencia firmados. Wompi avisa el resultado en
+`POST /api/pagos/wompi/eventos` (se acepta solo con el checksum correcto) y
+devuelve al cliente a `/reservas/{id}/pagar?id=<transacción>`. Desde ahí el
+frontend llama `GET /api/reservas/{id}/pago/wompi/{transacción}`, que consulta
+la transacción en Wompi y registra el resultado aunque el webhook no llegue
+(en local Wompi no puede llamar a `localhost`). Para recibir el webhook en
+local hace falta un túnel (ngrok o similar) y configurar su URL en el panel de
+Wompi.
+
 ## Ejecutar el frontend
 
 Requisitos: Node 24. Con la API corriendo en `http://localhost:8080` (por
@@ -204,6 +235,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `PruebasSimultaneasTests` | Concurrencia real con servidor y PostgreSQL: 10 reservas simultáneas del mismo bloque, bloques que se cruzan en parte, bloques contiguos y otros equipos, pagos simultáneos de una reserva y 16 carreras seguidas sin resultados intermitentes. Sin `@Transactional`: borra lo que crea | CP-27a a CP-27e |
 | `DatosDemostracionTests` | Datos de demostración: con el perfil `demo` se inicia sesión como admin y cliente, hay reservas en los cinco estados entre ayer y mañana, puntos y una expirada con pago, no se duplican y las contraseñas van cifradas; sin el perfil no se cargan | CP-29a a CP-29f |
 | `CatalogoTests` | Catálogo de equipos: modalidad, tarifa y orden, adelanto del 50 % y 15 minutos para pagar, equipo fuera de servicio y 401 sin token | CP-31a a CP-31c |
+| `PagoWompiTests` | Pago con Wompi contra un Wompi simulado: checkout con monto y referencia firmados, reglas de CACS-5, eventos APPROVED, DECLINED y ERROR, checksum inválido (401), evento repetido sin duplicar, monto distinto, consulta al volver del checkout, pago simulado desactivado (409) y sin llaves en el código | CP-32a a CP-32l |
 | `AdminEquiposTests` | Equipos y tarifas desde el panel: listar equipos y modalidades, fuera de servicio sin bloques libres y 409 al reservar, reservas existentes intactas con su conteo, tarifa nueva solo para reservas nuevas, modalidad desactivada, 400 y 404, y 403 para `CLIENTE` | CP-33a a CP-33g |
 
 Pruebas del frontend, desde `frontend/` (no necesitan Docker ni la API):
@@ -228,7 +260,7 @@ npx ng test --watch=false
 | `paginas/admin/equipos/equipos.spec.ts` | Panel: equipos con estado en texto y reservas futuras, fuera de servicio con y sin confirmación, habilitar, cambiar tarifa, desactivar modalidad, validación y 404, y textos en singular o plural | CP-F20a a CP-F20h |
 | `paginas/admin/admin.spec.ts` | Todas las rutas del panel protegidas por `adminGuard` | CP-F13 |
 | `core/formato.spec.ts` | Hora y fecha de Bogotá, pesos, singular o plural de puntos y cuenta regresiva | CP-F14a a CP-F14e |
-| `paginas/pagar-adelanto/pagar-adelanto.spec.ts` | Pagar el adelanto: aprobado y confirmada, rechazado con reintento, plazo vencido, 403 y 404 al cargar, 409 al pagar, sin selector fuera de la demostración y reserva ya confirmada | CP-F15a a CP-F15g |
+| `paginas/pagar-adelanto/pagar-adelanto.spec.ts` | Pagar el adelanto: aprobado y confirmada, rechazado con reintento, plazo vencido, 403 y 404 al cargar, 409 al pagar, sin selector fuera de la demostración y reserva ya confirmada. Con Wompi: ir al checkout, consultar al volver, pago todavía en proceso y pago con error o 409 | CP-F15a a CP-F15g, CP-F19a a CP-F19d |
 | `paginas/mis-puntos/mis-puntos.spec.ts` | Mis puntos: saldo, historial del más reciente al más antiguo con signo, estado vacío y error | CP-F16a a CP-F16c |
 | `paginas/cliente/rutas-cliente.spec.ts` | Reservar, mis puntos y pagar el adelanto exigen sesión | CP-F17, CP-F18h |
 | `paginas/reservar/reservar.spec.ts` | Reservar: catálogo con ícono y tarifa, fuera de servicio, disponibilidad con libres, ocupados y pasados, duraciones válidas, precio y adelanto, crear y pasar al pago, 409 que actualiza la grilla, uso con teclado, día sin atención y cálculos | CP-F18a a CP-F18g, CP-F18i, CP-F18j |
