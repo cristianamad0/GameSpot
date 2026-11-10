@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: consumidor-web
+
+app:
+  proveedores:
+    # URL de cada proveedor; se pueden cambiar con variables de entorno sin
+    # tocar el código.
+    catalogo:
+      url: "${CATALOGO_URL:http://localhost:8091}"
+    reservas:
+      url: "${RESERVAS_URL:http://localhost:8092}"
+    # Si un proveedor no responde en este tiempo, la consumidora responde 503.
+    tiempo-conexion-ms: 2000
+    tiempo-lectura-ms: 5000
