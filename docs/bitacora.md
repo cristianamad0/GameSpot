@@ -637,7 +637,9 @@ pruebas y pendientes. La entrada más reciente va al final.
     `GET /api/admin/equipos` (modalidad, tarifa, estado y reservas
     `PENDIENTE_PAGO` o `CONFIRMADA` que aún no empiezan),
     `PUT /api/admin/equipos/{id}/disponibilidad`, `GET /api/admin/modalidades`
-    y `PUT /api/admin/modalidades/{id}` (tarifa positiva y si está activa).
+    y `PUT /api/admin/modalidades/{id}` (tarifa entre 1 y 1.000.000, y si está
+    activa). El tope lo sugirió Cristian Silva en la revisión, para que un error
+    al digitar no deje un precio desbordado; la pantalla lo valida también.
     Modalidad inexistente responde 404 (`ModalidadNoEncontradaException`).
   - Las reservas existentes no cambian: guardan su precio y siguen activas aunque
     el equipo salga de servicio. Las reservas nuevas de un equipo fuera de
@@ -654,9 +656,9 @@ pruebas y pendientes. La entrada más reciente va al final.
     pendiente de Laura en ese equipo conserva sus $5.000; a 360 px sin
     desplazamiento horizontal. Capturas en `docs/capturas/cacs-22/`.
   - Sin cambios de esquema: no hay migración pendiente.
-- **Pruebas:** `./mvnw test`: 156 pruebas, 0 fallos, 0 errores (CP-33a a
-  CP-33g en `AdminEquiposTests`). `./mvnw clean checkstyle:check`: 0
-  advertencias. `npx ng test --watch=false`: 79 pruebas, 0 fallos (CP-F20a a
+- **Pruebas:** `./mvnw test`: 169 pruebas, 0 fallos, 0 errores, ya con el
+  código de CACS-21 traído de `dev` (CP-33a a CP-33h en `AdminEquiposTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 83 pruebas, 0 fallos (CP-F20a a
   CP-F20h). `npx ng build` sin errores. `npx prettier --check
   "src/**/*.{ts,html,scss}"` sin cambios.
 - **Pendientes:**
