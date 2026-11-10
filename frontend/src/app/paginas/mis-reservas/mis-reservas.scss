@@ -1,0 +1,132 @@
+.pagina {
+  padding: 32px 16px 64px;
+}
+
+.encabezado {
+  margin-bottom: 20px;
+}
+
+.encabezado__etiqueta {
+  margin: 0 0 4px;
+  color: var(--gs-acento);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.suave {
+  color: var(--gs-texto-suave);
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.barra__filtro {
+  flex: 1 1 220px;
+  max-width: 320px;
+  margin: 0;
+}
+
+.resumen {
+  min-height: 1.4em;
+  margin: 0 0 12px;
+}
+
+.gs-alerta {
+  margin-bottom: 16px;
+}
+
+.vacio {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--gs-texto-suave);
+}
+
+.vacio span {
+  font-size: 2rem;
+}
+
+.vacio p {
+  margin: 0;
+}
+
+.reservas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reserva {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.reserva__fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reserva__horario {
+  margin: 0;
+}
+
+.reserva__montos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+}
+
+.reserva__montos div {
+  padding: 8px 10px;
+  border: 1px solid var(--gs-borde);
+  border-radius: var(--gs-radio-pequeno);
+  background: var(--gs-fondo);
+}
+
+.reserva__montos dt {
+  color: var(--gs-texto-suave);
+  font-size: 0.85rem;
+}
+
+.reserva__montos dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+}
+
+.reserva__pagar {
+  justify-self: start;
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}

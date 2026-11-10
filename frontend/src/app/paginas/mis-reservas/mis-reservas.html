@@ -1,0 +1,107 @@
+<section class="gs-contenedor pagina">
+  <header class="encabezado">
+    <p class="encabezado__etiqueta">Tu historial</p>
+    <h1>Mis reservas</h1>
+  </header>
+
+  <div class="barra gs-tarjeta">
+    <div class="gs-campo barra__filtro">
+      <label for="filtro-estado">Estado</label>
+      <select id="filtro-estado" (change)="cambiarFiltro($any($event.target).value)">
+        <option value="" [selected]="filtroEstado() === null">Todas las reservas</option>
+        @for (estado of estados; track estado) {
+          <option [value]="estado" [selected]="filtroEstado() === estado">
+            {{ etiquetasFiltro[estado] }}
+          </option>
+        }
+      </select>
+    </div>
+    <a routerLink="/reservar" class="gs-boton gs-boton--primario">Nueva reserva</a>
+  </div>
+
+  @if (error()) {
+    <div class="gs-alerta" role="alert">{{ error() }}</div>
+  }
+
+  @if (cargando() && !historial()) {
+    <p aria-live="polite">Cargando tus reservas…</p>
+  } @else if (historial(); as h) {
+    <p class="resumen suave" aria-live="polite">
+      @if (cargando()) {
+        Actualizando…
+      } @else if (h.totalReservas > 0) {
+        {{ textoTotal(h.totalReservas) }}
+        @if (h.totalPaginas > 1) {
+          · página {{ h.pagina + 1 }} de {{ h.totalPaginas }}
+        }
+      }
+    </p>
+
+    @if (h.reservas.length === 0) {
+      <div class="gs-tarjeta vacio" role="status">
+        <span aria-hidden="true">🕹️</span>
+        @if (filtroEstado()) {
+          <p>No tienes reservas en este estado.</p>
+        } @else {
+          <p>Aún no tienes reservas. Elige un equipo y aparta tu turno.</p>
+        }
+        <a routerLink="/reservar" class="gs-boton gs-boton--secundario">Reservar ahora</a>
+      </div>
+    } @else {
+      <ul class="reservas">
+        @for (reserva of h.reservas; track reserva.id) {
+          <li class="gs-tarjeta reserva" [attr.data-reserva]="reserva.id">
+            <div class="reserva__fila">
+              <h2>{{ reserva.nombreEquipo }}</h2>
+              <gs-estado-reserva [estado]="reserva.estado" />
+            </div>
+            <p class="suave reserva__horario">
+              <time [attr.datetime]="reserva.inicio">{{ fechaHora(reserva.inicio) }}</time>
+              – {{ hora(reserva.fin) }}
+            </p>
+            <dl class="reserva__montos">
+              <div>
+                <dt>Precio total</dt>
+                <dd>{{ pesos(reserva.precioTotalPesos) }}</dd>
+              </div>
+              <div>
+                <dt>Adelanto</dt>
+                <dd>{{ pesos(reserva.adelantoPesos) }}</dd>
+              </div>
+            </dl>
+            @if (reserva.estado === 'PENDIENTE_PAGO') {
+              <a
+                class="gs-boton gs-boton--primario reserva__pagar"
+                [routerLink]="['/reservas', reserva.id, 'pagar']"
+                [attr.aria-label]="'Pagar el adelanto de ' + reserva.nombreEquipo"
+                >Pagar el adelanto</a
+              >
+            }
+          </li>
+        }
+      </ul>
+
+      @if (h.totalPaginas > 1) {
+        <nav class="paginacion" aria-label="Páginas del historial">
+          <button
+            type="button"
+            class="gs-boton gs-boton--secundario"
+            [disabled]="!hayAnterior() || cargando()"
+            (click)="irAPagina(pagina() - 1)"
+          >
+            Anterior
+          </button>
+          <span>Página {{ h.pagina + 1 }} de {{ h.totalPaginas }}</span>
+          <button
+            type="button"
+            class="gs-boton gs-boton--secundario"
+            [disabled]="!haySiguiente() || cargando()"
+            (click)="irAPagina(pagina() + 1)"
+          >
+            Siguiente
+          </button>
+        </nav>
+      }
+    }
+  }
+</section>

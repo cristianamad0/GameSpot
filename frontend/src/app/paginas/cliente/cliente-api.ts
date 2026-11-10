@@ -6,6 +6,8 @@ import {
   Catalogo,
   CheckoutWompi,
   Disponibilidad,
+  EstadoReserva,
+  HistorialReservas,
   PagoAnticipo,
   ProveedorPagos,
   Reserva,
@@ -42,6 +44,15 @@ export class ClienteApi {
       inicio,
       duracionMinutos,
     });
+  }
+
+  /** CACS-3: una página del historial propio, de la más reciente a la más antigua. */
+  historial(estado: EstadoReserva | null, pagina: number): Observable<HistorialReservas> {
+    let params = new HttpParams().set('pagina', pagina);
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+    return this.http.get<HistorialReservas>(`${this.urlApi}/api/reservas/mias`, { params });
   }
 
   reserva(reservaId: number): Observable<Reserva> {

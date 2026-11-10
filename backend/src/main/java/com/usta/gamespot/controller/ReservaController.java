@@ -2,9 +2,13 @@ package com.usta.gamespot.controller;
 
 import com.usta.gamespot.dto.CrearReservaRequest;
 import com.usta.gamespot.dto.DisponibilidadResponse;
+import com.usta.gamespot.dto.HistorialReservasResponse;
 import com.usta.gamespot.dto.ReservaResponse;
+import com.usta.gamespot.model.EstadoReserva;
 import com.usta.gamespot.service.ReservaService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -46,6 +50,26 @@ public class ReservaController {
       @Valid @RequestBody CrearReservaRequest request,
       @AuthenticationPrincipal UserDetails usuario) {
     return reservaService.crear(request, usuario.getUsername());
+  }
+
+  /**
+   * CACS-3 (HU-07): historial de reservas del usuario autenticado, de la más reciente a la más
+   * antigua.
+   *
+   * @param estado filtro opcional por estado, por ejemplo CONFIRMADA
+   * @param pagina número de página, desde 0
+   * @param tamano reservas por página, de 1 a 50 (10 por defecto)
+   * @param usuario usuario autenticado
+   * @return 200 con la página (lista vacía si no hay reservas); 400 si la página, el tamaño o el
+   *     estado no son válidos
+   */
+  @GetMapping("/mias")
+  public HistorialReservasResponse historial(
+      @RequestParam(required = false) EstadoReserva estado,
+      @RequestParam(defaultValue = "0") @Min(0) int pagina,
+      @RequestParam(defaultValue = "10") @Min(1) @Max(50) int tamano,
+      @AuthenticationPrincipal UserDetails usuario) {
+    return reservaService.historialPropio(usuario.getUsername(), estado, pagina, tamano);
   }
 
   /**
