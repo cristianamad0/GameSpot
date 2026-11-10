@@ -578,3 +578,52 @@ pruebas y pendientes. La entrada más reciente va al final.
   "src/**/*.{ts,html,scss}"` sin cambios y sin opciones extra.
 - **Pendientes:**
   - Ninguno de esta tarjeta.
+
+## 2026-11-09 — Pago del adelanto con Wompi (sin llaves todavía)
+
+- **Tarjeta:** CACS-21 (HU-03).
+- **Rama:** `feat/pago-wompi`
+- **Qué se hizo:**
+  - Cambio de alcance acordado por el equipo: Wompi solo muestra las llaves de
+    Sandbox después de activar el comercio con RUT y NIT, y se decidió no
+    activarlo por ahora. La integración se construyó con la API documentada de
+    Wompi y se prueba contra un Wompi simulado; la prueba manual en el Sandbox
+    real queda pendiente de las llaves.
+  - `config/ProveedorPagos`, `PropiedadesPagos` y `PagosConfig`:
+    `app.pagos.proveedor` elige entre `simulado` (por defecto) y `wompi`. Con
+    `wompi` la API no arranca sin `WOMPI_LLAVE_PUBLICA`,
+    `WOMPI_SECRETO_EVENTOS` y `WOMPI_SECRETO_INTEGRIDAD`. No hace falta la
+    llave privada.
+  - `service/PagoWompiService` y `controller/PagoWompiController`:
+    `POST /api/reservas/{id}/pago/wompi` crea el pago `PENDIENTE` y devuelve
+    la URL del Web Checkout con monto y referencia firmados (firma de
+    integridad SHA-256); `POST /api/pagos/wompi/eventos` es el webhook,
+    público y protegido con el checksum del evento (401 si no coincide);
+    `GET /api/reservas/{id}/pago/wompi/{transacción}` consulta la transacción
+    en Wompi al volver del checkout, para registrar el pago aunque el webhook
+    no llegue; `GET /api/pagos/proveedor` le dice al frontend qué flujo usar.
+  - `service/RegistroResultadoPago`: único punto donde se guarda el resultado
+    de un cobro (simulado, webhook o consulta). Es idempotente: un pago
+    APROBADO no vuelve a cambiar. Ahí debe crear CACS-8 la notificación de
+    confirmación.
+  - Si el monto o la moneda del evento no coinciden con el pago, queda en
+    `ERROR` y la reserva no se confirma. Con Wompi activo, el pago simulado
+    responde 409.
+  - Frontend, `/reservas/:id/pagar`: con Wompi, "Pagar con Wompi" lleva al
+    checkout; al volver con `?id=` consulta el resultado y muestra aprobado,
+    rechazado, error o "todavía procesando" con "Consultar de nuevo". Con el
+    simulado todo sigue igual.
+  - Probado a mano con los datos de demostración: con el proveedor simulado
+    el pago de Laura se aprueba y confirma la reserva, el checkout de Wompi
+    responde 409 y el webhook con firma falsa 401.
+  - Sin cambios de esquema: la tabla `pagos` ya tenía las columnas de Wompi.
+- **Pruebas:** `./mvnw test`: 161 pruebas, 0 fallos, 0 errores (CP-32a a
+  CP-32l en `PagoWompiTests`). `./mvnw checkstyle:check`: 0 advertencias.
+  `npx ng test --watch=false`: 75 pruebas, 0 fallos (CP-F19a a CP-F19d).
+  `npx ng build` sin errores. `npx prettier --check` sin cambios.
+- **Pendientes:**
+  - Prueba manual en el Sandbox de Wompi cuando haya llaves (activar el
+    comercio), con las tarjetas de prueba 4242 4242 4242 4242 (aprobada) y
+    4111 1111 1111 1111 (rechazada), y configurar la URL de eventos con un
+    túnel si se quiere probar el webhook en local.
+  - CACS-8 debe crear las notificaciones en `RegistroResultadoPago`.
