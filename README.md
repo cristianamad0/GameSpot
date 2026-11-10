@@ -20,6 +20,7 @@ Santo Tomás, sede Villavicencio).
 | Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot |
 | Frontend: reservar un equipo (HU-02) | Implementado en `/reservar`: catálogo de equipos con ícono, modalidad y tarifa; grilla de bloques de 30 minutos del día (libre, ocupado, ya pasó y elegido, con texto); duraciones solo de bloques libres seguidos; precio y adelanto antes de confirmar; al reservar pasa a pagar, y un 409 actualiza la grilla. Backend: `GET /api/catalogo` (equipos, porcentaje de adelanto y plazo de pago) |
 | Frontend: pagar el adelanto y mis puntos (HU-03 y HU-04) | Implementado en `/reservas/:id/pagar` (monto, cuenta regresiva del plazo, aprobado o rechazado y reintento; selector del proveedor simulado solo con `ng serve`) y `/mis-puntos` (saldo e historial). Backend: `GET /api/reservas/{id}` para que el cliente lea su reserva (solo el dueño) |
+| Panel: equipos y tarifas (HU-06) | Implementado en `/admin/equipos`: poner equipos fuera de servicio o habilitarlos (con aviso de sus reservas futuras, que siguen activas) y cambiar la tarifa de cada modalidad o desactivarla; las reservas existentes conservan su precio. Backend: `GET /api/admin/equipos`, `PUT /api/admin/equipos/{id}/disponibilidad`, `GET /api/admin/modalidades` y `PUT /api/admin/modalidades/{id}` (solo `ADMIN`) |
 | Frontend: panel del administrador (HU-06 y HU-04) | Implementado en `/admin`: reservas del día por equipo con filtros, cancelar con motivo y completar; expiradas con pago aprobado; ajuste de puntos buscando al cliente por correo (`GET /api/admin/usuarios?email=`, solo `ADMIN`) |
 
 ## Tecnologías
@@ -235,6 +236,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `DatosDemostracionTests` | Datos de demostración: con el perfil `demo` se inicia sesión como admin y cliente, hay reservas en los cinco estados entre ayer y mañana, puntos y una expirada con pago, no se duplican y las contraseñas van cifradas; sin el perfil no se cargan | CP-29a a CP-29f |
 | `CatalogoTests` | Catálogo de equipos: modalidad, tarifa y orden, adelanto del 50 % y 15 minutos para pagar, equipo fuera de servicio y 401 sin token | CP-31a a CP-31c |
 | `PagoWompiTests` | Pago con Wompi contra un Wompi simulado: checkout con monto y referencia firmados, reglas de CACS-5, eventos APPROVED, DECLINED y ERROR, checksum inválido (401), evento repetido sin duplicar, monto distinto, consulta al volver del checkout, pago simulado desactivado (409) y sin llaves en el código | CP-32a a CP-32l |
+| `AdminEquiposTests` | Equipos y tarifas desde el panel: listar equipos y modalidades, fuera de servicio sin bloques libres y 409 al reservar, reservas existentes intactas con su conteo, tarifa nueva solo para reservas nuevas, modalidad desactivada, 400 y 404, tope de $1.000.000 a la tarifa y 403 para `CLIENTE` | CP-33a a CP-33h |
 
 Pruebas del frontend, desde `frontend/` (no necesitan Docker ni la API):
 
@@ -255,6 +257,7 @@ npx ng test --watch=false
 | `paginas/admin/reservas-dia/reservas-dia.spec.ts` | Panel: reservas del día por equipo, filtros, cancelar con motivo, completar, acciones según el estado, 409 y cambio de día | CP-F10a a CP-F10g |
 | `paginas/admin/expiradas/expiradas.spec.ts` | Panel: reservas expiradas con pago aprobado | CP-F11a y CP-F11b |
 | `paginas/admin/ajuste-puntos/ajuste-puntos.spec.ts` | Panel: buscar al cliente, ajustar puntos, 409 por saldo negativo y validaciones | CP-F12a a CP-F12d |
+| `paginas/admin/equipos/equipos.spec.ts` | Panel: equipos con estado en texto y reservas futuras, fuera de servicio con y sin confirmación, habilitar, cambiar tarifa, desactivar modalidad, validación (sin tarifas no positivas ni sobre el tope) y 404, y textos en singular o plural | CP-F20a a CP-F20h |
 | `paginas/admin/admin.spec.ts` | Todas las rutas del panel protegidas por `adminGuard` | CP-F13 |
 | `core/formato.spec.ts` | Hora y fecha de Bogotá, pesos, singular o plural de puntos y cuenta regresiva | CP-F14a a CP-F14e |
 | `paginas/pagar-adelanto/pagar-adelanto.spec.ts` | Pagar el adelanto: aprobado y confirmada, rechazado con reintento, plazo vencido, 403 y 404 al cargar, 409 al pagar, sin selector fuera de la demostración y reserva ya confirmada. Con Wompi: ir al checkout, consultar al volver, pago todavía en proceso y pago con error o 409 | CP-F15a a CP-F15g, CP-F19a a CP-F19d |

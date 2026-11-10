@@ -74,6 +74,28 @@ export interface UsuarioResumen {
   puntosFidelidad: number;
 }
 
+/** Equipo tal como lo ve el administrador (EquipoAdminResponse del backend). */
+export interface EquipoAdmin {
+  id: number;
+  nombre: string;
+  modalidadId: number;
+  modalidad: string;
+  tarifaHoraPesos: number;
+  modalidadEstaActiva: boolean;
+  estaDisponible: boolean;
+  /** Reservas PENDIENTE_PAGO o CONFIRMADA que aún no empiezan. */
+  reservasActivasFuturas: number;
+}
+
+/** Modalidad con su tarifa, para el administrador (ModalidadAdminResponse del backend). */
+export interface ModalidadAdmin {
+  id: number;
+  nombre: string;
+  tarifaHoraPesos: number;
+  estaActiva: boolean;
+  cantidadEquipos: number;
+}
+
 /** Movimiento del historial de puntos (MovimientoPuntosResponse del backend). */
 export interface MovimientoPuntos {
   id: number;
