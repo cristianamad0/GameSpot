@@ -1,8 +1,12 @@
 package com.usta.gamespot.service;
 
 import com.usta.gamespot.model.EstadoPago;
+import com.usta.gamespot.model.EstadoReserva;
 import com.usta.gamespot.model.Pago;
+import com.usta.gamespot.model.Reserva;
 import com.usta.gamespot.repository.PagoRepository;
+import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +15,9 @@ import org.springframework.stereotype.Component;
  * simulado, del webhook de Wompi o de la consulta de una transacción.
  *
  * <p>Si el pago queda APROBADO, la base confirma la reserva (trigger
- * confirmar_reserva_al_aprobar_pago). CACS-8 (notificaciones) debe crear aquí la notificación de
- * confirmación, para que salga igual con cualquier proveedor.
+ * confirmar_reserva_al_aprobar_pago) y aquí se programan sus notificaciones (CACS-8), así que
+ * salen igual con cualquier proveedor. Si la reserva no quedó CONFIRMADA (por ejemplo, ya había
+ * expirado), no se programa nada.
  *
  * <p>Es idempotente: un pago que ya está APROBADO no vuelve a cambiar, aunque Wompi repita el
  * evento.
@@ -22,6 +27,8 @@ import org.springframework.stereotype.Component;
 public class RegistroResultadoPago {
 
   private final PagoRepository pagoRepository;
+  private final NotificacionService notificacionService;
+  private final EntityManager entityManager;
 
   /**
    * Guarda el resultado del cobro en el pago. Debe llamarse dentro de una transacción que ya
@@ -50,6 +57,15 @@ public class RegistroResultadoPago {
       pago.setRespuestaWompi(respuestaProveedor);
     }
     pagoRepository.saveAndFlush(pago);
+
+    if (estado == EstadoPago.APROBADO) {
+      // CACS-8: el trigger pudo confirmar la reserva; se vuelve a leer para saberlo.
+      Reserva reserva = pago.getReserva();
+      entityManager.refresh(reserva);
+      if (reserva.getEstado() == EstadoReserva.CONFIRMADA) {
+        notificacionService.programarAlConfirmar(reserva, Instant.now());
+      }
+    }
     return true;
   }
 }
