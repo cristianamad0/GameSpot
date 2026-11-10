@@ -740,3 +740,41 @@ pruebas y pendientes. La entrada más reciente va al final.
     cada minuto. Si pasa, agregar un máximo de intentos.
   - En PowerShell, guardar la contraseña de aplicación con comillas simples:
     con comillas dobles, un `$` se interpreta como variable.
+
+## 2026-11-10 — Correcciones de seguridad del pago con Wompi
+
+- **Tarjeta:** CACS-24 (HU-03).
+- **Rama:** `feat/correcciones-wompi`
+- **Qué se hizo:** se corrigieron los hallazgos de la revisión del código de
+  CACS-21.
+  - Doble cobro: el checkout reutiliza el pago `PENDIENTE` de la reserva (misma
+    referencia) en lugar de crear uno nuevo en cada clic. Si aun así llega un
+    segundo pago aprobado para una reserva que ya tiene uno, queda en `ERROR`
+    con un aviso en el log para devolver el dinero a mano, en vez de un 500 por
+    el índice `pagos_un_aprobado_por_reserva`.
+  - Referencia sin firmar: Wompi firma el id, el estado y el monto, pero no la
+    referencia. Si el evento no la firma, el webhook vuelve a leer la
+    transacción en la API de Wompi por su id y usa esa referencia; así un
+    evento con la referencia cambiada no confirma la reserva de otro.
+  - El webhook se rechaza (409) cuando el proveedor activo es el simulado: ahí
+    el secreto de eventos está vacío y cualquiera podría calcular el checksum.
+  - Al volver del checkout, la consulta a Wompi se hace antes de bloquear la
+    reserva, para no retener el bloqueo mientras se espera la respuesta.
+  - `ClienteWompiHttp` tiene un tiempo máximo de conexión y de lectura de 10 s.
+    Si Wompi falla (5xx), no responde a tiempo o no hay red, se responde 503
+    con "Wompi no respondió. Si ya pagaste, consulta de nuevo en unos
+    segundos" (`WompiNoRespondeException`).
+  - `PagoWompiTests`: el Wompi simulado ahora conoce las transacciones de los
+    eventos que se envían, porque el webhook las vuelve a consultar. Los casos
+    CP-32a a CP-32l no cambiaron.
+  - Sin cambios de esquema.
+- **Pruebas:** `./mvnw test`: 192 pruebas, 0 fallos, 0 errores. Nuevos casos
+  CP-36a a CP-36e en `PagoWompiTests`, CP-36f en `PagoAnticipoTests` y la
+  clase `service/ClienteWompiHttpTest` (CP-36g y CP-36h, con un servidor HTTP
+  local). Se comprobó que CP-36d falla si se vuelve a bloquear la reserva antes
+  de consultar Wompi. `./mvnw clean checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - Sugerencias de la revisión que no bloquean: que un evento `PENDING` tardío
+    no sobrescriba un pago `RECHAZADO`, mostrar al administrador los pagos en
+    `ERROR` para devolverlos y cambiar la consulta al volver del checkout de
+    `GET` a `POST`, porque registra el pago.
