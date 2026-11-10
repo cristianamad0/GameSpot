@@ -124,6 +124,19 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Responde a una modalidad que no existe.
+   *
+   * @param ex excepción con el id buscado
+   * @return 404 con el mensaje de la excepción
+   */
+  @ExceptionHandler(ModalidadNoEncontradaException.class)
+  public ResponseEntity<ApiError> manejarModalidadNoEncontrada(
+      ModalidadNoEncontradaException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(ApiError.de(404, ex.getMessage(), List.of()));
+  }
+
+  /**
    * Responde a un usuario que no existe.
    *
    * @param ex excepción con el id buscado
