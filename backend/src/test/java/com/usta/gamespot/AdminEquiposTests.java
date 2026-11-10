@@ -137,7 +137,7 @@ class AdminEquiposTests {
   // Criterio 1: el administrador ve todos los equipos con modalidad, tarifa y estado.
 
   @Test
-  @DisplayName("CP-32a El admin ve los 6 equipos con modalidad, tarifa y estado, y las modalidades")
+  @DisplayName("CP-33a El admin ve los 6 equipos con modalidad, tarifa y estado, y las modalidades")
   void elAdminVeEquiposYModalidades() throws Exception {
     mockMvc
         .perform(get("/api/admin/equipos").header("Authorization", tokenAdmin))
@@ -161,7 +161,7 @@ class AdminEquiposTests {
   // Criterio 2: fuera de servicio, sin bloques libres y 409 al reservar.
 
   @Test
-  @DisplayName("CP-32b Fuera de servicio no deja bloques libres y reservar responde 409")
+  @DisplayName("CP-33b Fuera de servicio no deja bloques libres y reservar responde 409")
   void fueraDeServicioNoSeReserva() throws Exception {
     cambiarDisponibilidad(xbox360.getId(), "{\"estaDisponible\": false}", tokenAdmin)
         .andExpect(status().isOk())
@@ -186,7 +186,7 @@ class AdminEquiposTests {
   // Criterio 3: las reservas existentes no cambian y el panel advierte cuántas hay.
 
   @Test
-  @DisplayName("CP-32c Sus reservas futuras siguen igual y el panel advierte cuántas son")
+  @DisplayName("CP-33c Sus reservas futuras siguen igual y el panel advierte cuántas son")
   void reservasExistentesNoCambian() throws Exception {
     Reserva futura = reservaConfirmada(LUNES_TRES_PM);
     reservaConfirmada(LUNES_TRES_PM.plus(2, ChronoUnit.HOURS));
@@ -205,7 +205,7 @@ class AdminEquiposTests {
   // Criterio 4: la tarifa nueva aplica a las reservas nuevas; las existentes conservan su precio.
 
   @Test
-  @DisplayName("CP-32d Al cambiar la tarifa, las reservas nuevas usan el precio nuevo")
+  @DisplayName("CP-33d Al cambiar la tarifa, las reservas nuevas usan el precio nuevo")
   void tarifaNuevaSoloParaReservasNuevas() throws Exception {
     Reserva existente = reservaConfirmada(LUNES_TRES_PM.plus(3, ChronoUnit.HOURS));
     Long modalidadId = xbox360.getModalidad().getId();
@@ -231,7 +231,7 @@ class AdminEquiposTests {
   }
 
   @Test
-  @DisplayName("CP-32e Una modalidad desactivada deja sus equipos sin reservar")
+  @DisplayName("CP-33e Una modalidad desactivada deja sus equipos sin reservar")
   void modalidadDesactivada() throws Exception {
     actualizarModalidad(
             xbox360.getModalidad().getId(),
@@ -249,7 +249,7 @@ class AdminEquiposTests {
   // Criterio 5: 400 y 404 con mensaje claro.
 
   @Test
-  @DisplayName("CP-32f Una tarifa no positiva responde 400 y un id inexistente responde 404")
+  @DisplayName("CP-33f Una tarifa no positiva responde 400 y un id inexistente responde 404")
   void validacionesYNoEncontrados() throws Exception {
     Long modalidadId = xbox360.getModalidad().getId();
     actualizarModalidad(modalidadId, "{\"tarifaHoraPesos\": 0, \"estaActiva\": true}", tokenAdmin)
@@ -271,7 +271,7 @@ class AdminEquiposTests {
   // Criterio 6: un CLIENTE recibe 403.
 
   @Test
-  @DisplayName("CP-32g Un CLIENTE recibe 403 en todos los endpoints de equipos y tarifas")
+  @DisplayName("CP-33g Un CLIENTE recibe 403 en todos los endpoints de equipos y tarifas")
   void clienteRecibe403() throws Exception {
     mockMvc
         .perform(get("/api/admin/equipos").header("Authorization", tokenCliente))

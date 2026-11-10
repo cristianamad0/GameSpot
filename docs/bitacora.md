@@ -599,16 +599,16 @@ pruebas y pendientes. La entrada más reciente va al final.
     cada modalidad se edita con su tarifa y una casilla para ofrecerla.
   - La prueba a mano encontró un error de concordancia con una sola reserva
     ("Sus 1 reserva futura siguen activas"); ahora dice "Su reserva futura
-    sigue activa" (CP-F19h).
+    sigue activa" (CP-F20h).
   - Probado a mano con los datos de demostración como admin: fuera de servicio
     con confirmación, habilitar, tarifa del Xbox 360 a $8.000 y la reserva
     pendiente de Laura en ese equipo conserva sus $5.000; a 360 px sin
     desplazamiento horizontal. Capturas en `docs/capturas/cacs-22/`.
   - Sin cambios de esquema: no hay migración pendiente.
-- **Pruebas:** `./mvnw test`: 156 pruebas, 0 fallos, 0 errores (CP-32a a
-  CP-32g en `AdminEquiposTests`). `./mvnw clean checkstyle:check`: 0
-  advertencias. `npx ng test --watch=false`: 79 pruebas, 0 fallos (CP-F19a a
-  CP-F19h). `npx ng build` sin errores. `npx prettier --check
+- **Pruebas:** `./mvnw test`: 156 pruebas, 0 fallos, 0 errores (CP-33a a
+  CP-33g en `AdminEquiposTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 79 pruebas, 0 fallos (CP-F20a a
+  CP-F20h). `npx ng build` sin errores. `npx prettier --check
   "src/**/*.{ts,html,scss}"` sin cambios.
 - **Pendientes:**
   - Cambiar las tarifas en Supabase desde el panel cambia los precios reales

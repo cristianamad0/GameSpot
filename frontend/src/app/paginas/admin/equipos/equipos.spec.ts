@@ -54,7 +54,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
 
   afterEach(() => servidor.verify());
 
-  it('CP-F19a muestra cada equipo con modalidad, tarifa, estado en texto y reservas futuras', async () => {
+  it('CP-F20a muestra cada equipo con modalidad, tarifa, estado en texto y reservas futuras', async () => {
     await crear([
       equipo(1, 'Xbox 360 #1', { reservasActivasFuturas: 2 }),
       equipo(2, 'Xbox Series S #1', {
@@ -75,7 +75,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     expect(filaEquipo(3).textContent).toContain('Modalidad desactivada');
   });
 
-  it('CP-F19b pone fuera de servicio un equipo sin reservas futuras sin pedir confirmación', async () => {
+  it('CP-F20b pone fuera de servicio un equipo sin reservas futuras sin pedir confirmación', async () => {
     await crear([equipo(1, 'Xbox 360 #1')]);
 
     botonCon(filaEquipo(1), 'Poner fuera de servicio').click();
@@ -91,7 +91,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     );
   });
 
-  it('CP-F19c con reservas futuras pide confirmación y advierte que siguen activas', async () => {
+  it('CP-F20c con reservas futuras pide confirmación y advierte que siguen activas', async () => {
     await crear([equipo(1, 'Xbox 360 #1', { reservasActivasFuturas: 2 })]);
 
     botonCon(filaEquipo(1), 'Poner fuera de servicio').click();
@@ -117,7 +117,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     );
   });
 
-  it('CP-F19d habilita un equipo fuera de servicio', async () => {
+  it('CP-F20d habilita un equipo fuera de servicio', async () => {
     await crear([equipo(1, 'Xbox 360 #1', { estaDisponible: false })]);
 
     botonCon(filaEquipo(1), 'Habilitar').click();
@@ -132,7 +132,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     );
   });
 
-  it('CP-F19e cambia la tarifa de una modalidad y avisa que las reservas existentes no cambian', async () => {
+  it('CP-F20e cambia la tarifa de una modalidad y avisa que las reservas existentes no cambian', async () => {
     await crear([equipo(1, 'Xbox 360 #1')]);
 
     escribir(filaModalidad(1), '#tarifa-1', '8000');
@@ -156,7 +156,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     expect(filaEquipo(1).textContent!.replace(/\s/g, ' ')).toContain('$ 8.000 / hora');
   });
 
-  it('CP-F19f desactiva una modalidad desde su casilla', async () => {
+  it('CP-F20f desactiva una modalidad desde su casilla', async () => {
     await crear([equipo(1, 'Xbox 360 #1')]);
 
     const casilla = filaModalidad(2).querySelector<HTMLInputElement>('input[type="checkbox"]')!;
@@ -173,7 +173,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     expect(elemento.querySelector('[role="status"]')?.textContent).toContain('desactivada');
   });
 
-  it('CP-F19g una tarifa no positiva no se envía y un 404 se muestra con el mensaje del backend', async () => {
+  it('CP-F20g una tarifa no positiva no se envía y un 404 se muestra con el mensaje del backend', async () => {
     await crear([equipo(1, 'Xbox 360 #1')]);
 
     escribir(filaModalidad(1), '#tarifa-1', '0');
@@ -196,7 +196,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     expect(elemento.textContent).toContain('No existe el equipo con id 1');
   });
 
-  it('CP-F19h los textos de reservas futuras concuerdan en singular y plural', () => {
+  it('CP-F20h los textos de reservas futuras concuerdan en singular y plural', () => {
     expect(textoReservasFuturas(1)).toBe('1 reserva futura');
     expect(textoReservasFuturas(3)).toBe('3 reservas futuras');
     expect(textoSiguenActivas(1)).toBe('Su reserva futura sigue activa');
