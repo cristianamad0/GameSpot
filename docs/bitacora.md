@@ -664,3 +664,45 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Cambiar las tarifas en Supabase desde el panel cambia los precios reales
     de las reservas nuevas: usarlo con cuidado una vez desplegado.
+
+## 2026-11-10 — Notificaciones por correo
+
+- **Tarjeta:** CACS-8 (HU-08).
+- **Rama:** `feat/notificaciones-correo`
+- **Qué se hizo:**
+  - `NotificacionService`: al confirmarse una reserva programa la
+    `CONFIRMACION` para enviarse de inmediato y el `RECORDATORIO` una hora
+    antes del inicio; si falta menos de una hora, solo la confirmación. No
+    duplica si ya existe la confirmación.
+  - Las notificaciones se crean en `RegistroResultadoPago.registrar(...)`, el
+    punto único que se acordó con Cristian Silva en CACS-21: después de
+    guardar un pago APROBADO se vuelve a leer la reserva y, si quedó
+    `CONFIRMADA`, se programan. Sirve igual para el pago simulado, el webhook de
+    Wompi y la consulta de la transacción. Si la reserva ya había expirado, no
+    se programa nada.
+  - `NotificacionesTarea` (`@Scheduled`, cada `app.notificaciones.envio.intervalo-ms`)
+    envía las que ya deben salir, en lotes de 50. Si un envío falla, suma un
+    intento, guarda el error y se reintenta en la siguiente ejecución. La
+    consulta (`buscarPorEnviar`) no trae recordatorios de reservas que ya no
+    están `CONFIRMADA`, así que el de una reserva cancelada nunca sale.
+  - `EnviadorCorreoSmtp` (Gmail por SMTP, `spring-boot-starter-mail`, con
+    timeouts de 10 s). Credenciales solo por `CORREO_USUARIO` y
+    `CORREO_CONTRASENA_APLICACION`; el envío se enciende con
+    `APP_NOTIFICACIONES_HABILITADAS=true` y está apagado en las pruebas.
+  - `PruebasSimultaneasTests` borra también las notificaciones que crean sus
+    pagos aprobados.
+  - Correo real probado a mano con `spring-boot:test-run` y una contraseña de
+    aplicación de la cuenta del equipo: se registró un cliente con esa cuenta,
+    se reservó y se pagó con el proveedor simulado, y la tarea registró
+    "Notificaciones enviadas: 1 de 1" a los 25 segundos. Se comprobó que
+    ninguna credencial quedó en archivos ni en el historial.
+  - Sin cambios de esquema: la tabla `notificaciones` ya existía.
+- **Pruebas:** `./mvnw test`: 178 pruebas, 0 fallos, 0 errores. Nueva clase
+  `NotificacionesTests` (CP-34a a CP-34i), con el envío de correo simulado.
+  `./mvnw clean checkstyle:check`: 0 advertencias.
+- **Pendientes:**
+  - Para producción, definir las tres variables de entorno en el servidor.
+  - No hay un tope de reintentos: una dirección que siempre falla se reintenta
+    cada minuto. Si pasa, agregar un máximo de intentos.
+  - En PowerShell, guardar la contraseña de aplicación con comillas simples:
+    con comillas dobles, un `$` se interpreta como variable.

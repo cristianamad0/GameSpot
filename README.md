@@ -20,6 +20,7 @@ Santo Tomás, sede Villavicencio).
 | Frontend: base, identidad visual e inicio de sesión (HU-01) | Implementado en `frontend/` (Angular 22): inicio, registro, ingreso, sesión con JWT, guardas por rol y tema oscuro de Game Spot |
 | Frontend: reservar un equipo (HU-02) | Implementado en `/reservar`: catálogo de equipos con ícono, modalidad y tarifa; grilla de bloques de 30 minutos del día (libre, ocupado, ya pasó y elegido, con texto); duraciones solo de bloques libres seguidos; precio y adelanto antes de confirmar; al reservar pasa a pagar, y un 409 actualiza la grilla. Backend: `GET /api/catalogo` (equipos, porcentaje de adelanto y plazo de pago) |
 | Frontend: pagar el adelanto y mis puntos (HU-03 y HU-04) | Implementado en `/reservas/:id/pagar` (monto, cuenta regresiva del plazo, aprobado o rechazado y reintento; selector del proveedor simulado solo con `ng serve`) y `/mis-puntos` (saldo e historial). Backend: `GET /api/reservas/{id}` para que el cliente lea su reserva (solo el dueño) |
+| Notificaciones por correo (HU-08) | Implementado: al confirmarse una reserva (pago simulado o Wompi) se programan la confirmación inmediata y el recordatorio 1 hora antes; una tarea cada minuto las envía con Gmail por SMTP y reintenta las que fallan. El recordatorio de una reserva cancelada no sale. Apagado hasta definir las credenciales |
 | Panel: equipos y tarifas (HU-06) | Implementado en `/admin/equipos`: poner equipos fuera de servicio o habilitarlos (con aviso de sus reservas futuras, que siguen activas) y cambiar la tarifa de cada modalidad o desactivarla; las reservas existentes conservan su precio. Backend: `GET /api/admin/equipos`, `PUT /api/admin/equipos/{id}/disponibilidad`, `GET /api/admin/modalidades` y `PUT /api/admin/modalidades/{id}` (solo `ADMIN`) |
 | Frontend: panel del administrador (HU-06 y HU-04) | Implementado en `/admin`: reservas del día por equipo con filtros, cancelar con motivo y completar; expiradas con pago aprobado; ajuste de puntos buscando al cliente por correo (`GET /api/admin/usuarios?email=`, solo `ADMIN`) |
 
@@ -111,6 +112,22 @@ Requisitos: JDK 21.
 
 La API queda en `http://localhost:8080` y acepta peticiones CORS desde
 `http://localhost:4200`.
+
+**Correos de confirmación y recordatorio (CACS-8).** Se envían con Gmail por
+SMTP y una contraseña de aplicación (Cuenta de Google → Seguridad → Contraseñas
+de aplicaciones; necesita la verificación en dos pasos). El envío viene
+apagado; para encenderlo se definen tres variables de entorno, nunca en
+archivos del repositorio:
+
+- `CORREO_USUARIO`: la cuenta de Gmail que envía.
+- `CORREO_CONTRASENA_APLICACION`: las 16 letras de la contraseña de aplicación.
+  En PowerShell, guardarla con comillas simples para que un `$` no se
+  interprete como variable.
+- `APP_NOTIFICACIONES_HABILITADAS=true`.
+
+Las notificaciones se crean siempre al confirmarse una reserva, aunque el
+envío esté apagado; cuando se enciende, salen las pendientes. Lo mismo vale
+para `spring-boot:test-run`.
 
 **Probar la API a mano sin tocar Supabase.** Con Docker encendido, desde
 `backend/`:
@@ -237,6 +254,7 @@ mismo `esquema.sql`, así que no se toca la base de datos de Supabase.
 | `CatalogoTests` | Catálogo de equipos: modalidad, tarifa y orden, adelanto del 50 % y 15 minutos para pagar, equipo fuera de servicio y 401 sin token | CP-31a a CP-31c |
 | `PagoWompiTests` | Pago con Wompi contra un Wompi simulado: checkout con monto y referencia firmados, reglas de CACS-5, eventos APPROVED, DECLINED y ERROR, checksum inválido (401), evento repetido sin duplicar, monto distinto, consulta al volver del checkout, pago simulado desactivado (409) y sin llaves en el código | CP-32a a CP-32l |
 | `AdminEquiposTests` | Equipos y tarifas desde el panel: listar equipos y modalidades, fuera de servicio sin bloques libres y 409 al reservar, reservas existentes intactas con su conteo, tarifa nueva solo para reservas nuevas, modalidad desactivada, 400 y 404, tope de $1.000.000 a la tarifa y 403 para `CLIENTE` | CP-33a a CP-33h |
+| `NotificacionesTests` | Notificaciones por correo (con el correo simulado): confirmación y recordatorio al aprobarse el pago, solo confirmación a menos de 1 hora, nada con pago rechazado o reserva expirada, sin duplicados, el webhook de Wompi por el mismo punto, envío solo de las que ya llegaron, reintento tras un fallo, recordatorio de reserva cancelada que no sale y credenciales solo por variables de entorno | CP-34a a CP-34i |
 
 Pruebas del frontend, desde `frontend/` (no necesitan Docker ni la API):
 
