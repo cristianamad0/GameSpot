@@ -139,7 +139,7 @@ class NotificacionesTests {
   // Criterio 1: al confirmarse una reserva se crean sus dos notificaciones.
 
   @Test
-  @DisplayName("CP-34a Al aprobarse el pago se programan la confirmación y el recordatorio")
+  @DisplayName("CP-35a Al aprobarse el pago se programan la confirmación y el recordatorio")
   void pagoAprobadoProgramaLasDosNotificaciones() {
     Reserva reserva = reservaPendiente(LUNES_TRES_PM);
     Instant antes = Instant.now();
@@ -161,7 +161,7 @@ class NotificacionesTests {
   }
 
   @Test
-  @DisplayName("CP-34b Si falta menos de 1 hora para el inicio, solo se programa la confirmación")
+  @DisplayName("CP-35b Si falta menos de 1 hora para el inicio, solo se programa la confirmación")
   void menosDeUnaHoraSoloConfirmacion() {
     // El siguiente bloque de :00 o :30: empieza en menos de 30 minutos.
     Instant ahora = Instant.now();
@@ -180,7 +180,7 @@ class NotificacionesTests {
   }
 
   @Test
-  @DisplayName("CP-34c Un pago rechazado no programa nada y repetir la confirmación no duplica")
+  @DisplayName("CP-35c Un pago rechazado no programa nada y repetir la confirmación no duplica")
   void pagoRechazadoNoProgramaYNoSeDuplica() {
     Reserva reserva = reservaPendiente(LUNES_TRES_PM);
 
@@ -199,7 +199,7 @@ class NotificacionesTests {
   }
 
   @Test
-  @DisplayName("CP-34d El punto único también sirve para el webhook de Wompi")
+  @DisplayName("CP-35d El punto único también sirve para el webhook de Wompi")
   void registroDelWebhookTambienProgramaNotificaciones() {
     Reserva reserva = reservaPendiente(LUNES_TRES_PM);
     Pago pago =
@@ -218,7 +218,7 @@ class NotificacionesTests {
   }
 
   @Test
-  @DisplayName("CP-34e Un pago aprobado sobre una reserva expirada no programa notificaciones")
+  @DisplayName("CP-35e Un pago aprobado sobre una reserva expirada no programa notificaciones")
   void reservaExpiradaNoProgramaNotificaciones() {
     Reserva reserva = reservaPendiente(LUNES_TRES_PM);
     reserva.setEstado(EstadoReserva.EXPIRADA);
@@ -240,7 +240,7 @@ class NotificacionesTests {
   // Criterio 2: solo se envían las que ya deben salir; quedan marcadas como enviadas.
 
   @Test
-  @DisplayName("CP-34f Solo se envían las notificaciones cuya hora llegó, y quedan como enviadas")
+  @DisplayName("CP-35f Solo se envían las notificaciones cuya hora llegó, y quedan como enviadas")
   void soloSeEnvianLasQueYaLlegaron() {
     Reserva reserva = reservaConfirmada(LUNES_TRES_PM);
     Instant ahora = LUNES_TRES_PM.minus(3, ChronoUnit.HOURS);
@@ -276,7 +276,7 @@ class NotificacionesTests {
   // Criterio 3: si el envío falla, se cuenta el intento, se guarda el error y se reintenta.
 
   @Test
-  @DisplayName("CP-34g Si el envío falla, suma un intento, guarda el error y se reintenta")
+  @DisplayName("CP-35g Si el envío falla, suma un intento, guarda el error y se reintenta")
   void envioFallidoSeReintenta() {
     Reserva reserva = reservaConfirmada(LUNES_TRES_PM);
     Instant ahora = LUNES_TRES_PM.minus(3, ChronoUnit.HOURS);
@@ -302,7 +302,7 @@ class NotificacionesTests {
   // Criterio 4: el recordatorio de una reserva cancelada no se envía.
 
   @Test
-  @DisplayName("CP-34h El recordatorio de una reserva cancelada no se envía")
+  @DisplayName("CP-35h El recordatorio de una reserva cancelada no se envía")
   void recordatorioDeReservaCanceladaNoSeEnvia() {
     Reserva reserva = reservaConfirmada(LUNES_TRES_PM);
     Instant horaRecordatorio = LUNES_TRES_PM.minus(1, ChronoUnit.HOURS);
@@ -322,7 +322,7 @@ class NotificacionesTests {
   // Criterio 5: ninguna credencial de correo queda en el código.
 
   @Test
-  @DisplayName("CP-34i Las credenciales de correo solo llegan por variables de entorno")
+  @DisplayName("CP-35i Las credenciales de correo solo llegan por variables de entorno")
   void credencialesSoloPorVariablesDeEntorno() throws Exception {
     String configuracion;
     try (InputStream yaml = getClass().getResourceAsStream("/application.yaml")) {
