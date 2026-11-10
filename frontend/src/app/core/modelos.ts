@@ -132,6 +132,15 @@ export interface Disponibilidad {
 /** Resultado que se le pide al proveedor de anticipos simulado (ResultadoSimulado del backend). */
 export type ResultadoSimulado = 'APROBADO' | 'RECHAZADO';
 
+/** CACS-3: una página del historial de reservas (HistorialReservasResponse del backend). */
+export interface HistorialReservas {
+  reservas: Reserva[];
+  pagina: number;
+  tamanoPagina: number;
+  totalReservas: number;
+  totalPaginas: number;
+}
+
 /** CACS-21: proveedor de pagos activo en el backend (app.pagos.proveedor). */
 export type ProveedorPagos = 'SIMULADO' | 'WOMPI';
 

@@ -29,6 +29,13 @@ export const routes: Routes = [
     loadComponent: () => import('./paginas/reservar/reservar').then((m) => m.Reservar),
   },
   {
+    // CACS-3 (HU-07): historial de reservas del cliente.
+    path: 'mis-reservas',
+    title: 'Mis reservas · Game Spot',
+    canActivate: [sesionGuard],
+    loadComponent: () => import('./paginas/mis-reservas/mis-reservas').then((m) => m.MisReservas),
+  },
+  {
     // CACS-17 (HU-04): saldo e historial de puntos del cliente.
     path: 'mis-puntos',
     title: 'Mis puntos · Game Spot',
