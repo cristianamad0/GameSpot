@@ -19,6 +19,9 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
 
   List<Pago> findByReservaId(Long reservaId);
 
+  /** CACS-24: si la reserva tiene, además de este pago, otro en el estado indicado. */
+  boolean existsByReservaIdAndEstadoAndIdNot(Long reservaId, EstadoPago estado, Long id);
+
   /**
    * Panel de administración: pagos en {@code estadoPago} cuya reserva quedó en {@code
    * estadoReserva}, con la reserva, su cliente y su equipo ya cargados. Con APROBADO y EXPIRADA

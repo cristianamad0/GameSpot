@@ -186,6 +186,18 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * CACS-24: responde cuando Wompi no responde a tiempo o falla.
+   *
+   * @param ex excepción con un mensaje para el cliente
+   * @return 503 con el mensaje de la excepción
+   */
+  @ExceptionHandler(WompiNoRespondeException.class)
+  public ResponseEntity<ApiError> manejarWompiNoResponde(WompiNoRespondeException ex) {
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .body(ApiError.de(503, ex.getMessage(), List.of()));
+  }
+
+  /**
    * CACS-21: responde a una transacción de Wompi que no existe o no es de la reserva.
    *
    * @param ex excepción con el id de la transacción
