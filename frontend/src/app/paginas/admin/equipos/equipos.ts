@@ -10,6 +10,9 @@ interface BorradorModalidad {
   estaActiva: boolean;
 }
 
+/** Tope de la tarifa por hora; el mismo de ModalidadRequest en el backend. */
+export const TARIFA_MAXIMA_PESOS = 1_000_000;
+
 /** "1 reserva futura" o "3 reservas futuras". */
 export function textoReservasFuturas(cantidad: number): string {
   return cantidad === 1 ? '1 reserva futura' : `${cantidad} reservas futuras`;
@@ -108,7 +111,13 @@ export class Equipos implements OnInit {
 
   protected tarifaInvalida(modalidadId: number): boolean {
     const tarifa = this.borradores()[modalidadId]?.tarifaHoraPesos;
-    return tarifa === null || tarifa === undefined || !Number.isInteger(tarifa) || tarifa <= 0;
+    return (
+      tarifa === null ||
+      tarifa === undefined ||
+      !Number.isInteger(tarifa) ||
+      tarifa <= 0 ||
+      tarifa > TARIFA_MAXIMA_PESOS
+    );
   }
 
   protected guardarModalidad(modalidad: ModalidadAdmin): void {
@@ -117,7 +126,8 @@ export class Equipos implements OnInit {
     this.errorTarifas.set(null);
     if (!borrador || this.tarifaInvalida(modalidad.id)) {
       this.errorTarifas.set(
-        `La tarifa de ${modalidad.nombre} debe ser un número entero mayor que 0.`,
+        `La tarifa de ${modalidad.nombre} debe ser un número entero entre 1 y ` +
+          `${pesos(TARIFA_MAXIMA_PESOS)}.`,
       );
       return;
     }
