@@ -6,7 +6,12 @@ describe('Rutas del panel (CACS-18, criterio 6)', () => {
     const admin = routes.find((ruta) => ruta.path === 'admin')!;
 
     expect(admin.canActivate).toContain(adminGuard);
-    expect(admin.children?.map((hija) => hija.path)).toEqual(['', 'expiradas', 'puntos']);
+    expect(admin.children?.map((hija) => hija.path)).toEqual([
+      '',
+      'expiradas',
+      'puntos',
+      'equipos',
+    ]);
     // Ninguna hija vuelve a definir canActivate: la guarda del padre aplica a todas.
     expect(admin.children?.every((hija) => !hija.canActivate)).toBe(true);
   });
