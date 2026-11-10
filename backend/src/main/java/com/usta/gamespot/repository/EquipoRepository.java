@@ -13,6 +13,9 @@ public interface EquipoRepository extends JpaRepository<Equipo, Long> {
 
   List<Equipo> findByModalidadIdAndEstaDisponibleTrue(Long modalidadId);
 
+  /** CACS-22: cuántos equipos tiene una modalidad. */
+  long countByModalidadId(Long modalidadId);
+
   /**
    * CACS-4: lee el equipo con su modalidad y lo bloquea (SELECT ... FOR UPDATE) hasta que
    * termine la transacción. Así, dos reservas simultáneas del mismo equipo se atienden una

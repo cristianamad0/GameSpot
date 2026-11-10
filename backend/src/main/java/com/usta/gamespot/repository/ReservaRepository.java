@@ -26,6 +26,14 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
   /** Historial del cliente, de la más reciente a la más antigua. */
   List<Reserva> findByUsuarioIdOrderByInicioDesc(Long usuarioId);
 
+  /**
+   * CACS-22: cuántas reservas de un equipo están en alguno de los estados y empiezan después del
+   * instante indicado. Sirve para advertir al administrador antes de poner un equipo fuera de
+   * servicio.
+   */
+  long countByEquipoIdAndEstadoInAndInicioAfter(
+      Long equipoId, Collection<EstadoReserva> estados, Instant inicio);
+
   /** Panel de administración: reservas por estado. */
   List<Reserva> findByEstadoOrderByInicioAsc(EstadoReserva estado);
 
