@@ -173,7 +173,7 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     expect(elemento.querySelector('[role="status"]')?.textContent).toContain('desactivada');
   });
 
-  it('CP-F20g una tarifa no positiva no se envía y un 404 se muestra con el mensaje del backend', async () => {
+  it('CP-F20g una tarifa no positiva o sobre el tope no se envía y un 404 se muestra con el mensaje del backend', async () => {
     await crear([equipo(1, 'Xbox 360 #1')]);
 
     escribir(filaModalidad(1), '#tarifa-1', '0');
@@ -182,7 +182,17 @@ describe('Equipos (CACS-22, criterios 1 a 5)', () => {
     await fixture.whenStable();
     servidor.expectNone(`${API}/modalidades/1`);
     expect(elemento.querySelector('[role="alert"]')?.textContent).toContain(
-      'La tarifa de Xbox 360 debe ser un número entero mayor que 0.',
+      'La tarifa de Xbox 360 debe ser un número entero entre 1 y',
+    );
+
+    // Tampoco se envía una tarifa por encima del tope de $1.000.000.
+    escribir(filaModalidad(1), '#tarifa-1', '1000001');
+    await fixture.whenStable();
+    botonCon(filaModalidad(1), 'Guardar').click();
+    await fixture.whenStable();
+    servidor.expectNone(`${API}/modalidades/1`);
+    expect(elemento.querySelector('[role="alert"]')?.textContent?.replace(/\s/g, ' ')).toContain(
+      'entre 1 y $ 1.000.000.',
     );
 
     botonCon(filaEquipo(1), 'Poner fuera de servicio').click();

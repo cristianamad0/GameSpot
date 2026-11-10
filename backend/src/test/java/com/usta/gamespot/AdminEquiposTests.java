@@ -268,6 +268,22 @@ class AdminEquiposTests {
         .andExpect(jsonPath("$.mensaje").value("No existe la modalidad con id 999999"));
   }
 
+  @Test
+  @DisplayName("CP-33h Una tarifa mayor que 1.000.000 responde 400 y no cambia la tarifa")
+  void tarifaConTope() throws Exception {
+    Long modalidadId = xbox360.getModalidad().getId();
+    actualizarModalidad(
+            modalidadId, "{\"tarifaHoraPesos\": 1000001, \"estaActiva\": true}", tokenAdmin)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detalles[0]").value("tarifaHoraPesos: no puede superar 1.000.000"));
+
+    // El tope exacto sí se acepta.
+    actualizarModalidad(
+            modalidadId, "{\"tarifaHoraPesos\": 1000000, \"estaActiva\": true}", tokenAdmin)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.tarifaHoraPesos").value(1_000_000));
+  }
+
   // Criterio 6: un CLIENTE recibe 403.
 
   @Test
