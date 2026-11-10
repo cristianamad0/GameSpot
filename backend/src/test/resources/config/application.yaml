@@ -8,3 +8,8 @@ app:
       # Las pruebas llaman a ExpiracionReservasService directamente; la tarea
       # programada no debe correr en segundo plano mientras tanto.
       habilitada: false
+  notificaciones:
+    envio:
+      # CACS-8: las pruebas llaman a NotificacionService directamente y con el
+      # correo simulado; la tarea nunca corre aquí.
+      habilitada: false

@@ -16,6 +16,22 @@ spring:
       # El esquema lo define src/main/resources/db/esquema.sql. Hibernate solo
       # verifica que las entidades coincidan con las tablas; no crea ni borra nada.
       ddl-auto: validate
+  mail:
+    # CACS-8: Gmail por SMTP con una contraseña de aplicación. El usuario y la
+    # contraseña se toman de variables de entorno: nunca escribirlos aquí.
+    host: smtp.gmail.com
+    port: 587
+    username: "${CORREO_USUARIO:}"
+    password: "${CORREO_CONTRASENA_APLICACION:}"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
 
 app:
   cli:
@@ -43,4 +59,11 @@ app:
     expiracion:
       # CACS-12: cada cuánto se pasan a EXPIRADA las reservas no pagadas a tiempo.
       habilitada: true
+      intervalo-ms: 60000
+  notificaciones:
+    envio:
+      # CACS-8: la tarea que envía los correos solo corre si se activa, porque
+      # necesita CORREO_USUARIO y CORREO_CONTRASENA_APLICACION. Las notificaciones se
+      # crean igual al confirmarse cada reserva y se envían cuando se active.
+      habilitada: "${APP_NOTIFICACIONES_HABILITADAS:false}"
       intervalo-ms: 60000

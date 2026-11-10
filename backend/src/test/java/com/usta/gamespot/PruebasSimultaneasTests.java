@@ -12,6 +12,7 @@ import com.usta.gamespot.model.Reserva;
 import com.usta.gamespot.model.Rol;
 import com.usta.gamespot.model.Usuario;
 import com.usta.gamespot.repository.EquipoRepository;
+import com.usta.gamespot.repository.NotificacionRepository;
 import com.usta.gamespot.repository.PagoRepository;
 import com.usta.gamespot.repository.ReservaRepository;
 import com.usta.gamespot.repository.UsuarioRepository;
@@ -80,6 +81,7 @@ class PruebasSimultaneasTests {
   @Autowired private EquipoRepository equipoRepository;
   @Autowired private ReservaRepository reservaRepository;
   @Autowired private PagoRepository pagoRepository;
+  @Autowired private NotificacionRepository notificacionRepository;
 
   /**
    * Usuarios creados en la prueba actual; se borran con sus reservas y pagos al terminar. Se
@@ -93,6 +95,9 @@ class PruebasSimultaneasTests {
       List<Reserva> reservas =
           reservaRepository.findByUsuarioIdOrderByInicioDesc(usuario.getId());
       for (Reserva reserva : reservas) {
+        // CACS-8: un pago aprobado programa notificaciones que apuntan a la reserva.
+        notificacionRepository.deleteAll(
+            notificacionRepository.findByReservaIdOrderByProgramadaParaAsc(reserva.getId()));
         pagoRepository.deleteAll(pagoRepository.findByReservaId(reserva.getId()));
       }
       reservaRepository.deleteAll(reservas);
