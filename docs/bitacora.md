@@ -740,3 +740,24 @@ pruebas y pendientes. La entrada más reciente va al final.
     cada minuto. Si pasa, agregar un máximo de intentos.
   - En PowerShell, guardar la contraseña de aplicación con comillas simples:
     con comillas dobles, un `$` se interpreta como variable.
+
+## 2026-11-10 — SOA: colección de Postman y documentación técnica
+
+- **Tarjeta:** CACS-28 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-documentacion`
+- **Qué se hizo:**
+  - `soa/postman/GameSpot-SOA.postman_collection.json`: 40 solicitudes en 5
+    carpetas (autenticación, proveedor 1, proveedor 2, consumidora y proveedor
+    detenido), con pruebas de código HTTP, variables para las tres URL y los
+    tokens, y la fecha de mañana calculada en hora de Bogotá.
+  - `soa/README.md`: arquitectura, requisitos, cómo ejecutar, cuentas de
+    prueba, contrato de la API y tabla de pruebas.
+  - `soa/documentacion/`: documento técnico en inglés con formato APA 7
+    (Word y PDF, 21 páginas) y el diagrama SOA en PNG.
+- **Pruebas:** la colección corrió completa con Newman contra las tres
+  aplicaciones: 38 solicitudes y 40 comprobaciones de las carpetas 1 a 4, y
+  con el catálogo detenido 2 solicitudes y 3 comprobaciones de la carpeta 5;
+  0 fallos.
+- **Pendientes:**
+  - Fusionar en orden los PR de CACS-25, CACS-26 y CACS-27; cada uno agrega
+    una entrada al final de esta bitácora.
