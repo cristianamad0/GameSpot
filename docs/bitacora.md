@@ -740,3 +740,31 @@ pruebas y pendientes. La entrada más reciente va al final.
     cada minuto. Si pasa, agregar un máximo de intentos.
   - En PowerShell, guardar la contraseña de aplicación con comillas simples:
     con comillas dobles, un `$` se interpreta como variable.
+
+## 2026-11-10 — SOA: aplicación consumidora web
+
+- **Tarjeta:** CACS-27 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-consumidor`
+- **Qué se hizo:**
+  - `soa/consumidor-web`: aplicación Spring Boot independiente en el puerto
+    8080. Sirve una página en HTML, CSS y JavaScript (`static/`) que llama con
+    Fetch a su propio backend (`/api/portal/...`).
+  - El backend llama a los dos proveedores con un RestClient por proveedor
+    (`ClientesConfig`), con URL configurables (`CATALOGO_URL` y
+    `RESERVAS_URL`) y tiempos de espera de 2 y 5 segundos.
+  - Operaciones integradas: la disponibilidad del día cruza el horario del
+    catálogo con la ocupación del proveedor de reservas, y reservar toma el
+    nombre y la tarifa del equipo del catálogo, valida el horario y que el
+    equipo se pueda reservar, y crea la reserva en el proveedor de reservas.
+  - Errores: un proveedor detenido da 503 con el nombre del servicio; los
+    errores de un proveedor (400, 401, 403, 409) llegan con su código y su
+    mensaje. `/api/portal/estado` dice si cada proveedor responde.
+  - Probado a mano con las tres aplicaciones: sesión de Laura, reserva de
+    4:00 p. m. creada con los dos proveedores, pago del adelanto, catálogo
+    detenido (la página muestra el aviso y "Mis reservas" sigue funcionando) y
+    la reserva conservada al reiniciar los proveedores. Capturas en
+    `soa/evidencias/`.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 9 pruebas, 0 fallos
+  (CP-38a a CP-38i en `PortalTests` y `ClientesHttpTests`).
+- **Pendientes:**
+  - Colección de Postman y documentación técnica (CACS-28).
