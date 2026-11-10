@@ -1,0 +1,29 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: proveedor-reservas
+  datasource:
+    # H2 en archivo: los datos quedan en soa/proveedor-reservas/data/ y se
+    # conservan al reiniciar. Es una base de pruebas local, sin contraseña real.
+    url: "jdbc:h2:file:./data/reservas"
+    username: sa
+    password: ""
+  sql:
+    init:
+      # schema.sql (DDL) crea las tablas si no existen; data.sql (DML) carga los
+      # usuarios de prueba solo si faltan.
+      mode: always
+  jpa:
+    open-in-view: false
+    hibernate:
+      # El esquema lo define schema.sql; Hibernate solo verifica que coincida.
+      ddl-auto: validate
+
+app:
+  jwt:
+    # Secreto compartido con el proveedor de catálogo. Se toma de la variable de
+    # entorno JWT_SECRETO (al menos 32 caracteres); nunca se escribe aquí.
+    secret: "${JWT_SECRETO}"
+    expiration-ms: 7200000
