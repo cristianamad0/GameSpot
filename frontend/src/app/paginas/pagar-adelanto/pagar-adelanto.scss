@@ -134,6 +134,20 @@ h2 {
   background: rgba(52, 211, 153, 0.1);
 }
 
+/* CACS-21: Wompi todavía procesa el pago. */
+.aviso[role='status']:not(.aviso--exito) {
+  border: 1px solid var(--gs-aviso);
+}
+
+.aviso .gs-boton {
+  display: block;
+  margin-top: 10px;
+}
+
+.nota-wompi {
+  margin: 0 0 14px;
+}
+
 .referencia {
   display: block;
   margin-top: 6px;

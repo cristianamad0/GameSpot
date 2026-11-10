@@ -27,6 +27,18 @@ app:
     # arranque con un secreto conocido.
     secret: "${JWT_SECRETO}"
     expiration-ms: 3600000
+  pagos:
+    # CACS-21: proveedor del adelanto, "simulado" (por defecto) o "wompi". Con "wompi" el
+    # pago simulado queda desactivado y la aplicación no arranca sin las llaves de Wompi.
+    proveedor: "${APP_PAGOS_PROVEEDOR:simulado}"
+    wompi:
+      # Llaves del comercio: solo por variables de entorno, nunca escritas aquí.
+      llave-publica: "${WOMPI_LLAVE_PUBLICA:}"
+      secreto-eventos: "${WOMPI_SECRETO_EVENTOS:}"
+      secreto-integridad: "${WOMPI_SECRETO_INTEGRIDAD:}"
+      url-api: "${WOMPI_URL_API:https://sandbox.wompi.co/v1}"
+      url-checkout: "https://checkout.wompi.co/p/"
+      url-retorno: "${WOMPI_URL_RETORNO:http://localhost:4200/reservas/{reservaId}/pagar}"
   reservas:
     expiracion:
       # CACS-12: cada cuánto se pasan a EXPIRADA las reservas no pagadas a tiempo.

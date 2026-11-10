@@ -34,6 +34,10 @@
       <section class="gs-tarjeta pago" aria-labelledby="titulo-pago">
         <h2 id="titulo-pago">Pago</h2>
 
+        @if (consultandoWompi()) {
+          <p class="suave" role="status" aria-live="polite">Consultando tu pago en Wompi…</p>
+        }
+
         @if (ultimoPago()?.estadoPago === 'APROBADO') {
           <div class="aviso aviso--exito" role="status">
             <strong>¡Pago aprobado!</strong> Tu reserva quedó confirmada.
@@ -55,6 +59,25 @@
               El proveedor de pagos rechazó el cobro, así que tu reserva sigue pendiente. Revisa tu
               medio de pago e intenta de nuevo antes de que venza el plazo.
             </div>
+          } @else if (
+            ultimoPago()?.estadoPago === 'ERROR' || ultimoPago()?.estadoPago === 'ANULADO'
+          ) {
+            <div class="gs-alerta" role="alert">
+              El pago no se pudo completar, así que tu reserva sigue pendiente. Intenta de nuevo
+              antes de que venza el plazo.
+            </div>
+          } @else if (ultimoPago()?.estadoPago === 'PENDIENTE' && idTransaccionWompi(); as idTx) {
+            <div class="aviso" role="status">
+              Wompi todavía está procesando tu pago. En unos segundos consulta de nuevo.
+              <button
+                type="button"
+                class="gs-boton gs-boton--secundario"
+                [disabled]="consultandoWompi()"
+                (click)="consultarWompi(idTx)"
+              >
+                Consultar de nuevo
+              </button>
+            </div>
           }
           @if (errorPago()) {
             <div class="gs-alerta" role="alert">{{ errorPago() }}</div>
@@ -66,7 +89,13 @@
             para pagar (hasta el {{ fechaHora(r.expiraEn!) }}).
           </p>
 
-          @if (esSimulado) {
+          @if (esWompi()) {
+            <p class="suave nota-wompi">
+              Te llevaremos a Wompi para pagar con tarjeta, Nequi o PSE. Al terminar vuelves aquí.
+            </p>
+          }
+
+          @if (esSimulado()) {
             <fieldset class="simulado">
               <legend>Proveedor simulado (solo demostración)</legend>
               <label>
@@ -95,10 +124,14 @@
           <button
             type="button"
             class="gs-boton gs-boton--primario gs-boton--ancho"
-            [disabled]="pagando()"
+            [disabled]="pagando() || consultandoWompi() || proveedor() === null"
             (click)="pagar()"
           >
-            {{ pagando() ? 'Procesando el pago…' : 'Pagar ' + pesos(r.adelantoPesos) }}
+            @if (pagando()) {
+              {{ esWompi() ? 'Abriendo Wompi…' : 'Procesando el pago…' }}
+            } @else {
+              {{ (esWompi() ? 'Pagar con Wompi ' : 'Pagar ') + pesos(r.adelantoPesos) }}
+            }
           </button>
         } @else {
           @if (errorPago()) {
