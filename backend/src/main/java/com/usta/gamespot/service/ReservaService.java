@@ -4,6 +4,7 @@ import static com.usta.gamespot.service.AdminReservasService.ZONA_NEGOCIO;
 
 import com.usta.gamespot.dto.CrearReservaRequest;
 import com.usta.gamespot.dto.DisponibilidadResponse;
+import com.usta.gamespot.dto.HistorialReservasResponse;
 import com.usta.gamespot.dto.ReservaResponse;
 import com.usta.gamespot.exception.BloqueOcupadoException;
 import com.usta.gamespot.exception.EquipoFueraDeServicioException;
@@ -31,6 +32,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,6 +147,37 @@ public class ReservaService {
       throw new ReservaAjenaException(reservaId);
     }
     return ReservaResponse.de(reserva);
+  }
+
+  /**
+   * CACS-3 (HU-07): historial de reservas del usuario autenticado, de la más reciente a la más
+   * antigua, paginado y con un filtro opcional por estado. Solo incluye sus propias reservas.
+   *
+   * @param emailUsuario correo del usuario autenticado
+   * @param estado estado por el que se filtra; null para todos
+   * @param pagina número de página, empezando en 0
+   * @param tamanoPagina cuántas reservas por página
+   * @return la página pedida; vacía si el usuario no tiene reservas
+   */
+  @Transactional(readOnly = true)
+  public HistorialReservasResponse historialPropio(
+      String emailUsuario, EstadoReserva estado, int pagina, int tamanoPagina) {
+    Long usuarioId = buscarUsuario(emailUsuario).getId();
+    PageRequest pedido =
+        PageRequest.of(
+            pagina,
+            tamanoPagina,
+            Sort.by(Sort.Order.desc("inicio"), Sort.Order.desc("id")));
+    Page<Reserva> reservas =
+        estado == null
+            ? reservaRepository.findByUsuarioId(usuarioId, pedido)
+            : reservaRepository.findByUsuarioIdAndEstado(usuarioId, estado, pedido);
+    return new HistorialReservasResponse(
+        reservas.map(ReservaResponse::de).getContent(),
+        reservas.getNumber(),
+        reservas.getSize(),
+        reservas.getTotalElements(),
+        reservas.getTotalPages());
   }
 
   /**

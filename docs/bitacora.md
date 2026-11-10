@@ -665,6 +665,39 @@ pruebas y pendientes. La entrada más reciente va al final.
   - Cambiar las tarifas en Supabase desde el panel cambia los precios reales
     de las reservas nuevas: usarlo con cuidado una vez desplegado.
 
+## 2026-11-09 — Historial de reservas y pantalla "Mis reservas"
+
+- **Tarjeta:** CACS-3 (HU-07).
+- **Rama:** `feat/historial-reservas`
+- **Qué se hizo:**
+  - `GET /api/reservas/mias?estado=&pagina=&tamano=` (`ReservaController`,
+    `ReservaService.historialPropio`, `HistorialReservasResponse`): solo las
+    reservas del usuario autenticado, de la más reciente a la más antigua,
+    filtro opcional por estado y 10 por página por defecto (máximo 50).
+    Página negativa, tamaño fuera de 1 a 50 o un estado que no existe
+    responden 400. Usa el índice `reservas_historial_usuario_idx`.
+  - `ReservaRepository`: consultas paginadas con el equipo ya cargado
+    (`@EntityGraph`), para no hacer una consulta por reserva.
+  - Frontend, `/mis-reservas` (`MisReservas`): tarjetas con equipo, horario,
+    precio, adelanto y estado en texto; filtro por estado; "Anterior" y
+    "Siguiente"; las reservas pendientes llevan a "Pagar el adelanto"; sin
+    reservas, mensaje y enlace para reservar. Enlace "Mis reservas" en la
+    barra del cliente.
+  - Probado a mano con los datos de demostración como Laura: sus 4 reservas
+    en orden, filtro por Confirmadas y por Expiradas (sin resultados, con su
+    mensaje), enlace a pagar la pendiente y 360 px sin desplazamiento
+    horizontal. Capturas en `docs/capturas/cacs-3/`.
+  - Se trajo `dev` con CACS-22 (PR #32) y se resolvió el conflicto del README
+    dejando las filas de las dos tarjetas.
+  - Sin cambios de esquema.
+- **Pruebas:** `./mvnw test`: 175 pruebas, 0 fallos, 0 errores (CP-34a a
+  CP-34f en `HistorialReservasTests`). `./mvnw checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 90 pruebas, 0 fallos (CP-F21a a
+  CP-F21g; CP-F08b ahora incluye "Mis reservas"). `npx ng build` y
+  `prettier --check` sin errores.
+- **Pendientes:**
+  - Ninguno de esta tarjeta.
+
 ## 2026-11-10 — Notificaciones por correo
 
 - **Tarjeta:** CACS-8 (HU-08).
@@ -697,8 +730,9 @@ pruebas y pendientes. La entrada más reciente va al final.
     "Notificaciones enviadas: 1 de 1" a los 25 segundos. Se comprobó que
     ninguna credencial quedó en archivos ni en el historial.
   - Sin cambios de esquema: la tabla `notificaciones` ya existía.
-- **Pruebas:** `./mvnw test`: 178 pruebas, 0 fallos, 0 errores. Nueva clase
-  `NotificacionesTests` (CP-34a a CP-34i), con el envío de correo simulado.
+- **Pruebas:** `./mvnw test`: 184 pruebas, 0 fallos, 0 errores, ya con CACS-3
+  traído de `dev`. Nueva clase `NotificacionesTests` (CP-35a a CP-35i; se
+  renumeraron porque CACS-3 usa CP-34), con el envío de correo simulado.
   `./mvnw clean checkstyle:check`: 0 advertencias.
 - **Pendientes:**
   - Para producción, definir las tres variables de entorno en el servidor.
