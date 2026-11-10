@@ -740,3 +740,25 @@ pruebas y pendientes. La entrada más reciente va al final.
     cada minuto. Si pasa, agregar un máximo de intentos.
   - En PowerShell, guardar la contraseña de aplicación con comillas simples:
     con comillas dobles, un `$` se interpreta como variable.
+
+## 2026-11-10 — SOA: proveedor de reservas con JWT
+
+- **Tarjeta:** CACS-26 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-reservas`
+- **Qué se hizo:**
+  - `soa/proveedor-reservas`: aplicación Spring Boot independiente en el
+    puerto 8092 con H2 en archivo (`./data/reservas`), `schema.sql` (DDL),
+    `data.sql` (DML con tres usuarios de prueba y contraseñas en BCrypt),
+    entidades JPA y repositorios.
+  - `POST /api/auth/login` emite un JWT firmado con `JWT_SECRETO` (rol en el
+    token). `FiltroJwt` exige el token en todo `/api/reservas` salvo la
+    ocupación, que es pública.
+  - Reservas: crear (bloques en :00 o :30, múltiplos de 30, en el futuro, sin
+    cruces con reservas activas del mismo equipo, 409 si se cruzan), mis
+    reservas, ocupación de un día, pago simulado del adelanto y cancelación
+    lógica (la reserva queda en CANCELADA y su bloque se libera).
+- **Pruebas:** `./mvnw test` en `soa/proveedor-reservas`: 8 pruebas, 0
+  fallos (CP-37a a CP-37h en `ReservasTests`).
+- **Pendientes:**
+  - La detección de cruces se hace en el servicio; con H2 no hay restricción
+    de exclusión como en PostgreSQL.
