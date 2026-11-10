@@ -578,3 +578,38 @@ pruebas y pendientes. La entrada más reciente va al final.
   "src/**/*.{ts,html,scss}"` sin cambios y sin opciones extra.
 - **Pendientes:**
   - Ninguno de esta tarjeta.
+
+## 2026-11-09 — Panel: equipos y tarifas
+
+- **Tarjeta:** CACS-22 (HU-06).
+- **Rama:** `feat/gestion-equipos`
+- **Qué se hizo:**
+  - Backend, solo `ADMIN` (`AdminEquiposController`, `AdminEquiposService`):
+    `GET /api/admin/equipos` (modalidad, tarifa, estado y reservas
+    `PENDIENTE_PAGO` o `CONFIRMADA` que aún no empiezan),
+    `PUT /api/admin/equipos/{id}/disponibilidad`, `GET /api/admin/modalidades`
+    y `PUT /api/admin/modalidades/{id}` (tarifa positiva y si está activa).
+    Modalidad inexistente responde 404 (`ModalidadNoEncontradaException`).
+  - Las reservas existentes no cambian: guardan su precio y siguen activas aunque
+    el equipo salga de servicio. Las reservas nuevas de un equipo fuera de
+    servicio o de una modalidad desactivada ya respondían 409 (CACS-20).
+  - Frontend, pestaña "Equipos y tarifas" del panel (`Equipos`): estado en
+    texto ("Disponible", "Fuera de servicio", "Modalidad desactivada"); si el
+    equipo tiene reservas futuras pide confirmación y avisa que siguen activas;
+    cada modalidad se edita con su tarifa y una casilla para ofrecerla.
+  - La prueba a mano encontró un error de concordancia con una sola reserva
+    ("Sus 1 reserva futura siguen activas"); ahora dice "Su reserva futura
+    sigue activa" (CP-F19h).
+  - Probado a mano con los datos de demostración como admin: fuera de servicio
+    con confirmación, habilitar, tarifa del Xbox 360 a $8.000 y la reserva
+    pendiente de Laura en ese equipo conserva sus $5.000; a 360 px sin
+    desplazamiento horizontal. Capturas en `docs/capturas/cacs-22/`.
+  - Sin cambios de esquema: no hay migración pendiente.
+- **Pruebas:** `./mvnw test`: 156 pruebas, 0 fallos, 0 errores (CP-32a a
+  CP-32g en `AdminEquiposTests`). `./mvnw clean checkstyle:check`: 0
+  advertencias. `npx ng test --watch=false`: 79 pruebas, 0 fallos (CP-F19a a
+  CP-F19h). `npx ng build` sin errores. `npx prettier --check
+  "src/**/*.{ts,html,scss}"` sin cambios.
+- **Pendientes:**
+  - Cambiar las tarifas en Supabase desde el panel cambia los precios reales
+    de las reservas nuevas: usarlo con cuidado una vez desplegado.
