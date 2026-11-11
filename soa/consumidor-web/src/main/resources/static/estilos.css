@@ -1614,3 +1614,115 @@ main,
   min-height: 3em;
   font-weight: 600;
 }
+
+/* ---------- CACS-36: botón de los videos y carátulas de juegos ---------- */
+.video__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  background: rgba(7, 11, 22, 0.6);
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: opacity 160ms ease, background 160ms ease;
+}
+
+.video__play:hover,
+.video__play:focus-visible {
+  background: var(--primario);
+  color: var(--primario-texto);
+}
+
+/* Mientras se reproduce, el botón se ve solo al pasar el mouse o al enfocarlo. */
+.video__play.reproduciendo {
+  opacity: 0;
+}
+
+.videos-local figure:hover .video__play,
+.video__play:focus-visible {
+  opacity: 1;
+}
+
+#juegos {
+  position: relative;
+  /* El muro de carátulas es más ancho que la sección: se recorta para no desbordar la página. */
+  overflow: hidden;
+  overflow: clip;
+  padding-bottom: 12px;
+}
+
+/* El panel deja ver las carátulas del fondo. */
+#juegos .panel-juegos {
+  background: rgba(10, 16, 32, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+#juegos > :not(.muro-caratulas) {
+  position: relative;
+  z-index: 1;
+}
+
+.muro-caratulas {
+  position: absolute;
+  inset: 20px -40px -10px;
+  z-index: 0;
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.4;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 45%, transparent 85%);
+  mask-image: radial-gradient(ellipse at center, #000 45%, transparent 85%);
+}
+
+.muro-caratulas__fila {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: desplazar 90s linear infinite;
+}
+
+.muro-caratulas__fila--inversa {
+  animation-direction: reverse;
+}
+
+.muro-caratulas img {
+  width: 130px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  transform: rotate(-4deg);
+}
+
+@keyframes desplazar {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.juego__nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.juego__caratula {
+  flex: none;
+  width: 30px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .muro-caratulas__fila {
+    animation: none;
+  }
+}

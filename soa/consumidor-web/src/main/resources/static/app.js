@@ -46,6 +46,8 @@ let equipos = [];
 // del local). Es contenido de la página, no viene de los proveedores.
 let catalogoJuegos = {};
 let pestanaJuegos = null;
+// CACS-36: carátula (img/caratulas/) de los juegos que la tienen, por título.
+let caratulas = {};
 let pasoActual = 1;
 
 // ---------- Sesión (el JWT queda en sessionStorage del navegador) ----------
@@ -734,10 +736,13 @@ function filaMensaje(texto, columnas) {
 async function cargarCatalogoJuegos() {
   try {
     const respuesta = await fetch('datos/juegos.json');
-    catalogoJuegos = (await respuesta.json()).equipos || {};
+    const datos = await respuesta.json();
+    catalogoJuegos = datos.equipos || {};
+    caratulas = datos.caratulas || {};
   } catch {
     catalogoJuegos = {};
   }
+  pintarMuroCaratulas();
   const totales = Object.values(catalogoJuegos).map((c) => c.totalJuegos || 0);
   if (totales.length) {
     $('dato-juegos').textContent = Math.max(...totales) + '+';
@@ -796,7 +801,18 @@ function pintarJuegos() {
     bloque.append(elemento('h3', '', categoria.nombre + ' (' + categoria.juegos.length + ')'));
     const lista = elemento('ul', 'lista-juegos');
     for (const [titulo, jugadores] of categoria.juegos) {
-      const item = elemento('li', '', titulo);
+      const item = elemento('li', '');
+      const nombre = elemento('span', 'juego__nombre');
+      if (caratulas[titulo]) {
+        const mini = document.createElement('img');
+        mini.className = 'juego__caratula';
+        mini.src = 'img/caratulas/' + caratulas[titulo];
+        mini.alt = '';
+        mini.loading = 'lazy';
+        nombre.append(mini);
+      }
+      nombre.append(titulo);
+      item.append(nombre);
       if (jugadores > 1) {
         const etiqueta = elemento('span', 'jugadores', '👥 ' + jugadores);
         etiqueta.title = 'Hasta ' + jugadores + ' jugadores en la misma consola';
@@ -808,6 +824,29 @@ function pintarJuegos() {
     columnas.append(bloque);
   }
   panel.append(columnas);
+}
+
+// Muro de carátulas que se desplaza detrás de la sección de juegos (CACS-36).
+function pintarMuroCaratulas() {
+  const muro = $('muro-caratulas');
+  const archivos = Object.values(caratulas);
+  muro.replaceChildren();
+  if (!archivos.length) {
+    return;
+  }
+  for (let fila = 0; fila < 2; fila++) {
+    const cinta = elemento('div', 'muro-caratulas__fila' + (fila ? ' muro-caratulas__fila--inversa' : ''));
+    const orden = fila ? [...archivos].reverse() : archivos;
+    // Se repite la lista para que el desplazamiento no tenga cortes.
+    for (const archivo of [...orden, ...orden]) {
+      const img = document.createElement('img');
+      img.src = 'img/caratulas/' + archivo;
+      img.alt = '';
+      img.loading = 'lazy';
+      cinta.append(img);
+    }
+    muro.append(cinta);
+  }
 }
 
 // ---------- Videos del local (CACS-32) ----------
@@ -823,7 +862,22 @@ function prepararVideos() {
   }
   const videos = document.querySelectorAll('.videos-local video');
   for (const video of videos) {
-    video.addEventListener('click', () => (video.paused ? video.play() : video.pause()));
+    // CACS-36: botón visible para reproducir o pausar; el video siempre muestra su portada.
+    const boton = elemento('button', 'video__play', '▶');
+    boton.type = 'button';
+    const titulo = video.parentElement.querySelector('figcaption')?.textContent || 'video';
+    const actualizar = () => {
+      boton.textContent = video.paused ? '▶' : '❚❚';
+      boton.setAttribute('aria-label', (video.paused ? 'Reproducir ' : 'Pausar ') + titulo);
+      boton.classList.toggle('reproduciendo', !video.paused);
+    };
+    const alternar = () => (video.paused ? video.play().catch(() => {}) : video.pause());
+    boton.addEventListener('click', alternar);
+    video.addEventListener('click', alternar);
+    video.addEventListener('play', actualizar);
+    video.addEventListener('pause', actualizar);
+    video.parentElement.append(boton);
+    actualizar();
   }
   if (reducirMovimiento || !('IntersectionObserver' in window)) {
     return;
