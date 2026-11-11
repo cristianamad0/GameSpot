@@ -2069,3 +2069,214 @@ main .seccion > p.suave {
     display: none;
   }
 }
+
+/* ---------- CACS-43: gato del Reto 10 segundos ---------- */
+.reto__gato {
+  position: relative;
+  margin: 0;
+  padding: 3px;
+  border-radius: var(--radio);
+  /* Degradado del atardecer de la imagen hacia el dorado y el neón de la página. */
+  background: linear-gradient(135deg, #f97316, var(--primario) 45%, #c084fc);
+  box-shadow:
+    0 0 24px rgba(249, 115, 22, 0.35),
+    0 0 46px rgba(192, 132, 252, 0.18);
+}
+
+.reto__escena {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 736 / 414;
+  border-radius: calc(var(--radio) - 3px);
+  background: #1c1030;
+}
+
+.reto__capa {
+  position: absolute;
+  inset: 0;
+  transform-origin: 32% 70%;
+  animation: reto-paneo 18s ease-in-out infinite alternate;
+}
+
+.reto__capa img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Brillo del sol de la imagen (55 % a lo ancho, 48 % de alto). */
+.reto__sol {
+  position: absolute;
+  left: 55%;
+  top: 48%;
+  width: 34%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 236, 170, 0.75), rgba(251, 146, 60, 0.28) 45%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: reto-sol 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Nubes de bloques, como las de la imagen, que cruzan el cielo. */
+.reto__nube {
+  position: absolute;
+  left: -20%;
+  width: 9%;
+  height: 4%;
+  background: #fdba74;
+  box-shadow:
+    1.2vw -0.6vw 0 #fb923c,
+    2.4vw 0 0 #fdba74;
+  opacity: 0.85;
+  animation: reto-nube 26s linear infinite;
+  pointer-events: none;
+}
+
+.reto__nube--1 {
+  top: 8%;
+}
+
+.reto__nube--2 {
+  top: 18%;
+  width: 6%;
+  animation-duration: 34s;
+  animation-delay: -12s;
+}
+
+.reto__nube--3 {
+  top: 4%;
+  width: 7%;
+  opacity: 0.6;
+  animation-duration: 40s;
+  animation-delay: -25s;
+}
+
+/* Globo de diálogo con borde de bloques. */
+.reto__globo {
+  position: absolute;
+  left: 36%;
+  top: 9%;
+  max-width: 58%;
+  margin: 0;
+  padding: 8px 12px;
+  border: 3px solid var(--primario-texto);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--primario-texto);
+  box-shadow: 4px 4px 0 #f97316;
+  font-family: var(--titulo);
+  font-size: clamp(0.7rem, 1.9vw, 0.95rem);
+  font-weight: 800;
+  line-height: 1.25;
+  animation: reto-globo 3s ease-in-out infinite;
+}
+
+.reto__globo::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  bottom: -12px;
+  border: 8px solid transparent;
+  border-top-color: var(--primario-texto);
+  border-left-color: var(--primario-texto);
+}
+
+.reto__gato--reacciona {
+  animation: reto-brinco 0.6s ease-out;
+}
+
+@media (min-width: 760px) {
+  .reto__gato {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 980px) {
+  .reto {
+    grid-template-columns: 1.15fr 1fr;
+    grid-template-areas:
+      'gato texto'
+      'gato juego';
+  }
+
+  .reto__gato {
+    grid-area: gato;
+    align-self: center;
+  }
+
+  .reto__texto {
+    grid-area: texto;
+  }
+
+  .reto__juego {
+    grid-area: juego;
+  }
+}
+
+@keyframes reto-paneo {
+  from {
+    transform: scale(1.02) translate(0, 0);
+  }
+  to {
+    transform: scale(1.12) translate(2%, -1.5%);
+  }
+}
+
+@keyframes reto-sol {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+@keyframes reto-nube {
+  to {
+    transform: translateX(1300%);
+  }
+}
+
+@keyframes reto-globo {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(1deg);
+  }
+}
+
+@keyframes reto-brinco {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.03) rotate(-1deg);
+  }
+  60% {
+    transform: scale(0.99) rotate(0.6deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reto__capa,
+  .reto__sol,
+  .reto__globo,
+  .reto__gato--reacciona {
+    animation: none;
+  }
+
+  .reto__nube {
+    display: none;
+  }
+}
