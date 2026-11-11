@@ -1161,3 +1161,28 @@ pruebas y pendientes. La entrada más reciente va al final.
   iniciar y detener el cronómetro y no hay desplazamiento horizontal.
 - **Pendientes:** la imagen la aportó el equipo; si se publica la página,
   confirmar que se puede usar (el paisaje imita el estilo de un videojuego).
+
+## 2026-11-11 — SOA: título de la portada con voz propia y nueva distribución
+
+- **Tarjeta:** CACS-44 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-titulo-portada`
+- **Qué se hizo:**
+  - El título genérico ("Reserva tu turno y llega a jugar", con la etiqueta
+    "Tu punto de diversión" y el lema "Juega · Disfruta · Repite") cambió por
+    uno con la voz del barrio: "El parche GAMER de San Jorge", en tres líneas
+    de distinto tamaño, con "GAMER" grande en dorado y un subrayado a mano.
+  - Arriba, un aviso de horario con un punto verde que late ("Abierto todos
+    los días · 3 a 9 p. m."); junto al título, una calcomanía inclinada
+    ("¿Quién paga la revancha?").
+  - Texto y botones en tono conversacional ("Apartar mi turno", "Ver
+    consolas y precios"). Las cifras pasan a una tira tipo boleta con cortes
+    punteados (tres columnas en el celular), y el aviso del Reto 10 segundos
+    queda debajo en su propia línea.
+  - Se quitaron los estilos que ya no se usan (`portada__etiqueta`,
+    `portada__lema` y el color de los `span` del título). Los ids que usa
+    `app.js` no cambian.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280, 375 y 360 px: las cifras se llenan desde los
+  servicios, el título no toca el logo ni la pandilla y no hay desplazamiento
+  horizontal.
+- **Pendientes:** ninguno.
