@@ -1031,3 +1031,19 @@ pruebas y pendientes. La entrada más reciente va al final.
   Prueba a mano: portadas visibles con los videos en pausa, reproducción con el
   botón, carátulas a 1280 px y a 360 px sin desplazamiento horizontal.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: títulos centrados y secciones a todo el ancho
+
+- **Tarjeta:** CACS-37 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-titulos-centrados` (parte de `feat/soa-videos-caratulas`).
+- **Qué se hizo:**
+  - Títulos de sección centrados, en mayúsculas, con la letra Russo One y un
+    subrayado neón dorado y azul; sus textos de apoyo también centrados.
+  - Videos de "Conoce el local" en 4 columnas que llenan el ancho en
+    computador (2 en celular), sin el espacio vacío de la derecha.
+  - Tarjetas de equipos, torneos, reservas y categorías de juegos con
+    `auto-fit` para que ocupen todo el ancho; pestañas de juegos, pasos de la
+    reserva y "Visítanos" centrados.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal.
+- **Pendientes:** ninguno.
