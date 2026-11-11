@@ -850,18 +850,14 @@ function pintarMuroCaratulas() {
 }
 
 // ---------- Videos del local (CACS-32) ----------
-// Se reproducen sin sonido solo mientras se ven en pantalla; con "reducir movimiento" quedan quietos
-// y se reproducen al tocarlos.
-const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
+// CACS-40: se reproducen solos y sin sonido mientras se ven en pantalla, también con "reducir
+// movimiento" (el equipo lo pidió así). Cada uno tiene su botón para pausarlo, y si el visitante
+// lo pausa, no vuelve a arrancar solo.
 function prepararVideos() {
-  const portada = document.querySelector('.portada__video');
-  if (reducirMovimiento && portada) {
-    portada.removeAttribute('autoplay');
-    portada.pause();
-  }
   const videos = document.querySelectorAll('.videos-local video');
   for (const video of videos) {
+    // Los navegadores solo permiten la reproducción automática de videos sin sonido.
+    video.muted = true;
     // CACS-36: botón visible para reproducir o pausar; el video siempre muestra su portada.
     const boton = elemento('button', 'video__play', '▶');
     boton.type = 'button';
@@ -871,7 +867,10 @@ function prepararVideos() {
       boton.setAttribute('aria-label', (video.paused ? 'Reproducir ' : 'Pausar ') + titulo);
       boton.classList.toggle('reproduciendo', !video.paused);
     };
-    const alternar = () => (video.paused ? video.play().catch(() => {}) : video.pause());
+    const alternar = () => {
+      video.dataset.pausadoPorUsuario = String(!video.paused);
+      return video.paused ? video.play().catch(() => {}) : video.pause();
+    };
     boton.addEventListener('click', alternar);
     video.addEventListener('click', alternar);
     video.addEventListener('play', actualizar);
@@ -879,14 +878,17 @@ function prepararVideos() {
     video.parentElement.append(boton);
     actualizar();
   }
-  if (reducirMovimiento || !('IntersectionObserver' in window)) {
+  if (!('IntersectionObserver' in window)) {
+    videos.forEach((video) => video.play().catch(() => {}));
     return;
   }
   const observador = new IntersectionObserver(
     (entradas) => {
       for (const entrada of entradas) {
         if (entrada.isIntersecting) {
-          entrada.target.play().catch(() => {});
+          if (entrada.target.dataset.pausadoPorUsuario !== 'true') {
+            entrada.target.play().catch(() => {});
+          }
         } else {
           entrada.target.pause();
         }
