@@ -987,4 +987,24 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
   Prueba a mano en el navegador.
 - **Pendientes:**
-  - Confirmar que las promociones siguen vigentes.
+  - Confirmar que las promociones siguen vigentes (resuelto en CACS-35).
+
+## 2026-11-11 — SOA: promoción vigente "Reto 10 segundos"
+
+- **Tarjeta:** CACS-35 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-reto-10-segundos`
+- **Qué se hizo:**
+  - El equipo confirmó que no hay torneos próximos y que solo está vigente el
+    Reto 10 segundos de los fines de semana: quien detiene el cronómetro en
+    10 segundos exactos paga la cuenta a mitad de precio.
+  - Se quitaron las promociones que ya no aplican y la tarjeta del próximo
+    torneo. Los torneos realizados siguen como historial.
+  - Sección "Promoción vigente" con el reto (sábados y domingos), un aviso en
+    la portada y el enlace "Reto 10 s" en el menú.
+  - Cronómetro de práctica en la página, marcado como práctica: dice cuánto
+    faltó o sobró para los 10,00 s. No da descuentos; el reto válido se hace en
+    el local.
+  - No se publicaron los videos del reto porque aparecen menores de edad.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano del cronómetro a 1280 px y a 360 px.
+- **Pendientes:** ninguno.
