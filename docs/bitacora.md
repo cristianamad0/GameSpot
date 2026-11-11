@@ -952,5 +952,22 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Confirmar el horario: la publicidad dice "todos los días de 3:00 p. m. a
     9:00 p. m." y el catálogo del sistema tiene L-V 2:00-10:00 p. m. y S-D
-    3:00-9:00 p. m.
+    3:00-9:00 p. m. (resuelto en CACS-33).
   - Confirmar que los torneos y promociones siguen vigentes.
+
+## 2026-11-11 — SOA: horario real del local
+
+- **Tarjeta:** CACS-33 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-horario-real` (parte de `feat/soa-material-local`).
+- **Qué se hizo:**
+  - El equipo confirmó que el horario real es todos los días de 3:00 a
+    9:00 p. m., como dice la publicidad. `proveedor-catalogo/data.sql` queda
+    con los 7 días de 15:00 a 21:00; el `merge` también corrige las bases que
+    ya existen al arrancar.
+  - `CatalogoTests` CP-36g verifica que los 7 días abren a las 15:00 y cierran
+    a las 21:00.
+- **Pruebas:** `./mvnw test` en `soa/proveedor-catalogo`: 8 pruebas, 0 fallos.
+  Con la base existente, `/api/portal/horarios` devolvió 15:00-21:00 para los
+  7 días y la disponibilidad de mañana mostró 12 bloques (3:00 a 9:00 p. m.).
+  Newman, carpetas 1 a 4: 38 solicitudes y 40 comprobaciones, 0 fallos.
+- **Pendientes:** ninguno.
