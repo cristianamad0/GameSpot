@@ -896,3 +896,29 @@ pruebas y pendientes. La entrada más reciente va al final.
   - Actualizar el documento técnico en inglés con la tarifa de media hora
     antes de la entrega final del 18 de noviembre.
   - Fotos del local cuando estén disponibles.
+
+## 2026-11-11 — SOA: ilustraciones de consolas y decoración animada
+
+- **Tarjeta:** CACS-31 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-decoracion-gamer`
+- **Qué se hizo:**
+  - `static/img/consola-*.svg`: ilustraciones propias de la Xbox 360, la
+    Xbox Series S y la sala VIP con Series X, que reemplazan los emojis de las
+    tarjetas de equipos. Si se agrega una foto en `FOTOS`, la foto tiene
+    prioridad.
+  - Decoración original con estilo de videojuego: cuadrícula neón que avanza
+    en la portada, monedas, estrellas, corazones y controles pixelados que
+    flotan detrás del contenido, una nave pixelada que cruza la portada, una
+    pandilla de personajes de gelatina en el pie de página y uno que se asoma
+    sobre la tarjeta de reserva. No se usan personajes de juegos existentes
+    porque tienen derechos de autor.
+  - Todo es decorativo (`aria-hidden`, sin clics) y se queda quieto con
+    `prefers-reduced-motion`.
+  - `app.js`: si el token venció (dura 2 horas), la página cierra la sesión y
+    pide ingresar de nuevo, en vez de quedarse con la sesión abierta y un
+    error en "Mis reservas".
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano en el navegador a 1280 px y a 360 px (sin desplazamiento
+  horizontal) y con un token vencido.
+- **Pendientes:**
+  - Fotos reales del local y de las consolas cuando estén disponibles.

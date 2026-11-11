@@ -68,7 +68,10 @@ API. El sistema anterior (`backend/` y `frontend/`) sigue intacto.
 
 Fotos del local: copiarlas a `consumidor-web/src/main/resources/static/img/`
 y poner el nombre del archivo en la constante `FOTOS` al inicio de
-`static/app.js`. Mientras no haya foto, cada modalidad muestra un ícono.
+`static/app.js`. Mientras no haya foto, cada modalidad muestra su
+ilustración (`static/img/consola-<modalidad>.svg`, dibujos propios). La
+decoración animada (cuadrícula, objetos flotantes, nave y personajes) es
+original y se queda quieta si el sistema tiene activado "reducir movimiento".
 
 En IntelliJ, cada configuración de ejecución debe tener como *Working
 directory* la carpeta de su proyecto (por ejemplo `soa/proveedor-catalogo`);
