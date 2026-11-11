@@ -8,3 +8,7 @@
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Bases H2 de las aplicaciones SOA cuando IntelliJ las ejecuta con la raíz del
+# repositorio como carpeta de trabajo.
+/data/

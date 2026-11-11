@@ -741,6 +741,349 @@ pruebas y pendientes. La entrada más reciente va al final.
   - En PowerShell, guardar la contraseña de aplicación con comillas simples:
     con comillas dobles, un `$` se interpreta como variable.
 
+## 2026-11-10 — SOA: proveedor de catálogo
+
+- **Tarjeta:** CACS-25 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-catalogo`
+- **Qué se hizo:**
+  - Decisión del equipo: para la arquitectura SOA que pide la docente Diana
+    Velásquez, el negocio se divide en catálogo (proveedor 1) y reservas
+    (proveedor 2), cada uno con su base H2 en archivo, y los tres proyectos
+    van en `soa/` sin tocar el sistema actual.
+  - `soa/proveedor-catalogo`: aplicación Spring Boot independiente en el
+    puerto 8091 con `schema.sql` (DDL), `data.sql` (DML con los 6 equipos, 3
+    modalidades y el horario reales; solo inserta lo que falta, para no pisar
+    cambios al reiniciar), entidades JPA y repositorios.
+  - CRUD de equipos (`GET`, `POST`, `PUT`, `DELETE /api/equipos`), tarifas
+    (`GET` y `PUT /api/modalidades`) y horario (`GET /api/horarios`). Las
+    modificaciones exigen un JWT de rol ADMIN emitido por el proveedor de
+    reservas y firmado con el mismo `JWT_SECRETO` (401 sin token o con uno
+    inválido, 403 con otro rol).
+- **Pruebas:** `./mvnw test` en `soa/proveedor-catalogo`: 7 pruebas, 0 fallos
+  (CP-36a a CP-36g en `CatalogoTests`).
+- **Pendientes:**
+  - Ninguno de esta tarjeta.
+
+## 2026-11-10 — SOA: proveedor de reservas con JWT
+
+- **Tarjeta:** CACS-26 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-reservas`
+- **Qué se hizo:**
+  - `soa/proveedor-reservas`: aplicación Spring Boot independiente en el
+    puerto 8092 con H2 en archivo (`./data/reservas`), `schema.sql` (DDL),
+    `data.sql` (DML con tres usuarios de prueba y contraseñas en BCrypt),
+    entidades JPA y repositorios.
+  - `POST /api/auth/login` emite un JWT firmado con `JWT_SECRETO` (rol en el
+    token). `FiltroJwt` exige el token en todo `/api/reservas` salvo la
+    ocupación, que es pública.
+  - Reservas: crear (bloques en :00 o :30, múltiplos de 30, en el futuro, sin
+    cruces con reservas activas del mismo equipo, 409 si se cruzan), mis
+    reservas, ocupación de un día, pago simulado del adelanto y cancelación
+    lógica (la reserva queda en CANCELADA y su bloque se libera).
+- **Pruebas:** `./mvnw test` en `soa/proveedor-reservas`: 8 pruebas, 0
+  fallos (CP-37a a CP-37h en `ReservasTests`).
+- **Pendientes:**
+  - La detección de cruces se hace en el servicio; con H2 no hay restricción
+    de exclusión como en PostgreSQL.
+
+## 2026-11-10 — SOA: aplicación consumidora web
+
+- **Tarjeta:** CACS-27 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-consumidor`
+- **Qué se hizo:**
+  - `soa/consumidor-web`: aplicación Spring Boot independiente en el puerto
+    8080. Sirve una página en HTML, CSS y JavaScript (`static/`) que llama con
+    Fetch a su propio backend (`/api/portal/...`).
+  - El backend llama a los dos proveedores con un RestClient por proveedor
+    (`ClientesConfig`), con URL configurables (`CATALOGO_URL` y
+    `RESERVAS_URL`) y tiempos de espera de 2 y 5 segundos.
+  - Operaciones integradas: la disponibilidad del día cruza el horario del
+    catálogo con la ocupación del proveedor de reservas, y reservar toma el
+    nombre y la tarifa del equipo del catálogo, valida el horario y que el
+    equipo se pueda reservar, y crea la reserva en el proveedor de reservas.
+  - Errores: un proveedor detenido da 503 con el nombre del servicio; los
+    errores de un proveedor (400, 401, 403, 409) llegan con su código y su
+    mensaje. `/api/portal/estado` dice si cada proveedor responde.
+  - Probado a mano con las tres aplicaciones: sesión de Laura, reserva de
+    4:00 p. m. creada con los dos proveedores, pago del adelanto, catálogo
+    detenido (la página muestra el aviso y "Mis reservas" sigue funcionando) y
+    la reserva conservada al reiniciar los proveedores. Capturas en
+    `soa/evidencias/`.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 9 pruebas, 0 fallos
+  (CP-38a a CP-38i en `PortalTests` y `ClientesHttpTests`).
+- **Pendientes:**
+  - Colección de Postman y documentación técnica (CACS-28).
+
+## 2026-11-10 — SOA: colección de Postman y documentación técnica
+
+- **Tarjeta:** CACS-28 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-documentacion`
+- **Qué se hizo:**
+  - `soa/postman/GameSpot-SOA.postman_collection.json`: 40 solicitudes en 5
+    carpetas (autenticación, proveedor 1, proveedor 2, consumidora y proveedor
+    detenido), con pruebas de código HTTP, variables para las tres URL y los
+    tokens, y la fecha de mañana calculada en hora de Bogotá.
+  - `soa/README.md`: arquitectura, requisitos, cómo ejecutar, cuentas de
+    prueba, contrato de la API y tabla de pruebas.
+  - `soa/documentacion/`: documento técnico en inglés con formato APA 7
+    (Word y PDF, 21 páginas) y el diagrama SOA en PNG.
+- **Pruebas:** la colección corrió completa con Newman contra las tres
+  aplicaciones: 38 solicitudes y 40 comprobaciones de las carpetas 1 a 4, y
+  con el catálogo detenido 2 solicitudes y 3 comprobaciones de la carpeta 5;
+  0 fallos.
+- **Pendientes:**
+  - Fusionar en orden los PR de CACS-25, CACS-26 y CACS-27; cada uno agrega
+    una entrada al final de esta bitácora.
+
+## 2026-11-11 — SOA: portada y reserva guiada en la consumidora
+
+- **Tarjeta:** CACS-29 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-portal-presentacion`
+- **Qué se hizo:**
+  - `consumidor-web/static`: la página pasa de un formulario técnico a una
+    portada con la identidad de Game Spot (la misma del frontend Angular): botón
+    "Haz tu reserva", tarjetas de los equipos por modalidad con precio y estado,
+    pasos de uso y horario. La reserva se hace en tres pasos (consola, día y
+    hora, confirmar) y antes de confirmar muestra a nombre de quién queda, el
+    precio y el adelanto. El ingreso es un diálogo; "Mis reservas" son
+    tarjetas con pagar y cancelar, y el panel del administrador solo aparece
+    con el rol `ADMIN`. Si un proveedor no responde, se avisa cuál y el resto
+    de la página sigue funcionando.
+  - Fotos del local: carpeta `static/img/` y constante `FOTOS` en `app.js`;
+    mientras no haya foto se muestra un ícono por modalidad.
+  - `PortalController` y `PortalService`: `GET /api/portal/horarios`, que pide
+    el horario al catálogo con RestClient y lo ordena de lunes a domingo.
+  - `.gitignore`: se ignora `/data/`, donde quedan las bases H2 si IntelliJ
+    ejecuta las aplicaciones desde la raíz del repositorio.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos
+  (nueva CP-38j: horario ordenado y 503 con el catálogo detenido). Prueba a
+  mano con las tres aplicaciones: reserva completa desde la portada, ingreso en
+  el diálogo, pago del adelanto, panel del administrador, catálogo detenido y
+  vista de 360 px sin desplazamiento horizontal.
+- **Pendientes:**
+  - Corregir precios y equipos con los datos que envíe el propietario.
+  - Agregar las fotos del local cuando estén disponibles.
+
+## 2026-11-11 — SOA: precios reales con tarifa de media hora y logo
+
+- **Tarjeta:** CACS-30 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-precios-media-hora` (parte de `feat/soa-portal-presentacion`).
+- **Qué se hizo:**
+  - Equipos y precios corregidos por el propietario: dos Xbox 360 ($4.000 la
+    hora, $2.500 la media hora), dos Xbox Series S ($5.000 y $3.000) y la sala
+    VIP con Xbox Series X ($10.000 y $6.000).
+  - `proveedor-catalogo`: columna `tarifa_media_hora_pesos` (DDL en
+    `schema.sql`, con `alter table ... add column if not exists` para las
+    bases que ya existían) y corrección única en `data.sql`: solo actúa
+    mientras falte la tarifa de media hora, así después no pisa los cambios
+    hechos por la API. La tarifa nueva va en la entidad, los DTO y
+    `PUT /api/modalidades/{id}`.
+  - `proveedor-reservas`: el precio es cada hora completa a la tarifa por hora
+    más la tarifa de media hora si sobra media hora; el adelanto sigue siendo
+    el 50 %.
+  - `consumidor-web`: pasa la tarifa de media hora del catálogo al proveedor de
+    reservas y la página muestra ambos precios; logo de Game Spot en la barra,
+    en la portada y como ícono, con los colores del logo (dorado y azul cielo).
+  - Postman: cuerpos con la tarifa de media hora; el `PUT` de tarifa usa los
+    precios reales del Xbox 360 para no dejar datos de prueba en la base.
+- **Pruebas:** `./mvnw test`: catálogo 8 pruebas (nueva CP-36h: corrección de
+  una base anterior), reservas 9 (nueva CP-37i: 30, 60 y 150 minutos) y
+  consumidora 10; 0 fallos. Newman: carpetas 1 a 4, 38 solicitudes y 40
+  comprobaciones; carpeta 5 con el catálogo detenido, 2 y 3; 0 fallos. Prueba a
+  mano: la base existente quedó con 5 equipos y los precios nuevos, una reserva
+  de 90 minutos de Series S costó $8.000 y la página se ve bien a 360 px.
+- **Pendientes:**
+  - Actualizar el documento técnico en inglés con la tarifa de media hora
+    antes de la entrega final del 18 de noviembre.
+  - Fotos del local cuando estén disponibles.
+
+## 2026-11-11 — SOA: ilustraciones de consolas y decoración animada
+
+- **Tarjeta:** CACS-31 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-decoracion-gamer`
+- **Qué se hizo:**
+  - `static/img/consola-*.svg`: ilustraciones propias de la Xbox 360, la
+    Xbox Series S y la sala VIP con Series X, que reemplazan los emojis de las
+    tarjetas de equipos. Si se agrega una foto en `FOTOS`, la foto tiene
+    prioridad.
+  - Decoración original con estilo de videojuego: cuadrícula neón que avanza
+    en la portada, monedas, estrellas, corazones y controles pixelados que
+    flotan detrás del contenido, una nave pixelada que cruza la portada, una
+    pandilla de personajes de gelatina en el pie de página y uno que se asoma
+    sobre la tarjeta de reserva. No se usan personajes de juegos existentes
+    porque tienen derechos de autor.
+  - Todo es decorativo (`aria-hidden`, sin clics) y se queda quieto con
+    `prefers-reduced-motion`.
+  - `app.js`: si el token venció (dura 2 horas), la página cierra la sesión y
+    pide ingresar de nuevo, en vez de quedarse con la sesión abierta y un
+    error en "Mis reservas".
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano en el navegador a 1280 px y a 360 px (sin desplazamiento
+  horizontal) y con un token vencido.
+- **Pendientes:**
+  - Fotos reales del local y de las consolas cuando estén disponibles.
+
+## 2026-11-11 — SOA: la página con el material real del local
+
+- **Tarjeta:** CACS-32 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-material-local`
+- **Qué se hizo:**
+  - Se revisó la carpeta de publicidad del local: catálogos de juegos,
+    tarifas, torneos, promociones, avisos de servicio y videos. No se abrieron
+    los archivos de finanzas.
+  - Portada con un video real del local de fondo (sin sonido, en bucle) y los
+    lemas del local ("Tu punto de diversión", "Juega · Disfruta · Repite").
+  - Franja con lo que ofrece el local: consolas Xbox, sala VIP, torneos,
+    ambiente gamer y snacks.
+  - Tarjetas de equipos con su nivel (Clásicos, Nueva Gen, Élite), el ahorro
+    de pagar la hora completa y un enlace a sus juegos.
+  - Sección "Juegos disponibles" con el catálogo real de cada equipo por
+    categoría y número de jugadores (`static/datos/juegos.json`); el número de
+    juegos también aparece al elegir la consola en la reserva.
+  - Sección "Conoce el local" con 4 videos cortos del sitio (8,5 MB en
+    total), que solo se reproducen mientras están en pantalla.
+  - Torneos (Halo: Reach y KOF 2002) y promociones del local, pasados a texto;
+    no se publican las piezas con personajes de terceros.
+  - "Visítanos" con la dirección, un botón de WhatsApp con mensaje listo y un
+    enlace para llegar en Google Maps.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px (sin desplazamiento horizontal); los
+  catálogos coinciden en número de juegos con los de la publicidad.
+- **Pendientes:**
+  - Confirmar el horario: la publicidad dice "todos los días de 3:00 p. m. a
+    9:00 p. m." y el catálogo del sistema tiene L-V 2:00-10:00 p. m. y S-D
+    3:00-9:00 p. m. (resuelto en CACS-33).
+  - Confirmar que los torneos y promociones siguen vigentes.
+
+## 2026-11-11 — SOA: horario real del local
+
+- **Tarjeta:** CACS-33 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-horario-real` (parte de `feat/soa-material-local`).
+- **Qué se hizo:**
+  - El equipo confirmó que el horario real es todos los días de 3:00 a
+    9:00 p. m., como dice la publicidad. `proveedor-catalogo/data.sql` queda
+    con los 7 días de 15:00 a 21:00; el `merge` también corrige las bases que
+    ya existen al arrancar.
+  - `CatalogoTests` CP-36g verifica que los 7 días abren a las 15:00 y cierran
+    a las 21:00.
+- **Pruebas:** `./mvnw test` en `soa/proveedor-catalogo`: 8 pruebas, 0 fallos.
+  Con la base existente, `/api/portal/horarios` devolvió 15:00-21:00 para los
+  7 días y la disponibilidad de mañana mostró 12 bloques (3:00 a 9:00 p. m.).
+  Newman, carpetas 1 a 4: 38 solicitudes y 40 comprobaciones, 0 fallos.
+- **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: torneos como historial del local
+
+- **Tarjeta:** CACS-34 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-torneos-realizados`
+- **Qué se hizo:**
+  - El equipo confirmó que los torneos de Halo: Reach y KOF 2002 ya se
+    jugaron. La sección pasa a "Torneos realizados": cada torneo se marca como
+    finalizado, los premios quedan en pasado y se quitan los llamados a
+    inscribirse.
+  - Nueva tarjeta "Próximamente" con un botón de WhatsApp para preguntar por
+    el próximo torneo.
+  - Las promociones quedan en su propia sección.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano en el navegador.
+- **Pendientes:**
+  - Confirmar que las promociones siguen vigentes (resuelto en CACS-35).
+
+## 2026-11-11 — SOA: promoción vigente "Reto 10 segundos"
+
+- **Tarjeta:** CACS-35 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-reto-10-segundos`
+- **Qué se hizo:**
+  - El equipo confirmó que no hay torneos próximos y que solo está vigente el
+    Reto 10 segundos de los fines de semana: quien detiene el cronómetro en
+    10 segundos exactos paga la cuenta a mitad de precio.
+  - Se quitaron las promociones que ya no aplican y la tarjeta del próximo
+    torneo. Los torneos realizados siguen como historial.
+  - Sección "Promoción vigente" con el reto (sábados y domingos), un aviso en
+    la portada y el enlace "Reto 10 s" en el menú.
+  - Cronómetro de práctica en la página, marcado como práctica: dice cuánto
+    faltó o sobró para los 10,00 s. No da descuentos; el reto válido se hace en
+    el local.
+  - No se publicaron los videos del reto porque aparecen menores de edad.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano del cronómetro a 1280 px y a 360 px.
+- **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: videos sin pantalla negra y carátulas de juegos
+
+- **Tarjeta:** CACS-36 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-videos-caratulas`
+- **Qué se hizo:**
+  - Causa de las pantallas negras: los videos (H.264) se servían bien, pero no
+    tenían imagen de portada y solo se reproducían solos si el sistema no
+    tiene las animaciones desactivadas.
+  - Cada video tiene ahora su portada (`static/video/*.png`, un cuadro del
+    mismo video sacado con Edge sin ventana) y un botón ▶ visible para
+    reproducir o pausar; mientras se reproduce, el botón aparece al pasar el
+    mouse.
+  - El clip "A jugar" se cambió por uno donde solo se ve la pantalla del juego,
+    porque el anterior mostraba a un joven que parece menor de edad.
+  - "Juegos disponibles": muro de carátulas animado de fondo y miniatura junto
+    a cada juego que tiene carátula (22 carátulas de la carpeta del local,
+    `static/img/caratulas/`). Se usan por decisión del equipo, sabiendo que
+    pertenecen a los estudios de cada juego.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano: portadas visibles con los videos en pausa, reproducción con el
+  botón, carátulas a 1280 px y a 360 px sin desplazamiento horizontal.
+- **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: títulos centrados y secciones a todo el ancho
+
+- **Tarjeta:** CACS-37 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-titulos-centrados` (parte de `feat/soa-videos-caratulas`).
+- **Qué se hizo:**
+  - Títulos de sección centrados, en mayúsculas, con la letra Russo One y un
+    subrayado neón dorado y azul; sus textos de apoyo también centrados.
+  - Videos de "Conoce el local" en 4 columnas que llenan el ancho en
+    computador (2 en celular), sin el espacio vacío de la derecha.
+  - Tarjetas de equipos, torneos, reservas y categorías de juegos con
+    `auto-fit` para que ocupen todo el ancho; pestañas de juegos, pasos de la
+    reserva y "Visítanos" centrados.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal.
+- **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: portada sin video y logo más grande
+
+- **Tarjeta:** CACS-38 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-portada-logo` (parte de `feat/soa-titulos-centrados`).
+- **Qué se hizo:**
+  - Se quitó el video de fondo de la portada; los videos siguen en "Conoce el
+    local".
+  - El logo de la portada pasa de 380 a 500 px en computador y ahora también
+    se ve en el celular, arriba y centrado; el título se ajusta para quedar en
+    dos líneas.
+  - `application.yaml` de la consumidora: `Cache-Control: no-cache` para los
+    archivos estáticos. El navegador revalida en cada visita y siempre muestra
+    la última versión, sin necesidad de Ctrl + F5.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal; los
+  estilos responden con `Cache-Control: no-cache`.
+- **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: pandilla de gelatina animada en la portada
+
+- **Tarjeta:** CACS-39 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-pandilla-portada` (parte de `feat/soa-portada-logo`).
+- **Qué se hizo:**
+  - En lugar de recrear personajes de Gang Beasts, que son del estudio Boneloaf,
+    se usó la pandilla de gelatina propia como mascota del local.
+  - Escena en la portada con cuatro personajes (verde, amarillo, azul y rojo)
+    sobre un ring neón: el verde salta desde arriba y cae con un "¡PUM!", el
+    amarillo y el azul se empujan y el rojo se tambalea, se cae y se levanta.
+  - En computador va debajo del logo, en la columna derecha, visible sin bajar;
+    en el celular va debajo del contenido de la portada.
+  - Decorativo (`aria-hidden`, sin clics) y quieto con "reducir movimiento".
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 x 760 px (escena completa visible) y a 360 px, sin
+  desplazamiento horizontal.
+- **Pendientes:** ninguno.
+
 ## 2026-11-10 — Correcciones de seguridad del pago con Wompi
 
 - **Tarjeta:** CACS-24 (HU-03).

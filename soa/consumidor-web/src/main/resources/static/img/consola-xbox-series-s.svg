@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Ilustración de una consola Xbox Series S con su control">
+  <!-- CACS-31: ilustración propia de Game Spot (no es una foto ni un logo de la marca). -->
+  <defs>
+    <linearGradient id="frente" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d7dce6"/>
+    </linearGradient>
+    <pattern id="rejilla" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.4" fill="#3a4152"/>
+    </pattern>
+  </defs>
+  <ellipse cx="160" cy="160" rx="120" ry="10" fill="#000" opacity="0.35"/>
+  <polygon points="60,40 80,26 200,26 180,40" fill="#eef1f6" stroke="#8e98ad" stroke-width="2"/>
+  <polygon points="180,40 200,26 200,136 180,152" fill="#b9c1d0" stroke="#8e98ad" stroke-width="2"/>
+  <rect x="60" y="40" width="120" height="112" rx="6" fill="url(#frente)" stroke="#8e98ad" stroke-width="2"/>
+  <circle cx="124" cy="86" r="34" fill="#15181f"/>
+  <circle cx="124" cy="86" r="30" fill="url(#rejilla)"/>
+  <circle cx="74" cy="138" r="3" fill="#7dd3fc"/>
+  <g transform="translate(206 104) scale(0.85)">
+    <path d="M18 4 H82 C92 4 98 10 101 20 L108 44 C111 54 103 60 95 54 L82 42 H18 L5 54 C-3 60 -11 54 -8 44 L-1 20 C2 10 8 4 18 4 Z" fill="#f4f6fa" stroke="#8e98ad" stroke-width="2"/>
+    <circle cx="26" cy="20" r="7" fill="#15181f"/>
+    <path d="M38 30 h4 v-4 h4 v4 h4 v4 h-4 v4 h-4 v-4 h-4 z" fill="#15181f"/>
+    <circle cx="66" cy="34" r="6" fill="#15181f"/>
+    <circle cx="78" cy="14" r="3.5" fill="#15181f"/>
+    <circle cx="86" cy="21" r="3.5" fill="#15181f"/>
+    <circle cx="70" cy="21" r="3.5" fill="#15181f"/>
+    <circle cx="78" cy="28" r="3.5" fill="#15181f"/>
+  </g>
+</svg>

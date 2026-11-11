@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Spot · Reservas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800&family=Russo+One&display=swap"
+    />
+    <link rel="icon" type="image/webp" href="img/logo-icono.webp" />
+    <link rel="stylesheet" href="estilos.css" />
+  </head>
+  <body>
+    <!-- CACS-31: decoración propia (sin personajes de juegos existentes). Es solo visual:
+         aria-hidden y sin clics; se queda quieta con "reducir movimiento". -->
+    <svg class="sprites" aria-hidden="true" focusable="false">
+      <symbol id="f-moneda" viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="7" fill="#fbbf24" stroke="#b45309" stroke-width="1.5" />
+        <rect x="7" y="4" width="2" height="8" rx="1" fill="#b45309" />
+      </symbol>
+      <symbol id="f-estrella" viewBox="0 0 16 16">
+        <path d="M8 0 L10 6 L16 8 L10 10 L8 16 L6 10 L0 8 L6 6 Z" fill="#7dd3fc" />
+      </symbol>
+      <symbol id="f-corazon" viewBox="0 0 9 8" shape-rendering="crispEdges">
+        <path d="M1 0h2v1h1V0h1v0h2v1h1v3H8v1H7v1H6v1H5v1H4V7H3V6H2V5H1V4H0V1h1z" fill="#fb7185" />
+      </symbol>
+      <symbol id="f-cruceta" viewBox="0 0 15 15">
+        <path d="M5 0h5v5h5v5h-5v5H5v-5H0V5h5z" fill="#a78bfa" />
+      </symbol>
+      <symbol id="f-control" viewBox="0 0 116 60">
+        <path d="M26 4 H90 C100 4 106 10 109 20 L116 44 C119 54 111 60 103 54 L90 42 H26 L13 54 C5 60 -3 54 0 44 L7 20 C10 10 16 4 26 4 Z" fill="none" stroke="#7dd3fc" stroke-width="5" />
+      </symbol>
+    </svg>
+    <div class="flotantes" aria-hidden="true">
+      <span class="flotante" style="--x: 4%; --t: 22px; --d: 26s; --r: -2s"><svg><use href="#f-moneda" /></svg></span>
+      <span class="flotante" style="--x: 14%; --t: 16px; --d: 31s; --r: -14s"><svg><use href="#f-estrella" /></svg></span>
+      <span class="flotante" style="--x: 23%; --t: 34px; --d: 38s; --r: -25s"><svg><use href="#f-control" /></svg></span>
+      <span class="flotante" style="--x: 35%; --t: 18px; --d: 29s; --r: -8s"><svg><use href="#f-corazon" /></svg></span>
+      <span class="flotante" style="--x: 47%; --t: 20px; --d: 34s; --r: -20s"><svg><use href="#f-cruceta" /></svg></span>
+      <span class="flotante" style="--x: 58%; --t: 24px; --d: 27s; --r: -5s"><svg><use href="#f-moneda" /></svg></span>
+      <span class="flotante" style="--x: 68%; --t: 14px; --d: 33s; --r: -17s"><svg><use href="#f-estrella" /></svg></span>
+      <span class="flotante" style="--x: 77%; --t: 30px; --d: 40s; --r: -30s"><svg><use href="#f-control" /></svg></span>
+      <span class="flotante" style="--x: 86%; --t: 18px; --d: 28s; --r: -11s"><svg><use href="#f-corazon" /></svg></span>
+      <span class="flotante" style="--x: 94%; --t: 22px; --d: 36s; --r: -23s"><svg><use href="#f-cruceta" /></svg></span>
+    </div>
+    <!-- CACS-29: portada y reserva guiada. Todo lo que se muestra viene de la consumidora
+         (/api/portal/...), que lo pide a los proveedores con RestClient. -->
+    <header class="barra">
+      <a class="logo" href="#inicio">
+        <img src="img/logo-horizontal.webp" alt="Game Spot, tu espacio gamer" width="150" height="52" />
+      </a>
+      <nav class="menu" aria-label="Secciones">
+        <a href="#equipos">Equipos</a>
+        <a href="#juegos">Juegos</a>
+        <a href="#local">El local</a>
+        <a href="#promociones">Reto 10 s</a>
+        <a href="#reservar">Reservar</a>
+        <a href="#mis-reservas" id="enlace-mis-reservas" hidden>Mis reservas</a>
+        <a href="#admin" id="enlace-admin" hidden>Administración</a>
+      </nav>
+      <div class="sesion">
+        <span id="sesion-nombre" class="sesion__nombre"></span>
+        <button type="button" id="boton-ingresar" class="boton boton--secundario">Ingresar</button>
+        <button type="button" id="boton-salir" class="boton boton--secundario" hidden>Salir</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Portada -->
+      <section id="inicio" class="portada">
+        <!-- Fuera del contenedor para que "lighten" lo funda con el video de fondo. -->
+        <img class="portada__emblema" src="img/logo-emblema.webp" alt="" width="520" height="520" />
+        <!-- CACS-39: la pandilla de gelatina de Game Spot (personajes propios) peleando en un ring neón. -->
+        <div class="pelea" aria-hidden="true">
+          <div class="pelea__ring">
+            <span class="pelea__poste pelea__poste--izq"></span>
+            <span class="pelea__poste pelea__poste--der"></span>
+            <span class="pelea__cuerda pelea__cuerda--1"></span>
+            <span class="pelea__cuerda pelea__cuerda--2"></span>
+            <span class="pelea__piso"></span>
+          </div>
+          <span class="pelea__pum">¡PUM!</span>
+          <svg class="luchador luchador--verde" viewBox="0 0 60 72">
+            <rect x="-4" y="10" width="10" height="24" rx="5" fill="currentColor" />
+            <rect x="54" y="10" width="10" height="24" rx="5" fill="currentColor" />
+            <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="currentColor" />
+              <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.45" />
+              <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+            <circle cx="23" cy="35" r="3" fill="#0b1020" /><circle cx="39" cy="35" r="3" fill="#0b1020" />
+            <ellipse cx="30" cy="51" rx="6" ry="5" fill="#0b1020" />
+          </svg>
+          <svg class="luchador luchador--amarillo" viewBox="0 0 60 72">
+            <ellipse cx="5" cy="50" rx="5" ry="9" fill="currentColor" />
+            <rect x="48" y="38" width="20" height="10" rx="5" fill="currentColor" />
+            <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="currentColor" />
+              <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.45" />
+              <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+            <circle cx="25" cy="37" r="3" fill="#0b1020" /><circle cx="41" cy="37" r="3" fill="#0b1020" />
+            <path d="M25 50 Q31 46 37 50" stroke="#0b1020" stroke-width="2.5" fill="none" stroke-linecap="round" />
+          </svg>
+          <svg class="luchador luchador--azul" viewBox="0 0 60 72">
+            <rect x="-8" y="38" width="20" height="10" rx="5" fill="currentColor" />
+            <ellipse cx="55" cy="50" rx="5" ry="9" fill="currentColor" />
+            <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="currentColor" />
+              <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.45" />
+              <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+            <circle cx="20" cy="37" r="3" fill="#0b1020" /><circle cx="36" cy="37" r="3" fill="#0b1020" />
+            <path d="M23 50 Q29 46 35 50" stroke="#0b1020" stroke-width="2.5" fill="none" stroke-linecap="round" />
+          </svg>
+          <svg class="luchador luchador--rojo" viewBox="0 0 60 72">
+            <ellipse cx="5" cy="48" rx="5" ry="9" fill="currentColor" />
+            <ellipse cx="55" cy="48" rx="5" ry="9" fill="currentColor" />
+            <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="currentColor" />
+              <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.45" />
+              <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+            <circle cx="22" cy="37" r="3" fill="#0b1020" /><circle cx="38" cy="37" r="3" fill="#0b1020" />
+            <path d="M24 52 Q30 47 36 52" stroke="#0b1020" stroke-width="2.5" fill="none" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="nave" aria-hidden="true">
+          <svg viewBox="0 0 22 12" shape-rendering="crispEdges">
+            <path d="M8 0h6v2h3v2h3v2h2v2h-2v2h-3v2H5v-2H3V8H0V6h3V4h3V2h2z" fill="#cbd5f5" />
+            <path d="M12 3h3v2h-3z" fill="#7dd3fc" />
+            <path d="M0 6h3v2H0z" fill="#fbbf24" />
+            <path d="M5 10h12v1H5z" fill="#8b93b8" />
+          </svg>
+        </div>
+        <div class="contenedor portada__contenido">
+          <p class="portada__etiqueta">Tu punto de diversión · Villavicencio</p>
+          <h1 class="portada__titulo">Reserva tu turno y <span>llega a jugar</span></h1>
+          <p class="portada__lema">Juega · Disfruta · Repite</p>
+          <p class="portada__texto">
+            Elige tu consola y dale play: Xbox 360, Xbox Series S o la sala VIP con Series X. Aparta
+            tu turno en bloques de 30 minutos y asegúralo pagando el 50 % de adelanto.
+          </p>
+          <div class="portada__acciones">
+            <a href="#reservar" id="boton-portada-reservar" class="boton boton--grande">Haz tu reserva</a>
+            <a href="#equipos" class="boton boton--secundario boton--grande">Ver equipos y precios</a>
+          </div>
+          <a class="portada__promo" href="#promociones">🎯 Fines de semana: <strong>Reto 10 segundos</strong>, tu cuenta a mitad de precio</a>
+          <ul class="portada__datos" aria-label="Lo que ofrecemos">
+            <li><strong id="dato-equipos">–</strong> equipos para jugar</li>
+            <li><strong id="dato-desde">–</strong> la media hora desde</li>
+            <li><strong id="dato-juegos">–</strong> juegos en catálogo</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Lo que ofrece el local (tomado de su publicidad) -->
+      <section class="contenedor ventajas" aria-label="Lo que encuentras en Game Spot">
+        <ul>
+          <li><span aria-hidden="true">🎮</span> Consolas Xbox</li>
+          <li><span aria-hidden="true">🛋️</span> Sala VIP</li>
+          <li><span aria-hidden="true">🏆</span> Torneos y competencias</li>
+          <li><span aria-hidden="true">🎧</span> Ambiente gamer</li>
+          <li><span aria-hidden="true">🥤</span> Snacks y bebidas</li>
+        </ul>
+      </section>
+
+      <!-- Equipos (proveedor de catálogo) -->
+      <section id="equipos" class="contenedor seccion" aria-labelledby="titulo-equipos">
+        <h2 id="titulo-equipos">Nuestros equipos</h2>
+        <p class="suave">Precios y disponibilidad en vivo desde el servicio de catálogo.</p>
+        <ul id="lista-modalidades" class="modalidades" aria-live="polite">
+          <li class="suave">Cargando equipos…</li>
+        </ul>
+      </section>
+
+      <!-- Juegos disponibles por equipo (catálogos del local) -->
+      <section id="juegos" class="contenedor seccion" aria-labelledby="titulo-juegos">
+        <!-- CACS-36: muro de carátulas de fondo (decorativo) -->
+        <div id="muro-caratulas" class="muro-caratulas" aria-hidden="true"></div>
+        <h2 id="titulo-juegos">Juegos disponibles</h2>
+        <p class="suave">Elige la consola y mira sus juegos. 👥 indica cuántos juegan a la vez en la misma consola.</p>
+        <div id="pestanas-juegos" class="pestanas" role="tablist" aria-label="Consolas"></div>
+        <div id="panel-juegos" class="panel-juegos" role="tabpanel" aria-live="polite"></div>
+      </section>
+
+      <!-- Pasos y horario -->
+      <section class="contenedor seccion seccion--doble">
+        <div>
+          <h2>Así de fácil</h2>
+          <ol class="pasos">
+            <li class="paso">
+              <span class="paso__numero" aria-hidden="true">1</span>
+              <div><h3>Elige tu consola</h3><p>Xbox 360, Xbox Series S o la sala VIP con Series X.</p></div>
+            </li>
+            <li class="paso">
+              <span class="paso__numero" aria-hidden="true">2</span>
+              <div><h3>Escoge día y hora</h3><p>Ves los bloques libres en tiempo real.</p></div>
+            </li>
+            <li class="paso">
+              <span class="paso__numero" aria-hidden="true">3</span>
+              <div><h3>Confirma y paga el adelanto</h3><p>El 50 % asegura tu turno; el resto lo pagas en el local.</p></div>
+            </li>
+          </ol>
+        </div>
+        <div class="tarjeta horario">
+          <h2>Horario</h2>
+          <dl id="lista-horario"><dt class="suave">Cargando horario…</dt></dl>
+        </div>
+      </section>
+
+      <!-- Videos reales del local -->
+      <section id="local" class="contenedor seccion" aria-labelledby="titulo-local">
+        <h2 id="titulo-local">Conoce el local</h2>
+        <p class="suave">Luces, buena música y las consolas listas. Así se vive Game Spot.</p>
+        <div class="videos-local">
+          <figure>
+            <video src="video/local-pasillo.mp4" poster="video/local-pasillo.png" muted loop playsinline preload="metadata"></video>
+            <figcaption>La entrada</figcaption>
+          </figure>
+          <figure>
+            <video src="video/local-pantalla.mp4" poster="video/local-pantalla.png" muted loop playsinline preload="metadata"></video>
+            <figcaption>A jugar</figcaption>
+          </figure>
+          <figure>
+            <video src="video/local-neon.mp4" poster="video/local-neon.png" muted loop playsinline preload="metadata"></video>
+            <figcaption>Ambiente neón</figcaption>
+          </figure>
+          <figure>
+            <video src="video/local-simulador.mp4" poster="video/local-simulador.png" muted loop playsinline preload="metadata"></video>
+            <figcaption>Carreras</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- CACS-35: única promoción vigente (fines de semana) con un cronómetro de práctica -->
+      <section id="promociones" class="contenedor seccion" aria-labelledby="titulo-promociones">
+        <h2 id="titulo-promociones">Promoción vigente</h2>
+        <div class="reto">
+          <div class="reto__texto">
+            <p class="reto__cuando">Sábados y domingos</p>
+            <h3>Reto 10 segundos</h3>
+            <p>Detén el cronómetro en 10 segundos exactos y <strong>tu cuenta queda a mitad de precio</strong>.</p>
+            <p class="suave">El reto que cuenta se hace en el local, los fines de semana. Pregunta las condiciones en caja.</p>
+          </div>
+          <div class="reto__juego">
+            <p class="reto__etiqueta">Práctica</p>
+            <output id="reto-tiempo" class="reto__tiempo" aria-live="off">00.00</output>
+            <button type="button" id="reto-boton" class="boton boton--grande">Iniciar</button>
+            <p id="reto-resultado" class="reto__resultado" aria-live="polite">Toca "Iniciar" y detén el cronómetro en 10,00.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CACS-34: torneos que ya se jugaron, como historial del local -->
+      <section id="torneos" class="contenedor seccion" aria-labelledby="titulo-torneos">
+        <h2 id="titulo-torneos">Torneos realizados</h2>
+        <p class="suave">Así se han vivido las competencias en Game Spot.</p>
+        <div class="torneos">
+          <article class="torneo torneo--halo">
+            <p class="torneo__tipo">Torneo realizado <span class="torneo__estado">Finalizado</span></p>
+            <h3>Halo: Reach</h3>
+            <ul>
+              <li><strong>15</strong> jugadores · partidas de 20 minutos</li>
+              <li>Inscripción: <strong>$8.000</strong></li>
+              <li>🥇 Premio 1.er lugar: <strong>$45.000 + 2 horas de juego</strong></li>
+              <li>🥈 Premio 2.º lugar: <strong>2 horas de juego</strong></li>
+            </ul>
+          </article>
+          <article class="torneo torneo--kof">
+            <p class="torneo__tipo">Torneo realizado <span class="torneo__estado">Finalizado</span></p>
+            <h3>KOF 2002 Magic Plus II</h3>
+            <ul>
+              <li><strong>16</strong> jugadores</li>
+              <li>Inscripción: <strong>$7.000</strong></li>
+              <li>🥇 Premio al campeón: <strong>$50.000 + 2 horas en Xbox</strong></li>
+              <li>🥈 Premio al subcampeón: <strong>2 horas en Xbox</strong></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- Reserva guiada (usa los dos proveedores) -->
+      <section id="reservar" class="contenedor seccion" aria-labelledby="titulo-reservar">
+        <h2 id="titulo-reservar">Haz tu reserva</h2>
+        <ol class="progreso" aria-label="Pasos de la reserva">
+          <li data-paso="1">Consola</li>
+          <li data-paso="2">Día y hora</li>
+          <li data-paso="3">Confirmar</li>
+        </ol>
+
+        <div class="tarjeta asistente">
+          <div class="asomado" aria-hidden="true">
+            <svg viewBox="0 0 60 72">
+              <ellipse cx="5" cy="48" rx="5" ry="9" fill="#7dd3fc" />
+              <ellipse cx="55" cy="48" rx="5" ry="9" fill="#7dd3fc" />
+              <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="#7dd3fc" />
+              <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.4" />
+              <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+              <circle cx="24" cy="38" r="3" fill="#0b1020" /><circle cx="40" cy="38" r="3" fill="#0b1020" />
+            </svg>
+          </div>
+          <div id="paso-1" class="paso-panel">
+            <h3>1. ¿Con qué quieres jugar?</h3>
+            <div id="opciones-equipo" class="opciones-equipo"></div>
+          </div>
+
+          <div id="paso-2" class="paso-panel" hidden>
+            <h3>2. Elige el día y la hora de inicio</h3>
+            <p class="suave" id="equipo-elegido"></p>
+            <div class="fila">
+              <label>Día <input type="date" id="res-fecha" /></label>
+              <label>¿Cuánto tiempo?
+                <select id="res-duracion">
+                  <option value="30">30 minutos</option>
+                  <option value="60" selected>1 hora</option>
+                  <option value="90">1 hora 30 minutos</option>
+                  <option value="120">2 horas</option>
+                  <option value="180">3 horas</option>
+                </select>
+              </label>
+            </div>
+            <div id="bloques" class="bloques" aria-live="polite"></div>
+            <p id="precio-previo" class="precio-previo"></p>
+            <div class="acciones">
+              <button type="button" class="boton boton--secundario" data-ir-a="1">Cambiar consola</button>
+              <button type="button" id="boton-continuar" class="boton" disabled>Continuar</button>
+            </div>
+          </div>
+
+          <div id="paso-3" class="paso-panel" hidden>
+            <h3>3. Revisa y confirma</h3>
+            <dl id="resumen" class="resumen"></dl>
+            <div id="confirmar-login" class="nota" hidden>
+              Para confirmar, ingresa con tu cuenta.
+              <button type="button" id="boton-login-confirmar" class="boton boton--secundario">Ingresar</button>
+            </div>
+            <div class="acciones">
+              <button type="button" class="boton boton--secundario" data-ir-a="2">Volver</button>
+              <button type="button" id="boton-confirmar" class="boton boton--grande">Confirmar reserva</button>
+            </div>
+          </div>
+
+          <div id="paso-4" class="paso-panel exito-panel" hidden>
+            <h3>¡Reserva creada!</h3>
+            <p id="texto-exito"></p>
+            <div class="acciones">
+              <button type="button" id="boton-pagar-ahora" class="boton">Pagar adelanto ahora</button>
+              <button type="button" class="boton boton--secundario" data-ir-a="1">Hacer otra reserva</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mis reservas (proveedor de reservas) -->
+      <section id="mis-reservas" class="contenedor seccion" aria-labelledby="titulo-mis-reservas" hidden>
+        <h2 id="titulo-mis-reservas">Mis reservas</h2>
+        <ul id="lista-reservas" class="reservas"></ul>
+      </section>
+
+      <!-- Administración (requiere JWT con rol ADMIN) -->
+      <section id="admin" class="contenedor seccion" aria-labelledby="titulo-admin" hidden>
+        <h2 id="titulo-admin">Administración de equipos</h2>
+        <div class="tarjeta tabla-desplazable">
+          <table>
+            <thead>
+              <tr><th>Equipo</th><th>Modalidad</th><th>Hora / media hora</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody id="tabla-admin"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Contacto y ubicación del local -->
+    <section id="visitanos" class="contenedor seccion visitanos" aria-labelledby="titulo-visitanos">
+      <div class="tarjeta visitanos__tarjeta">
+        <div>
+          <h2 id="titulo-visitanos">Visítanos</h2>
+          <p>Cl. 20 Sur #39a-2a, Cra. 39a #86, barrio San Jorge, Villavicencio, Meta.</p>
+          <p class="suave">¿Dudas o reservas por chat? Escríbenos y te respondemos.</p>
+        </div>
+        <div class="visitanos__acciones">
+          <a class="boton boton--whatsapp boton--grande" href="https://wa.me/573124525159?text=Hola%20Game%20Spot%2C%20quiero%20informaci%C3%B3n%20para%20reservar" target="_blank" rel="noopener">WhatsApp 312 452 51 59</a>
+          <a class="boton boton--secundario" href="https://www.google.com/maps/search/?api=1&amp;query=Cl.+20+Sur+%2339a-2a+San+Jorge+Villavicencio+Meta" target="_blank" rel="noopener">Cómo llegar</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="pie">
+      <div class="pandilla" aria-hidden="true">
+        <span class="globo">¡Te esperamos!</span>
+        <svg class="gelatina gelatina--tambaleo" viewBox="0 0 60 72">
+          <ellipse cx="5" cy="48" rx="5" ry="9" fill="#fbbf24" />
+          <ellipse cx="55" cy="48" rx="5" ry="9" fill="#fbbf24" />
+          <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="#fbbf24" />
+          <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.4" />
+          <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+          <circle cx="23" cy="37" r="3" fill="#0b1020" /><circle cx="39" cy="37" r="3" fill="#0b1020" />
+          <path d="M25 48 Q30 53 35 48" stroke="#0b1020" stroke-width="2.5" fill="none" stroke-linecap="round" />
+        </svg>
+        <svg class="gelatina gelatina--salto" viewBox="0 0 60 72">
+          <ellipse cx="5" cy="48" rx="5" ry="9" fill="#7dd3fc" />
+          <ellipse cx="55" cy="48" rx="5" ry="9" fill="#7dd3fc" />
+          <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="#7dd3fc" />
+          <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.4" />
+          <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+          <circle cx="22" cy="35" r="3" fill="#0b1020" /><circle cx="38" cy="35" r="3" fill="#0b1020" />
+          <ellipse cx="30" cy="50" rx="5" ry="4" fill="#0b1020" />
+        </svg>
+        <svg class="gelatina gelatina--saludo" viewBox="0 0 60 72">
+          <ellipse class="brazo" cx="55" cy="40" rx="5" ry="9" fill="#fb7185" />
+          <ellipse cx="5" cy="48" rx="5" ry="9" fill="#fb7185" />
+          <path d="M8 68 C2 68 2 58 4 46 C6 22 16 8 30 8 C44 8 54 22 56 46 C58 58 58 68 52 68 Z" fill="#fb7185" />
+          <ellipse cx="20" cy="22" rx="5" ry="8" fill="#fff" opacity="0.4" />
+          <circle cx="22" cy="36" r="6" fill="#fff" /><circle cx="38" cy="36" r="6" fill="#fff" />
+          <circle cx="21" cy="37" r="3" fill="#0b1020" /><circle cx="37" cy="37" r="3" fill="#0b1020" />
+          <path d="M24 47 Q30 54 36 47" stroke="#0b1020" stroke-width="2.5" fill="none" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="contenedor pie__contenido">
+        <section class="estado-servicios" aria-label="Estado de los servicios">
+          <span>Catálogo (8091): <strong id="estado-catalogo">consultando…</strong></span>
+          <span>Reservas (8092): <strong id="estado-reservas">consultando…</strong></span>
+          <button type="button" id="boton-estado" class="boton boton--secundario boton--pequeno">Revisar</button>
+        </section>
+        <p class="suave">Game Spot · Villavicencio · Proyecto de Desarrollo Orientado a Servicios</p>
+      </div>
+    </footer>
+
+    <div id="aviso" class="aviso" role="alert" hidden></div>
+
+    <dialog id="dialogo-login" class="dialogo" aria-labelledby="titulo-login">
+      <form id="form-login" novalidate>
+        <h2 id="titulo-login">Ingresar</h2>
+        <label>Correo <input type="email" id="login-email" autocomplete="username" /></label>
+        <label>Contraseña
+          <input type="password" id="login-password" autocomplete="current-password" />
+        </label>
+        <p id="error-login" class="error" role="alert" hidden></p>
+        <div class="acciones">
+          <button type="button" id="boton-cerrar-login" class="boton boton--secundario">Cancelar</button>
+          <button type="submit" class="boton">Ingresar</button>
+        </div>
+        <p class="suave pequeno">Cuentas de prueba: laura@gamespot.demo / ClienteDemo123 y
+          admin@gamespot.demo / AdminDemo123.</p>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>

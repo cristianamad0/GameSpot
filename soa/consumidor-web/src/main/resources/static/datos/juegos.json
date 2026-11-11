@@ -1,0 +1,554 @@
+{
+  "fuente": "Catálogos de juegos de Game Spot (publicidad del local, noviembre de 2026)",
+  "equipos": {
+    "Xbox 360 #1": {
+      "totalJuegos": 75,
+      "nota": "Los más jugados. ¡Pregunta por los otros 53!",
+      "categorias": [
+        {
+          "nombre": "Disparos y acción",
+          "juegos": [
+            [
+              "Call of Duty: Black Ops",
+              2
+            ],
+            [
+              "Call of Duty: Black Ops II",
+              2
+            ],
+            [
+              "Call of Duty: Modern Warfare 3",
+              2
+            ],
+            [
+              "Halo 3",
+              4
+            ],
+            [
+              "Halo: Reach",
+              4
+            ],
+            [
+              "Halo 4",
+              2
+            ],
+            [
+              "Gears of War 3",
+              2
+            ],
+            [
+              "Gears of War: Judgment",
+              2
+            ],
+            [
+              "Left 4 Dead 2",
+              2
+            ],
+            [
+              "Army of Two: The Devil's Cartel",
+              2
+            ]
+          ]
+        },
+        {
+          "nombre": "Mundo abierto y aventura",
+          "juegos": [
+            [
+              "Grand Theft Auto V",
+              1
+            ],
+            [
+              "Grand Theft Auto IV",
+              1
+            ],
+            [
+              "Grand Theft Auto: San Andreas",
+              1
+            ],
+            [
+              "Red Dead Redemption",
+              1
+            ],
+            [
+              "Resident Evil 4",
+              1
+            ],
+            [
+              "Minecraft",
+              4
+            ]
+          ]
+        },
+        {
+          "nombre": "Deportes, carreras y pelea",
+          "juegos": [
+            [
+              "FIFA 18",
+              4
+            ],
+            [
+              "PES 2018",
+              2
+            ],
+            [
+              "FIFA Street",
+              2
+            ],
+            [
+              "WWE 2K16",
+              4
+            ],
+            [
+              "Mortal Kombat 9",
+              2
+            ],
+            [
+              "Blur",
+              4
+            ]
+          ]
+        }
+      ]
+    },
+    "Xbox 360 #2": {
+      "totalJuegos": null,
+      "nota": "Los más jugados. ¡Pregunta por los demás!",
+      "categorias": [
+        {
+          "nombre": "Disparos y acción",
+          "juegos": [
+            [
+              "Call of Duty: Black Ops",
+              2
+            ],
+            [
+              "Call of Duty: Black Ops II",
+              2
+            ],
+            [
+              "Halo 2",
+              4
+            ],
+            [
+              "Halo: Reach",
+              4
+            ],
+            [
+              "Left 4 Dead 2",
+              2
+            ],
+            [
+              "Army of Two: The Devil's Cartel",
+              2
+            ]
+          ]
+        },
+        {
+          "nombre": "Mundo abierto y aventura",
+          "juegos": [
+            [
+              "Grand Theft Auto: San Andreas",
+              1
+            ],
+            [
+              "Red Dead Redemption",
+              1
+            ],
+            [
+              "Resident Evil 5",
+              2
+            ],
+            [
+              "Resident Evil 6",
+              2
+            ]
+          ]
+        },
+        {
+          "nombre": "Deportes, carreras y pelea",
+          "juegos": [
+            [
+              "PES 2020",
+              2
+            ],
+            [
+              "FIFA Street",
+              2
+            ],
+            [
+              "WWE 2K17",
+              4
+            ],
+            [
+              "Blur",
+              4
+            ],
+            [
+              "Need for Speed: Most Wanted",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    "Xbox Series S #1": {
+      "totalJuegos": 24,
+      "nota": "Elige tu juego y dale play.",
+      "categorias": [
+        {
+          "nombre": "Acción y disparos",
+          "juegos": [
+            [
+              "Call of Duty: Black Ops II",
+              2
+            ],
+            [
+              "Gears of War 3",
+              2
+            ],
+            [
+              "Halo: Master Chief Collection",
+              4
+            ],
+            [
+              "Halo: Campaign Evolved",
+              2
+            ],
+            [
+              "Far Cry 5",
+              1
+            ],
+            [
+              "Dante's Inferno",
+              1
+            ]
+          ]
+        },
+        {
+          "nombre": "Deportes, carreras y pelea",
+          "juegos": [
+            [
+              "EA Sports FC 26",
+              4
+            ],
+            [
+              "eFootball",
+              2
+            ],
+            [
+              "Mortal Kombat 1",
+              2
+            ],
+            [
+              "Trials Fusion",
+              4
+            ],
+            [
+              "Asphalt Legends",
+              1
+            ],
+            [
+              "Wreckfest",
+              1
+            ]
+          ]
+        },
+        {
+          "nombre": "Para jugar en grupo",
+          "juegos": [
+            [
+              "Overcooked! 2",
+              4
+            ],
+            [
+              "Gang Beasts",
+              4
+            ],
+            [
+              "Ultimate Sheep Raccoon",
+              4
+            ],
+            [
+              "Minecraft Dungeons II",
+              4
+            ],
+            [
+              "Brotato",
+              4
+            ],
+            [
+              "Human: Fall Flat",
+              2
+            ],
+            [
+              "Unravel Two",
+              2
+            ],
+            [
+              "Plants vs. Zombies: Garden Warfare",
+              2
+            ],
+            [
+              "Monopoly",
+              1
+            ]
+          ]
+        },
+        {
+          "nombre": "Mundos y aventura",
+          "juegos": [
+            [
+              "Minecraft",
+              4
+            ],
+            [
+              "Kingdom Two Crowns",
+              2
+            ],
+            [
+              "Roblox",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    "Xbox Series S #2": {
+      "totalJuegos": 13,
+      "nota": "¡Los 13 juegos se juegan en compañía!",
+      "categorias": [
+        {
+          "nombre": "Acción y disparos",
+          "juegos": [
+            [
+              "Call of Duty: Black Ops II",
+              2
+            ],
+            [
+              "Gears of War 2",
+              2
+            ],
+            [
+              "Halo: Master Chief Collection",
+              4
+            ]
+          ]
+        },
+        {
+          "nombre": "Deportes, carreras y pelea",
+          "juegos": [
+            [
+              "EA Sports FC 26",
+              4
+            ],
+            [
+              "DIRT 5",
+              4
+            ],
+            [
+              "Trials Fusion",
+              4
+            ],
+            [
+              "Mortal Kombat 11",
+              2
+            ],
+            [
+              "Undisputed",
+              2
+            ]
+          ]
+        },
+        {
+          "nombre": "Para jugar en grupo",
+          "juegos": [
+            [
+              "Overcooked! 2",
+              4
+            ],
+            [
+              "Gang Beasts",
+              4
+            ],
+            [
+              "OddBallers",
+              4
+            ],
+            [
+              "Brotato",
+              4
+            ],
+            [
+              "Minecraft",
+              4
+            ]
+          ]
+        }
+      ]
+    },
+    "Sala VIP Xbox Series X": {
+      "totalJuegos": 27,
+      "nota": "¿No ves tu juego? Pregunta por las otras consolas.",
+      "categorias": [
+        {
+          "nombre": "Acción y disparos",
+          "juegos": [
+            [
+              "Call of Duty: Black Ops II",
+              2
+            ],
+            [
+              "Gears of War 3",
+              2
+            ],
+            [
+              "Halo: Master Chief Collection",
+              4
+            ],
+            [
+              "Halo: Campaign Evolved",
+              1
+            ],
+            [
+              "Far Cry 3 Classic Edition",
+              1
+            ],
+            [
+              "Assassin's Creed: Ezio Collection",
+              1
+            ],
+            [
+              "Ryse: Son of Rome",
+              1
+            ],
+            [
+              "Dante's Inferno",
+              1
+            ],
+            [
+              "Medal of Honor: Airborne",
+              1
+            ]
+          ]
+        },
+        {
+          "nombre": "Deportes y pelea",
+          "juegos": [
+            [
+              "EA Sports FC 26",
+              4
+            ],
+            [
+              "eFootball",
+              2
+            ],
+            [
+              "Mortal Kombat 1",
+              2
+            ],
+            [
+              "F1 24",
+              2
+            ],
+            [
+              "Fight Night Champion",
+              2
+            ]
+          ]
+        },
+        {
+          "nombre": "Para jugar en grupo",
+          "juegos": [
+            [
+              "Overcooked! 2",
+              4
+            ],
+            [
+              "Gang Beasts",
+              4
+            ],
+            [
+              "Ultimate Sheep Raccoon",
+              4
+            ],
+            [
+              "Minecraft Dungeons II",
+              4
+            ],
+            [
+              "Brotato",
+              4
+            ],
+            [
+              "Unravel Two",
+              2
+            ],
+            [
+              "Monopoly",
+              1
+            ]
+          ]
+        },
+        {
+          "nombre": "Mundos online",
+          "juegos": [
+            [
+              "Minecraft",
+              4
+            ],
+            [
+              "Roblox",
+              1
+            ],
+            [
+              "Among Us",
+              1
+            ]
+          ]
+        },
+        {
+          "nombre": "Aventura y estrategia",
+          "juegos": [
+            [
+              "Inside",
+              1
+            ],
+            [
+              "Black Jacket",
+              1
+            ],
+            [
+              "The Royal Writ",
+              1
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "caratulas": {
+    "Halo: Reach": "halo-reach.jpg",
+    "Call of Duty: Black Ops": "cod-black-ops.jpg",
+    "Need for Speed: Most Wanted": "nfs-most-wanted.jpg",
+    "Gears of War 3": "gears-of-war-3.jpg",
+    "Dante's Inferno": "dantes-inferno.jpg",
+    "Mortal Kombat 1": "mortal-kombat-1.jpg",
+    "Halo: Master Chief Collection": "halo-mcc.jpg",
+    "Medal of Honor: Airborne": "medal-of-honor-airborne.jpg",
+    "DIRT 5": "dirt-5.jpg",
+    "Left 4 Dead 2": "left-4-dead-2.jpg",
+    "Among Us": "among-us.jpg",
+    "Gang Beasts": "gang-beasts.jpg",
+    "Unravel Two": "unravel-two.jpg",
+    "Inside": "inside.jpg",
+    "F1 24": "f1-24.jpg",
+    "Far Cry 5": "far-cry-5.jpg",
+    "Grand Theft Auto V": "gta-v.jpg",
+    "Minecraft": "minecraft.jpg",
+    "Overcooked! 2": "overcooked-2.jpg",
+    "Red Dead Redemption": "red-dead-redemption.jpg",
+    "Roblox": "roblox.jpg",
+    "EA Sports FC 26": "ea-sports-fc-26.jpg"
+  },
+  "notaCaratulas": "Carátulas de la carpeta de publicidad del local; son propiedad de los estudios de cada juego."
+}
