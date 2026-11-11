@@ -1138,3 +1138,26 @@ pruebas y pendientes. La entrada más reciente va al final.
   Prueba a mano a 1280 px y 375 px: las letras se leen, los botones se
   distinguen del fondo y no hay desplazamiento horizontal.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: gato animado en el Reto 10 segundos
+
+- **Tarjeta:** CACS-43 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-gato-reto`
+- **Qué se hizo:**
+  - La imagen del gato blanco frente al paisaje de bloques al atardecer, que
+    compartió el equipo, quedó en "Promoción vigente": el gato "vigila" el
+    cronómetro del Reto 10 segundos (`static/img/gato-reto.jpg`).
+  - Animación: acercamiento lento del paisaje, brillo del sol que pulsa y
+    nubes de bloques que cruzan el cielo. Marco con el degradado del atardecer
+    hacia el dorado y el morado neón de la página.
+  - Globo de diálogo que cambia con el cronómetro ("¿Te atreves con los
+    10,00?", "No parpadeo…" y un comentario según el resultado) y un brinco al
+    detenerlo. El globo es decorativo; el resultado se sigue anunciando en
+    `reto-resultado`.
+  - En computador va a la izquierda del texto y del cronómetro; en el celular,
+    arriba. Quieto con "reducir movimiento".
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y 375 px: la imagen carga, el globo reacciona al
+  iniciar y detener el cronómetro y no hay desplazamiento horizontal.
+- **Pendientes:** la imagen la aportó el equipo; si se publica la página,
+  confirmar que se puede usar (el paisaje imita el estilo de un videojuego).
