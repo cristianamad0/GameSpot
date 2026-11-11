@@ -1499,3 +1499,32 @@ main,
   background: #1fb857;
   box-shadow: 0 0 22px rgba(37, 211, 102, 0.45);
 }
+
+/* CACS-34: torneos ya jugados (historial) y tarjeta del próximo */
+.torneo__tipo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.torneo__estado {
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--suave);
+  color: var(--suave);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+}
+
+.torneo--proximo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-style: dashed;
+  border-color: var(--acento);
+}
+
+.torneo--proximo .boton {
+  margin-top: auto;
+}
