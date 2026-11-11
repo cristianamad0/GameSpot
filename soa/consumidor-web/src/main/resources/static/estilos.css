@@ -386,7 +386,7 @@ select {
 /* ---------- Tarjetas de modalidades ---------- */
 .modalidades {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 18px;
   margin: 18px 0 0;
   padding: 0;
@@ -735,7 +735,7 @@ select {
 /* ---------- Mis reservas ---------- */
 .reservas {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 14px;
   margin: 18px 0 0;
   padding: 0;
@@ -1332,7 +1332,7 @@ main,
 
 .categorias {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 18px 22px;
 }
 
@@ -1412,7 +1412,7 @@ main,
 /* Torneos y promociones */
 .torneos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
   margin-top: 18px;
 }
@@ -1725,4 +1725,83 @@ main,
   .muro-caratulas__fila {
     animation: none;
   }
+}
+
+/* ---------- CACS-37: títulos centrados en mayúsculas y secciones a todo el ancho ---------- */
+main .seccion h2,
+.visitanos h2 {
+  position: relative;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  font-family: 'Russo One', var(--titulo);
+  font-size: clamp(1.45rem, 3.6vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(125, 211, 252, 0.25);
+}
+
+/* Subrayado neón debajo de cada título. */
+main .seccion h2::after,
+.visitanos h2::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 84px;
+  height: 4px;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, var(--primario), var(--acento));
+  box-shadow: 0 0 12px var(--primario-brillo);
+}
+
+/* Textos de apoyo de cada sección, centrados debajo del título. */
+main .seccion > p.suave {
+  max-width: 680px;
+  margin: 0 auto 6px;
+  text-align: center;
+}
+
+.pestanas {
+  justify-content: center;
+}
+
+.panel-juegos__nota {
+  text-align: center;
+}
+
+.progreso {
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Videos del local: 4 columnas que llenan el ancho (2 en el celular). */
+.videos-local {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 760px) {
+  .videos-local {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.videos-local figcaption {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Visítanos centrado. */
+.visitanos__tarjeta {
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.visitanos__acciones {
+  justify-content: center;
 }
