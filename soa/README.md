@@ -62,7 +62,17 @@ API. El sistema anterior (`backend/` y `frontend/`) sigue intacto.
    ./mvnw spring-boot:run
    ```
 
-4. Abrir `http://localhost:8080` en el navegador.
+4. Abrir `http://localhost:8080` en el navegador. La portada muestra los
+   equipos, precios y horario del catálogo; el botón "Haz tu reserva" lleva a
+   la reserva en tres pasos (consola, día y hora, confirmar).
+
+Fotos del local: copiarlas a `consumidor-web/src/main/resources/static/img/`
+y poner el nombre del archivo en la constante `FOTOS` al inicio de
+`static/app.js`. Mientras no haya foto, cada modalidad muestra un ícono.
+
+En IntelliJ, cada configuración de ejecución debe tener como *Working
+directory* la carpeta de su proyecto (por ejemplo `soa/proveedor-catalogo`);
+si no, la base H2 se crea en otra carpeta.
 
 En PowerShell usar `.\mvnw.cmd` en lugar de `./mvnw`. Las URL de los
 proveedores se pueden cambiar con `CATALOGO_URL` y `RESERVAS_URL` al arrancar
@@ -115,6 +125,7 @@ token de `CLIENTE`, 403.
 | --- | --- | --- | --- |
 | GET | `/api/portal/estado` | Los dos | 200 `{catalogo, reservas}` con `DISPONIBLE` o `NO_DISPONIBLE` |
 | GET | `/api/portal/equipos` | Catálogo | 200; 503 si el catálogo no responde |
+| GET | `/api/portal/horarios` | Catálogo | 200 horario de lunes a domingo; 503 si el catálogo no responde |
 | GET | `/api/portal/equipos/{id}/disponibilidad?fecha=` | Los dos | 200 bloques de 30 minutos con su estado |
 | POST | `/api/portal/login` | Reservas | 200 token; 401 |
 | POST | `/api/portal/reservas` | Los dos | 201; 400 fuera del horario; 401 sin sesión; 409 equipo fuera de servicio o bloque ocupado; 503 |
@@ -133,7 +144,7 @@ Cada proyecto tiene sus pruebas automatizadas (`./mvnw test` en su carpeta):
 | --- | --- | --- |
 | `proveedor-catalogo` | `CatalogoTests`: listado con los datos de `data.sql`, consulta y 404, CRUD completo, validaciones (400 y 409), JWT (401 sin token o inválido, 403 cliente), tarifa y horario | CP-36a a CP-36g |
 | `proveedor-reservas` | `ReservasTests`: login y 401, precio y adelanto, bloques inválidos (400), cruces (409), reservas propias y ocupación pública, pago, cancelación lógica y 403, 401 sin token | CP-37a a CP-37h |
-| `consumidor-web` | `PortalTests` y `ClientesHttpTests`: integración de los dos proveedores, validaciones, proveedor detenido (503), página web, rutas y token del RestClient | CP-38a a CP-38i |
+| `consumidor-web` | `PortalTests` y `ClientesHttpTests`: integración de los dos proveedores, validaciones, proveedor detenido (503), página web, horario, rutas y token del RestClient | CP-38a a CP-38j |
 
 La colección de Postman está en `postman/GameSpot-SOA.postman_collection.json`
 (importar en Postman y ejecutar las carpetas en orden). Las capturas de la

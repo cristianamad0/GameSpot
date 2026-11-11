@@ -834,3 +834,32 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Fusionar en orden los PR de CACS-25, CACS-26 y CACS-27; cada uno agrega
     una entrada al final de esta bitácora.
+
+## 2026-11-11 — SOA: portada y reserva guiada en la consumidora
+
+- **Tarjeta:** CACS-29 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-portal-presentacion`
+- **Qué se hizo:**
+  - `consumidor-web/static`: la página pasa de un formulario técnico a una
+    portada con la identidad de Game Spot (la misma del frontend Angular): botón
+    "Haz tu reserva", tarjetas de los equipos por modalidad con precio y estado,
+    pasos de uso y horario. La reserva se hace en tres pasos (consola, día y
+    hora, confirmar) y antes de confirmar muestra a nombre de quién queda, el
+    precio y el adelanto. El ingreso es un diálogo; "Mis reservas" son
+    tarjetas con pagar y cancelar, y el panel del administrador solo aparece
+    con el rol `ADMIN`. Si un proveedor no responde, se avisa cuál y el resto
+    de la página sigue funcionando.
+  - Fotos del local: carpeta `static/img/` y constante `FOTOS` en `app.js`;
+    mientras no haya foto se muestra un ícono por modalidad.
+  - `PortalController` y `PortalService`: `GET /api/portal/horarios`, que pide
+    el horario al catálogo con RestClient y lo ordena de lunes a domingo.
+  - `.gitignore`: se ignora `/data/`, donde quedan las bases H2 si IntelliJ
+    ejecuta las aplicaciones desde la raíz del repositorio.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos
+  (nueva CP-38j: horario ordenado y 503 con el catálogo detenido). Prueba a
+  mano con las tres aplicaciones: reserva completa desde la portada, ingreso en
+  el diálogo, pago del adelanto, panel del administrador, catálogo detenido y
+  vista de 360 px sin desplazamiento horizontal.
+- **Pendientes:**
+  - Corregir precios y equipos con los datos que envíe el propietario.
+  - Agregar las fotos del local cuando estén disponibles.
