@@ -211,6 +211,27 @@ class PortalTests {
   }
 
   @Test
+  @DisplayName("CP-38j El horario del catálogo sale ordenado por día y da 503 con el catálogo detenido")
+  void horarioDelCatalogo() throws Exception {
+    when(catalogoCliente.listarHorarios())
+        .thenReturn(
+            List.of(
+                new HorarioDto((short) 6, LocalTime.of(15, 0), LocalTime.of(21, 0)),
+                new HorarioDto((short) 1, LocalTime.of(14, 0), LocalTime.of(22, 0))));
+    mockMvc
+        .perform(get("/api/portal/horarios"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)))
+        .andExpect(jsonPath("$[0].diaSemana").value(1))
+        .andExpect(jsonPath("$[0].horaApertura").value("14:00:00"))
+        .andExpect(jsonPath("$[1].diaSemana").value(6));
+
+    when(catalogoCliente.listarHorarios())
+        .thenThrow(new ServicioNoDisponibleException("catálogo", new RuntimeException()));
+    mockMvc.perform(get("/api/portal/horarios")).andExpect(status().isServiceUnavailable());
+  }
+
+  @Test
   @DisplayName("CP-38f La página web se sirve desde la consumidora")
   void sirveLaPagina() throws Exception {
     mockMvc

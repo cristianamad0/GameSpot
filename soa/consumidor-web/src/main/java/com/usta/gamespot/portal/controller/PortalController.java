@@ -3,6 +3,7 @@ package com.usta.gamespot.portal.controller;
 import com.usta.gamespot.portal.dto.DisponibilidadResponse;
 import com.usta.gamespot.portal.dto.EquipoDto;
 import com.usta.gamespot.portal.dto.EstadoServiciosResponse;
+import com.usta.gamespot.portal.dto.HorarioDto;
 import com.usta.gamespot.portal.dto.LoginRequest;
 import com.usta.gamespot.portal.dto.ReservaDto;
 import com.usta.gamespot.portal.dto.ReservaPortalRequest;
@@ -56,6 +57,16 @@ public class PortalController {
   @GetMapping("/equipos")
   public List<EquipoDto> equipos() {
     return portalService.equipos();
+  }
+
+  /**
+   * CACS-29: horario de atención del catálogo (proveedor 1), para mostrarlo en la portada.
+   *
+   * @return 200 con el horario de los días que atiende; 503 si el catálogo no responde
+   */
+  @GetMapping("/horarios")
+  public List<HorarioDto> horarios() {
+    return portalService.horarios();
   }
 
   /**
