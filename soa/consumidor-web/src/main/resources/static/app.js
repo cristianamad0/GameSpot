@@ -16,6 +16,12 @@ const DIAS = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado
 // CACS-31: ilustraciones propias de cada modalidad (img/consola-<modalidad>.svg). Si una modalidad
 // nueva no tiene ilustración, se muestra el ícono de control.
 const ILUSTRACIONES = ['xbox-360', 'xbox-series-s', 'sala-vip-xbox-series-x'];
+// CACS-32: niveles de cada modalidad, como en la publicidad de tarifas del local.
+const NIVELES = {
+  'xbox-360': 'Nivel 1 · Clásicos',
+  'xbox-series-s': 'Nivel 2 · Nueva Gen',
+  'sala-vip-xbox-series-x': 'Nivel 3 · Élite',
+};
 const DESCRIPCIONES = {
   'xbox-360': 'Los clásicos de siempre para jugar con amigos.',
   'xbox-series-s': 'Nueva generación, juegos rápidos y en alta resolución.',
@@ -36,6 +42,10 @@ const $ = (id) => document.getElementById(id);
 // Estado de la reserva que se está armando.
 const reserva = { equipoId: null, fecha: null, inicio: null, duracionMinutos: 60, creada: null };
 let equipos = [];
+// CACS-32: catálogo de juegos de cada equipo (static/datos/juegos.json, tomado de los catálogos
+// del local). Es contenido de la página, no viene de los proveedores.
+let catalogoJuegos = {};
+let pestanaJuegos = null;
 let pasoActual = 1;
 
 // ---------- Sesión (el JWT queda en sessionStorage del navegador) ----------
@@ -229,6 +239,7 @@ async function cargarEquipos() {
   pintarModalidades();
   pintarOpcionesEquipo();
   pintarAdmin();
+  pintarJuegos();
 }
 
 function pintarModalidades() {
@@ -263,6 +274,10 @@ function pintarModalidades() {
       imagen.append(foto);
     }
 
+    if (NIVELES[id]) {
+      imagen.append(elemento('span', 'modalidad__nivel', NIVELES[id]));
+    }
+
     const cuerpo = elemento('div', 'modalidad__cuerpo');
     const precio = elemento('p', 'modalidad__precio', pesos.format(unidades[0].tarifaHoraPesos) + ' ');
     precio.append(elemento('small', '', 'la hora'));
@@ -273,6 +288,12 @@ function pintarModalidades() {
       elemento('p', 'suave', DESCRIPCIONES[id] || 'Disponible para reservar por bloques de 30 minutos.'),
       precio,
       media,
+    );
+    const ahorro = 2 * unidades[0].tarifaMediaHoraPesos - unidades[0].tarifaHoraPesos;
+    if (ahorro > 0) {
+      cuerpo.append(elemento('p', 'modalidad__ahorro', 'Ahorras ' + pesos.format(ahorro) + ' con la hora completa'));
+    }
+    cuerpo.append(
       elemento(
         'p',
         libres.length ? 'ok' : 'caido',
@@ -286,6 +307,13 @@ function pintarModalidades() {
     });
     accion.disabled = libres.length === 0;
     cuerpo.append(accion);
+    const verJuegos = elemento('a', 'modalidad__juegos', 'Ver juegos de ' + modalidad);
+    verJuegos.href = '#juegos';
+    verJuegos.addEventListener('click', () => {
+      pestanaJuegos = unidades[0].nombre;
+      pintarJuegos();
+    });
+    cuerpo.append(verJuegos);
     tarjeta.append(imagen, cuerpo);
     lista.append(tarjeta);
   }
@@ -307,6 +335,10 @@ function pintarOpcionesEquipo() {
       elemento('span', 'precio', pesos.format(equipo.tarifaHoraPesos) + ' la hora'),
       elemento('span', '', pesos.format(equipo.tarifaMediaHoraPesos) + ' la media hora'),
     );
+    const juegos = textoCantidadJuegos(equipo.nombre);
+    if (juegos) {
+      opcion.append(elemento('span', 'juegos', '🎮 ' + juegos));
+    }
     if (!equipo.sePuedeReservar) {
       opcion.append(elemento('span', 'caido', 'Fuera de servicio'));
     }
@@ -698,6 +730,119 @@ function filaMensaje(texto, columnas) {
   return fila;
 }
 
+// ---------- Juegos disponibles (CACS-32) ----------
+async function cargarCatalogoJuegos() {
+  try {
+    const respuesta = await fetch('datos/juegos.json');
+    catalogoJuegos = (await respuesta.json()).equipos || {};
+  } catch {
+    catalogoJuegos = {};
+  }
+  const totales = Object.values(catalogoJuegos).map((c) => c.totalJuegos || 0);
+  if (totales.length) {
+    $('dato-juegos').textContent = Math.max(...totales) + '+';
+  }
+  pintarJuegos();
+  pintarOpcionesEquipo();
+}
+
+function contarJuegos(catalogo) {
+  return catalogo.categorias.reduce((total, categoria) => total + categoria.juegos.length, 0);
+}
+
+function textoCantidadJuegos(nombreEquipo) {
+  const catalogo = catalogoJuegos[nombreEquipo];
+  if (!catalogo) {
+    return '';
+  }
+  return (catalogo.totalJuegos || contarJuegos(catalogo) + '+') + ' juegos';
+}
+
+function pintarJuegos() {
+  const pestanas = $('pestanas-juegos');
+  const panel = $('panel-juegos');
+  const nombres = equipos.length ? equipos.map((e) => e.nombre) : Object.keys(catalogoJuegos);
+  if (!nombres.length || !Object.keys(catalogoJuegos).length) {
+    pestanas.replaceChildren();
+    panel.replaceChildren(elemento('p', 'suave', 'Pregunta en el local por los juegos de cada consola.'));
+    return;
+  }
+  if (!nombres.includes(pestanaJuegos)) {
+    pestanaJuegos = nombres[0];
+  }
+  pestanas.replaceChildren();
+  for (const nombre of nombres) {
+    const pestana = elemento('button', 'pestana' + (nombre === pestanaJuegos ? ' activa' : ''), nombre);
+    pestana.type = 'button';
+    pestana.setAttribute('role', 'tab');
+    pestana.setAttribute('aria-selected', String(nombre === pestanaJuegos));
+    pestana.addEventListener('click', () => {
+      pestanaJuegos = nombre;
+      pintarJuegos();
+    });
+    pestanas.append(pestana);
+  }
+
+  const catalogo = catalogoJuegos[pestanaJuegos];
+  panel.replaceChildren();
+  if (!catalogo) {
+    panel.append(elemento('p', 'suave', 'Pregunta en el local por los juegos de ' + pestanaJuegos + '.'));
+    return;
+  }
+  panel.append(elemento('p', 'panel-juegos__nota', textoCantidadJuegos(pestanaJuegos) + ' · ' + catalogo.nota));
+  const columnas = elemento('div', 'categorias');
+  for (const categoria of catalogo.categorias) {
+    const bloque = elemento('div', 'categoria');
+    bloque.append(elemento('h3', '', categoria.nombre + ' (' + categoria.juegos.length + ')'));
+    const lista = elemento('ul', 'lista-juegos');
+    for (const [titulo, jugadores] of categoria.juegos) {
+      const item = elemento('li', '', titulo);
+      if (jugadores > 1) {
+        const etiqueta = elemento('span', 'jugadores', '👥 ' + jugadores);
+        etiqueta.title = 'Hasta ' + jugadores + ' jugadores en la misma consola';
+        item.append(etiqueta);
+      }
+      lista.append(item);
+    }
+    bloque.append(lista);
+    columnas.append(bloque);
+  }
+  panel.append(columnas);
+}
+
+// ---------- Videos del local (CACS-32) ----------
+// Se reproducen sin sonido solo mientras se ven en pantalla; con "reducir movimiento" quedan quietos
+// y se reproducen al tocarlos.
+const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function prepararVideos() {
+  const portada = document.querySelector('.portada__video');
+  if (reducirMovimiento && portada) {
+    portada.removeAttribute('autoplay');
+    portada.pause();
+  }
+  const videos = document.querySelectorAll('.videos-local video');
+  for (const video of videos) {
+    video.addEventListener('click', () => (video.paused ? video.play() : video.pause()));
+  }
+  if (reducirMovimiento || !('IntersectionObserver' in window)) {
+    return;
+  }
+  const observador = new IntersectionObserver(
+    (entradas) => {
+      for (const entrada of entradas) {
+        if (entrada.isIntersecting) {
+          entrada.target.play().catch(() => {});
+        } else {
+          entrada.target.pause();
+        }
+      }
+    },
+    { threshold: 0.4 },
+  );
+  videos.forEach((video) => observador.observe(video));
+}
+
 // ---------- Inicio ----------
 $('boton-estado').addEventListener('click', () => {
   revisarEstado();
@@ -714,3 +859,5 @@ pintarSesion();
 revisarEstado();
 cargarEquipos();
 cargarHorarios();
+cargarCatalogoJuegos();
+prepararVideos();

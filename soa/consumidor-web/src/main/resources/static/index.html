@@ -54,6 +54,9 @@
       </a>
       <nav class="menu" aria-label="Secciones">
         <a href="#equipos">Equipos</a>
+        <a href="#juegos">Juegos</a>
+        <a href="#local">El local</a>
+        <a href="#torneos">Torneos</a>
         <a href="#reservar">Reservar</a>
         <a href="#mis-reservas" id="enlace-mis-reservas" hidden>Mis reservas</a>
         <a href="#admin" id="enlace-admin" hidden>Administración</a>
@@ -68,6 +71,10 @@
     <main>
       <!-- Portada -->
       <section id="inicio" class="portada">
+        <!-- CACS-32: video real del local de fondo (sin sonido y en bucle). -->
+        <video class="portada__video" src="video/local-pasillo.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
+        <!-- Fuera del contenedor para que "lighten" lo funda con el video de fondo. -->
+        <img class="portada__emblema" src="img/logo-emblema.webp" alt="" width="360" height="360" />
         <div class="nave" aria-hidden="true">
           <svg viewBox="0 0 22 12" shape-rendering="crispEdges">
             <path d="M8 0h6v2h3v2h3v2h2v2h-2v2h-3v2H5v-2H3V8H0V6h3V4h3V2h2z" fill="#cbd5f5" />
@@ -77,12 +84,12 @@
           </svg>
         </div>
         <div class="contenedor portada__contenido">
-          <img class="portada__emblema" src="img/logo-emblema.webp" alt="" width="360" height="360" />
-          <p class="portada__etiqueta">Tu espacio gamer · Villavicencio</p>
+          <p class="portada__etiqueta">Tu punto de diversión · Villavicencio</p>
           <h1 class="portada__titulo">Reserva tu turno y <span>llega a jugar</span></h1>
+          <p class="portada__lema">Juega · Disfruta · Repite</p>
           <p class="portada__texto">
-            Aparta tu consola o la sala VIP en bloques de 30 minutos, mira al instante qué horas
-            están libres y asegura tu lugar pagando el 50 % de adelanto.
+            Elige tu consola y dale play: Xbox 360, Xbox Series S o la sala VIP con Series X. Aparta
+            tu turno en bloques de 30 minutos y asegúralo pagando el 50 % de adelanto.
           </p>
           <div class="portada__acciones">
             <a href="#reservar" id="boton-portada-reservar" class="boton boton--grande">Haz tu reserva</a>
@@ -91,9 +98,20 @@
           <ul class="portada__datos" aria-label="Lo que ofrecemos">
             <li><strong id="dato-equipos">–</strong> equipos para jugar</li>
             <li><strong id="dato-desde">–</strong> la media hora desde</li>
-            <li><strong>30 min</strong> bloques de reserva</li>
+            <li><strong id="dato-juegos">–</strong> juegos en catálogo</li>
           </ul>
         </div>
+      </section>
+
+      <!-- Lo que ofrece el local (tomado de su publicidad) -->
+      <section class="contenedor ventajas" aria-label="Lo que encuentras en Game Spot">
+        <ul>
+          <li><span aria-hidden="true">🎮</span> Consolas Xbox</li>
+          <li><span aria-hidden="true">🛋️</span> Sala VIP</li>
+          <li><span aria-hidden="true">🏆</span> Torneos y competencias</li>
+          <li><span aria-hidden="true">🎧</span> Ambiente gamer</li>
+          <li><span aria-hidden="true">🥤</span> Snacks y bebidas</li>
+        </ul>
       </section>
 
       <!-- Equipos (proveedor de catálogo) -->
@@ -103,6 +121,14 @@
         <ul id="lista-modalidades" class="modalidades" aria-live="polite">
           <li class="suave">Cargando equipos…</li>
         </ul>
+      </section>
+
+      <!-- Juegos disponibles por equipo (catálogos del local) -->
+      <section id="juegos" class="contenedor seccion" aria-labelledby="titulo-juegos">
+        <h2 id="titulo-juegos">Juegos disponibles</h2>
+        <p class="suave">Elige la consola y mira sus juegos. 👥 indica cuántos juegan a la vez en la misma consola.</p>
+        <div id="pestanas-juegos" class="pestanas" role="tablist" aria-label="Consolas"></div>
+        <div id="panel-juegos" class="panel-juegos" role="tabpanel" aria-live="polite"></div>
       </section>
 
       <!-- Pasos y horario -->
@@ -127,6 +153,70 @@
         <div class="tarjeta horario">
           <h2>Horario</h2>
           <dl id="lista-horario"><dt class="suave">Cargando horario…</dt></dl>
+        </div>
+      </section>
+
+      <!-- Videos reales del local -->
+      <section id="local" class="contenedor seccion" aria-labelledby="titulo-local">
+        <h2 id="titulo-local">Conoce el local</h2>
+        <p class="suave">Luces, buena música y las consolas listas. Así se vive Game Spot.</p>
+        <div class="videos-local">
+          <figure>
+            <video src="video/local-pasillo.mp4" muted loop playsinline preload="metadata"></video>
+            <figcaption>La entrada</figcaption>
+          </figure>
+          <figure>
+            <video src="video/local-jugando.mp4" muted loop playsinline preload="metadata"></video>
+            <figcaption>A jugar</figcaption>
+          </figure>
+          <figure>
+            <video src="video/local-neon.mp4" muted loop playsinline preload="metadata"></video>
+            <figcaption>Ambiente neón</figcaption>
+          </figure>
+          <figure>
+            <video src="video/local-simulador.mp4" muted loop playsinline preload="metadata"></video>
+            <figcaption>Carreras</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Torneos y promociones (de la publicidad del local) -->
+      <section id="torneos" class="contenedor seccion" aria-labelledby="titulo-torneos">
+        <h2 id="titulo-torneos">Torneos y promociones</h2>
+        <p class="suave">Inscripciones e información por WhatsApp. Los torneos empiezan al llenar los cupos.</p>
+        <div class="torneos">
+          <article class="torneo torneo--halo">
+            <p class="torneo__tipo">Torneo</p>
+            <h3>Halo: Reach</h3>
+            <ul>
+              <li><strong>15</strong> jugadores · partidas de 20 minutos</li>
+              <li>Inscripción: <strong>$8.000</strong></li>
+              <li>🥇 1.er lugar: <strong>$45.000 + 2 horas de juego</strong></li>
+              <li>🥈 2.º lugar: <strong>2 horas de juego</strong></li>
+            </ul>
+            <p class="torneo__lema">¡Demuestra tu valor!</p>
+          </article>
+          <article class="torneo torneo--kof">
+            <p class="torneo__tipo">Torneo</p>
+            <h3>KOF 2002 Magic Plus II</h3>
+            <ul>
+              <li><strong>16</strong> jugadores</li>
+              <li>Inscripción: <strong>$7.000</strong></li>
+              <li>🥇 Campeón: <strong>$50.000 + 2 horas en Xbox</strong></li>
+              <li>🥈 Subcampeón: <strong>2 horas en Xbox</strong></li>
+            </ul>
+            <p class="torneo__lema">¡Inscríbete ya!</p>
+          </article>
+          <article class="torneo torneo--promo">
+            <p class="torneo__tipo">Promoción</p>
+            <h3>25 % de descuento en la segunda hora</h3>
+            <p>Muestra la historia de Game Spot en el local y te descontamos el 25 % de tu segunda hora.</p>
+          </article>
+          <article class="torneo torneo--promo">
+            <p class="torneo__tipo">Promoción</p>
+            <h3>30 minutos gratis al primer cliente del día</h3>
+            <p>El primero que llegue hoy juega media hora gratis (debes consumir algo para aplicar la promoción).</p>
+          </article>
         </div>
       </section>
 
@@ -221,6 +311,21 @@
         </div>
       </section>
     </main>
+
+    <!-- Contacto y ubicación del local -->
+    <section id="visitanos" class="contenedor seccion visitanos" aria-labelledby="titulo-visitanos">
+      <div class="tarjeta visitanos__tarjeta">
+        <div>
+          <h2 id="titulo-visitanos">Visítanos</h2>
+          <p>Cl. 20 Sur #39a-2a, Cra. 39a #86, barrio San Jorge, Villavicencio, Meta.</p>
+          <p class="suave">¿Dudas o reservas por chat? Escríbenos y te respondemos.</p>
+        </div>
+        <div class="visitanos__acciones">
+          <a class="boton boton--whatsapp boton--grande" href="https://wa.me/573124525159?text=Hola%20Game%20Spot%2C%20quiero%20informaci%C3%B3n%20para%20reservar" target="_blank" rel="noopener">WhatsApp 312 452 51 59</a>
+          <a class="boton boton--secundario" href="https://www.google.com/maps/search/?api=1&amp;query=Cl.+20+Sur+%2339a-2a+San+Jorge+Villavicencio+Meta" target="_blank" rel="noopener">Cómo llegar</a>
+        </div>
+      </div>
+    </section>
 
     <footer class="pie">
       <div class="pandilla" aria-hidden="true">
