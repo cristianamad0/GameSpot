@@ -4,6 +4,13 @@ server:
 spring:
   application:
     name: consumidor-web
+  # CACS-38: el navegador revalida la página, los estilos y los scripts en cada
+  # visita (responde 304 si no cambiaron), así siempre se ve la última versión.
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true
 
 app:
   proveedores:

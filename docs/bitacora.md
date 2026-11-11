@@ -1008,3 +1008,60 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
   Prueba a mano del cronómetro a 1280 px y a 360 px.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: videos sin pantalla negra y carátulas de juegos
+
+- **Tarjeta:** CACS-36 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-videos-caratulas`
+- **Qué se hizo:**
+  - Causa de las pantallas negras: los videos (H.264) se servían bien, pero no
+    tenían imagen de portada y solo se reproducían solos si el sistema no
+    tiene las animaciones desactivadas.
+  - Cada video tiene ahora su portada (`static/video/*.png`, un cuadro del
+    mismo video sacado con Edge sin ventana) y un botón ▶ visible para
+    reproducir o pausar; mientras se reproduce, el botón aparece al pasar el
+    mouse.
+  - El clip "A jugar" se cambió por uno donde solo se ve la pantalla del juego,
+    porque el anterior mostraba a un joven que parece menor de edad.
+  - "Juegos disponibles": muro de carátulas animado de fondo y miniatura junto
+    a cada juego que tiene carátula (22 carátulas de la carpeta del local,
+    `static/img/caratulas/`). Se usan por decisión del equipo, sabiendo que
+    pertenecen a los estudios de cada juego.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano: portadas visibles con los videos en pausa, reproducción con el
+  botón, carátulas a 1280 px y a 360 px sin desplazamiento horizontal.
+- **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: títulos centrados y secciones a todo el ancho
+
+- **Tarjeta:** CACS-37 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-titulos-centrados` (parte de `feat/soa-videos-caratulas`).
+- **Qué se hizo:**
+  - Títulos de sección centrados, en mayúsculas, con la letra Russo One y un
+    subrayado neón dorado y azul; sus textos de apoyo también centrados.
+  - Videos de "Conoce el local" en 4 columnas que llenan el ancho en
+    computador (2 en celular), sin el espacio vacío de la derecha.
+  - Tarjetas de equipos, torneos, reservas y categorías de juegos con
+    `auto-fit` para que ocupen todo el ancho; pestañas de juegos, pasos de la
+    reserva y "Visítanos" centrados.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal.
+- **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: portada sin video y logo más grande
+
+- **Tarjeta:** CACS-38 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-portada-logo` (parte de `feat/soa-titulos-centrados`).
+- **Qué se hizo:**
+  - Se quitó el video de fondo de la portada; los videos siguen en "Conoce el
+    local".
+  - El logo de la portada pasa de 380 a 500 px en computador y ahora también
+    se ve en el celular, arriba y centrado; el título se ajusta para quedar en
+    dos líneas.
+  - `application.yaml` de la consumidora: `Cache-Control: no-cache` para los
+    archivos estáticos. El navegador revalida en cada visita y siempre muestra
+    la última versión, sin necesidad de Ctrl + F5.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal; los
+  estilos responden con `Cache-Control: no-cache`.
+- **Pendientes:** ninguno.

@@ -282,8 +282,15 @@ select {
   z-index: 1;
 }
 
+/* CACS-38: en el celular el logo va arriba, centrado y grande. */
 .portada__emblema {
-  display: none;
+  display: block;
+  width: min(68vw, 260px);
+  height: auto;
+  margin: 0 auto 8px;
+  mix-blend-mode: lighten;
+  -webkit-mask-image: radial-gradient(closest-side, #000 86%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 86%, transparent 100%);
 }
 
 @media (min-width: 900px) {
@@ -293,7 +300,7 @@ select {
     top: 50%;
     right: max(16px, calc((100% - 1120px) / 2 + 16px));
     z-index: 2;
-    width: min(34vw, 380px);
+    width: min(40vw, 500px);
     height: auto;
     transform: translateY(-50%);
     /* La imagen trae fondo oscuro: se desvanecen sus bordes para fundirla con la portada. */
@@ -305,7 +312,7 @@ select {
   .portada .portada__texto,
   .portada .portada__acciones,
   .portada .portada__datos {
-    max-width: calc(100% - min(34vw, 380px) - 40px);
+    max-width: calc(100% - min(40vw, 500px) - 40px);
   }
 }
 
@@ -386,7 +393,7 @@ select {
 /* ---------- Tarjetas de modalidades ---------- */
 .modalidades {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 18px;
   margin: 18px 0 0;
   padding: 0;
@@ -735,7 +742,7 @@ select {
 /* ---------- Mis reservas ---------- */
 .reservas {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 14px;
   margin: 18px 0 0;
   padding: 0;
@@ -1332,7 +1339,7 @@ main,
 
 .categorias {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 18px 22px;
 }
 
@@ -1412,7 +1419,7 @@ main,
 /* Torneos y promociones */
 .torneos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
   margin-top: 18px;
 }
@@ -1613,4 +1620,202 @@ main,
   margin: 0;
   min-height: 3em;
   font-weight: 600;
+}
+
+/* ---------- CACS-36: botón de los videos y carátulas de juegos ---------- */
+.video__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 58px;
+  height: 58px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  background: rgba(7, 11, 22, 0.6);
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: opacity 160ms ease, background 160ms ease;
+}
+
+.video__play:hover,
+.video__play:focus-visible {
+  background: var(--primario);
+  color: var(--primario-texto);
+}
+
+/* Mientras se reproduce, el botón se ve solo al pasar el mouse o al enfocarlo. */
+.video__play.reproduciendo {
+  opacity: 0;
+}
+
+.videos-local figure:hover .video__play,
+.video__play:focus-visible {
+  opacity: 1;
+}
+
+#juegos {
+  position: relative;
+  /* El muro de carátulas es más ancho que la sección: se recorta para no desbordar la página. */
+  overflow: hidden;
+  overflow: clip;
+  padding-bottom: 12px;
+}
+
+/* El panel deja ver las carátulas del fondo. */
+#juegos .panel-juegos {
+  background: rgba(10, 16, 32, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+#juegos > :not(.muro-caratulas) {
+  position: relative;
+  z-index: 1;
+}
+
+.muro-caratulas {
+  position: absolute;
+  inset: 20px -40px -10px;
+  z-index: 0;
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.4;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 45%, transparent 85%);
+  mask-image: radial-gradient(ellipse at center, #000 45%, transparent 85%);
+}
+
+.muro-caratulas__fila {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: desplazar 90s linear infinite;
+}
+
+.muro-caratulas__fila--inversa {
+  animation-direction: reverse;
+}
+
+.muro-caratulas img {
+  width: 130px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  transform: rotate(-4deg);
+}
+
+@keyframes desplazar {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.juego__nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.juego__caratula {
+  flex: none;
+  width: 30px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .muro-caratulas__fila {
+    animation: none;
+  }
+}
+
+/* ---------- CACS-37: títulos centrados en mayúsculas y secciones a todo el ancho ---------- */
+main .seccion h2,
+.visitanos h2 {
+  position: relative;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  font-family: 'Russo One', var(--titulo);
+  font-size: clamp(1.45rem, 3.6vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(125, 211, 252, 0.25);
+}
+
+/* Subrayado neón debajo de cada título. */
+main .seccion h2::after,
+.visitanos h2::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 84px;
+  height: 4px;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, var(--primario), var(--acento));
+  box-shadow: 0 0 12px var(--primario-brillo);
+}
+
+/* Textos de apoyo de cada sección, centrados debajo del título. */
+main .seccion > p.suave {
+  max-width: 680px;
+  margin: 0 auto 6px;
+  text-align: center;
+}
+
+.pestanas {
+  justify-content: center;
+}
+
+.panel-juegos__nota {
+  text-align: center;
+}
+
+.progreso {
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Videos del local: 4 columnas que llenan el ancho (2 en el celular). */
+.videos-local {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 760px) {
+  .videos-local {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.videos-local figcaption {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Visítanos centrado. */
+.visitanos__tarjeta {
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.visitanos__acciones {
+  justify-content: center;
+}
+
+/* CACS-38: con el logo más grande, el título de la portada se ajusta para quedar en dos líneas. */
+@media (min-width: 900px) {
+  .portada .portada__titulo {
+    font-size: clamp(2.2rem, 3.6vw, 3.1rem);
+  }
 }

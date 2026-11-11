@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800&family=Russo+One&display=swap"
     />
     <link rel="icon" type="image/webp" href="img/logo-icono.webp" />
     <link rel="stylesheet" href="estilos.css" />
@@ -71,10 +71,8 @@
     <main>
       <!-- Portada -->
       <section id="inicio" class="portada">
-        <!-- CACS-32: video real del local de fondo (sin sonido y en bucle). -->
-        <video class="portada__video" src="video/local-pasillo.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
         <!-- Fuera del contenedor para que "lighten" lo funda con el video de fondo. -->
-        <img class="portada__emblema" src="img/logo-emblema.webp" alt="" width="360" height="360" />
+        <img class="portada__emblema" src="img/logo-emblema.webp" alt="" width="520" height="520" />
         <div class="nave" aria-hidden="true">
           <svg viewBox="0 0 22 12" shape-rendering="crispEdges">
             <path d="M8 0h6v2h3v2h3v2h2v2h-2v2h-3v2H5v-2H3V8H0V6h3V4h3V2h2z" fill="#cbd5f5" />
@@ -126,6 +124,8 @@
 
       <!-- Juegos disponibles por equipo (catálogos del local) -->
       <section id="juegos" class="contenedor seccion" aria-labelledby="titulo-juegos">
+        <!-- CACS-36: muro de carátulas de fondo (decorativo) -->
+        <div id="muro-caratulas" class="muro-caratulas" aria-hidden="true"></div>
         <h2 id="titulo-juegos">Juegos disponibles</h2>
         <p class="suave">Elige la consola y mira sus juegos. 👥 indica cuántos juegan a la vez en la misma consola.</p>
         <div id="pestanas-juegos" class="pestanas" role="tablist" aria-label="Consolas"></div>
@@ -163,19 +163,19 @@
         <p class="suave">Luces, buena música y las consolas listas. Así se vive Game Spot.</p>
         <div class="videos-local">
           <figure>
-            <video src="video/local-pasillo.mp4" muted loop playsinline preload="metadata"></video>
+            <video src="video/local-pasillo.mp4" poster="video/local-pasillo.png" muted loop playsinline preload="metadata"></video>
             <figcaption>La entrada</figcaption>
           </figure>
           <figure>
-            <video src="video/local-jugando.mp4" muted loop playsinline preload="metadata"></video>
+            <video src="video/local-pantalla.mp4" poster="video/local-pantalla.png" muted loop playsinline preload="metadata"></video>
             <figcaption>A jugar</figcaption>
           </figure>
           <figure>
-            <video src="video/local-neon.mp4" muted loop playsinline preload="metadata"></video>
+            <video src="video/local-neon.mp4" poster="video/local-neon.png" muted loop playsinline preload="metadata"></video>
             <figcaption>Ambiente neón</figcaption>
           </figure>
           <figure>
-            <video src="video/local-simulador.mp4" muted loop playsinline preload="metadata"></video>
+            <video src="video/local-simulador.mp4" poster="video/local-simulador.png" muted loop playsinline preload="metadata"></video>
             <figcaption>Carreras</figcaption>
           </figure>
         </div>
