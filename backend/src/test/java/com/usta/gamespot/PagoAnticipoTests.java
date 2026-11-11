@@ -351,4 +351,52 @@ class PagoAnticipoTests {
         .perform(post("/api/reservas/999999/pago").header("Authorization", tokenCliente))
         .andExpect(status().isNotFound());
   }
+
+  @Test
+  @DisplayName(
+      "CP-36f Con el proveedor simulado, el webhook de Wompi responde 409 aunque la firma cuadre")
+  void webhookDesactivadoConProveedorSimulado() throws Exception {
+    Reserva pendiente = reservaPendiente();
+    Pago pago =
+        pagoRepository.saveAndFlush(
+            Pago.builder()
+                .reserva(pendiente)
+                .referencia("GS-" + pendiente.getId() + "-webhook")
+                .montoCentavos(ADELANTO_PESOS * 100L)
+                .moneda("COP")
+                .build());
+    // Sin Wompi el secreto de eventos está vacío: cualquiera podría calcular este checksum.
+    long timestamp = 1_791_000_000L;
+    String checksum =
+        java.util.HexFormat.of()
+            .formatHex(
+                java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(
+                        ("tx-falsa" + "APPROVED" + (ADELANTO_PESOS * 100L) + timestamp)
+                            .getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    String evento =
+        """
+        {"event": "transaction.updated",
+         "data": {"transaction": {"id": "tx-falsa", "amount_in_cents": %d, "reference": "%s",
+           "currency": "COP", "payment_method_type": "CARD", "status": "APPROVED"}},
+         "signature": {"properties": ["transaction.id", "transaction.status",
+           "transaction.amount_in_cents"], "checksum": "%s"},
+         "timestamp": %d}
+        """
+            .formatted(ADELANTO_PESOS * 100L, pago.getReferencia(), checksum, timestamp);
+
+    mockMvc
+        .perform(
+            post("/api/pagos/wompi/eventos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(evento))
+        .andExpect(status().isConflict());
+
+    entityManager.flush();
+    entityManager.clear();
+    assertEquals(EstadoPago.PENDIENTE, pagoRepository.findById(pago.getId()).orElseThrow().getEstado());
+    assertEquals(
+        EstadoReserva.PENDIENTE_PAGO,
+        reservaRepository.findById(pendiente.getId()).orElseThrow().getEstado());
+  }
 }

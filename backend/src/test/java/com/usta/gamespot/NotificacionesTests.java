@@ -331,7 +331,13 @@ class NotificacionesTests {
     assertTrue(configuracion.contains("username: \"${CORREO_USUARIO:}\""));
     assertTrue(configuracion.contains("password: \"${CORREO_CONTRASENA_APLICACION:}\""));
 
-    // Sin las variables definidas, no hay ningún valor por defecto escondido.
-    assertEquals("", environment.getProperty("spring.mail.password"));
+    // La contraseña es exactamente la de la variable de entorno, o vacía si no está definida: no
+    // hay ningún valor por defecto escondido. Se compara sin imprimir el valor, porque en el
+    // equipo de un integrante la variable puede tener la contraseña real.
+    String esperada =
+        java.util.Objects.requireNonNullElse(System.getenv("CORREO_CONTRASENA_APLICACION"), "");
+    assertTrue(
+        esperada.equals(environment.getProperty("spring.mail.password")),
+        "spring.mail.password no viene solo de CORREO_CONTRASENA_APLICACION");
   }
 }
