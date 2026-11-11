@@ -2339,21 +2339,6 @@ main .seccion > p.suave {
   color: var(--texto);
 }
 
-/* Calcomanía pegada de lado junto al título. */
-.portada__calcomania {
-  display: inline-block;
-  padding: 7px 12px;
-  border-radius: 6px;
-  background: #c084fc;
-  color: var(--primario-texto);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
-  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
-  font-weight: 800;
-  line-height: 1.2;
-  transform: rotate(-5deg);
-  animation: portada-calcomania 6s ease-in-out infinite;
-}
-
 .portada__texto {
   font-size: 1.08rem;
 }
@@ -2418,23 +2403,8 @@ main .seccion > p.suave {
   }
 }
 
-@keyframes portada-calcomania {
-  0%,
-  88%,
-  100% {
-    transform: rotate(-5deg);
-  }
-  92% {
-    transform: rotate(2deg) scale(1.05);
-  }
-  96% {
-    transform: rotate(-8deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .portada__punto::after,
-  .portada__calcomania {
+  .portada__punto::after {
     animation: none;
   }
 }
