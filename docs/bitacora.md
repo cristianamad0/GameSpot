@@ -1065,3 +1065,21 @@ pruebas y pendientes. La entrada más reciente va al final.
   Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal; los
   estilos responden con `Cache-Control: no-cache`.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: pandilla de gelatina animada en la portada
+
+- **Tarjeta:** CACS-39 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-pandilla-portada` (parte de `feat/soa-portada-logo`).
+- **Qué se hizo:**
+  - En lugar de recrear personajes de Gang Beasts, que son del estudio Boneloaf,
+    se usó la pandilla de gelatina propia como mascota del local.
+  - Escena en la portada con cuatro personajes (verde, amarillo, azul y rojo)
+    sobre un ring neón: el verde salta desde arriba y cae con un "¡PUM!", el
+    amarillo y el azul se empujan y el rojo se tambalea, se cae y se levanta.
+  - En computador va debajo del logo, en la columna derecha, visible sin bajar;
+    en el celular va debajo del contenido de la portada.
+  - Decorativo (`aria-hidden`, sin clics) y quieto con "reducir movimiento".
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 x 760 px (escena completa visible) y a 360 px, sin
+  desplazamiento horizontal.
+- **Pendientes:** ninguno.
