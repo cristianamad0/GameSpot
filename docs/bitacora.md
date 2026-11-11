@@ -1104,3 +1104,20 @@ pruebas y pendientes. La entrada más reciente va al final.
   llegar a la sección, se pausan al salir y el que se pausa a mano sigue
   pausado al volver.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: la pandilla de la portada como botones Y, X, A y B
+
+- **Tarjeta:** CACS-41 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-pandilla-botones`
+- **Qué se hizo:**
+  - Los cuatro personajes de la portada ahora son botones de acción de un
+    control, con cara, brazos y pies: A verde, Y amarillo, X azul y B rojo.
+    Son diseño propio (solo letras y colores, sin logotipos de marcas).
+  - Se conservan las animaciones de CACS-39: la A salta y cae con "¡PUM!", la
+    Y y la X se empujan y la B se cae y se levanta. Siguen siendo decorativos
+    (`aria-hidden`) y quedan quietos con "reducir movimiento".
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y 375 px: las cuatro letras se leen, las
+  animaciones corren, el salto de la A no alcanza el texto del logo y no hay
+  desplazamiento horizontal.
+- **Pendientes:** ninguno.
