@@ -907,6 +907,19 @@ function formatoReto(segundos) {
   return segundos.toFixed(2).padStart(5, '0');
 }
 
+// CACS-43: el gato del reto comenta cada intento y da un brinco al detener el cronómetro.
+function gatoDice(texto, reacciona) {
+  const globo = $('reto-gato-dice');
+  globo.textContent = texto;
+  const gato = globo.closest('.reto__gato');
+  gato.classList.remove('reto__gato--reacciona');
+  if (reacciona) {
+    // Leer el ancho obliga al navegador a reiniciar la animación del brinco.
+    void gato.offsetWidth;
+    gato.classList.add('reto__gato--reacciona');
+  }
+}
+
 function pintarCronometro() {
   $('reto-tiempo').textContent = formatoReto((performance.now() - reto.inicio) / 1000);
   reto.cuadro = requestAnimationFrame(pintarCronometro);
@@ -919,6 +932,7 @@ $('reto-boton').addEventListener('click', () => {
     reto.inicio = performance.now();
     boton.textContent = '¡Detener!';
     $('reto-resultado').textContent = 'Corre el tiempo… detenlo en 10,00.';
+    gatoDice('👀 No parpadeo…', false);
     reto.cuadro = requestAnimationFrame(pintarCronometro);
     return;
   }
@@ -932,9 +946,12 @@ $('reto-boton').addEventListener('click', () => {
   let mensaje;
   if (diferencia === 0) {
     mensaje = '¡10,00 exactos! Ven el fin de semana y hazlo en el local para pagar la mitad.';
+    gatoDice('¡Miau! ¡Perfecto! 😼', true);
   } else {
-    const animo = Math.abs(diferencia) <= 0.3 ? '¡Casi lo logras!' : 'Sigue practicando.';
+    const casi = Math.abs(diferencia) <= 0.3;
+    const animo = casi ? '¡Casi lo logras!' : 'Sigue practicando.';
     mensaje = (diferencia < 0 ? 'Te faltaron ' : 'Te pasaste por ') + texto + ' s. ' + animo;
+    gatoDice(casi ? '¡Uy, casi! Otra vez.' : 'Mmm… yo te espero.', true);
   }
   $('reto-resultado').textContent = mensaje;
 });
