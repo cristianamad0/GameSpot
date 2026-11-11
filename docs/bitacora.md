@@ -1186,3 +1186,16 @@ pruebas y pendientes. La entrada más reciente va al final.
   servicios, el título no toca el logo ni la pandilla y no hay desplazamiento
   horizontal.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: título "Salón GAMER de San Jorge" sin calcomanía
+
+- **Tarjeta:** CACS-45 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-salon-gamer`
+- **Qué se hizo:**
+  - El título de la portada pasa de "El parche GAMER de San Jorge" a "Salón
+    GAMER de San Jorge", a pedido del equipo.
+  - Se quitó la calcomanía "¿Quién paga la revancha?" con sus estilos y su
+    animación. El resto de la portada de CACS-44 no cambia.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y 360 px, sin desplazamiento horizontal.
+- **Pendientes:** ninguno.
