@@ -282,8 +282,15 @@ select {
   z-index: 1;
 }
 
+/* CACS-38: en el celular el logo va arriba, centrado y grande. */
 .portada__emblema {
-  display: none;
+  display: block;
+  width: min(68vw, 260px);
+  height: auto;
+  margin: 0 auto 8px;
+  mix-blend-mode: lighten;
+  -webkit-mask-image: radial-gradient(closest-side, #000 86%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 86%, transparent 100%);
 }
 
 @media (min-width: 900px) {
@@ -293,7 +300,7 @@ select {
     top: 50%;
     right: max(16px, calc((100% - 1120px) / 2 + 16px));
     z-index: 2;
-    width: min(34vw, 380px);
+    width: min(40vw, 500px);
     height: auto;
     transform: translateY(-50%);
     /* La imagen trae fondo oscuro: se desvanecen sus bordes para fundirla con la portada. */
@@ -305,7 +312,7 @@ select {
   .portada .portada__texto,
   .portada .portada__acciones,
   .portada .portada__datos {
-    max-width: calc(100% - min(34vw, 380px) - 40px);
+    max-width: calc(100% - min(40vw, 500px) - 40px);
   }
 }
 
@@ -1804,4 +1811,11 @@ main .seccion > p.suave {
 
 .visitanos__acciones {
   justify-content: center;
+}
+
+/* CACS-38: con el logo más grande, el título de la portada se ajusta para quedar en dos líneas. */
+@media (min-width: 900px) {
+  .portada .portada__titulo {
+    font-size: clamp(2.2rem, 3.6vw, 3.1rem);
+  }
 }
