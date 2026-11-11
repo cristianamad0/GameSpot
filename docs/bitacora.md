@@ -971,3 +971,20 @@ pruebas y pendientes. La entrada más reciente va al final.
   7 días y la disponibilidad de mañana mostró 12 bloques (3:00 a 9:00 p. m.).
   Newman, carpetas 1 a 4: 38 solicitudes y 40 comprobaciones, 0 fallos.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: torneos como historial del local
+
+- **Tarjeta:** CACS-34 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-torneos-realizados`
+- **Qué se hizo:**
+  - El equipo confirmó que los torneos de Halo: Reach y KOF 2002 ya se
+    jugaron. La sección pasa a "Torneos realizados": cada torneo se marca como
+    finalizado, los premios quedan en pasado y se quitan los llamados a
+    inscribirse.
+  - Nueva tarjeta "Próximamente" con un botón de WhatsApp para preguntar por
+    el próximo torneo.
+  - Las promociones quedan en su propia sección.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano en el navegador.
+- **Pendientes:**
+  - Confirmar que las promociones siguen vigentes.
