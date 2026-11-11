@@ -75,7 +75,11 @@ original y se queda quieta si el sistema tiene activado "reducir movimiento".
 
 Contenido del local (CACS-32): el catálogo de juegos de cada equipo está en
 `static/datos/juegos.json` (tomado de los catálogos de publicidad del local) y
-los videos cortos del local en `static/video/`. Para actualizar un catálogo se
+los videos cortos del local en `static/video/`, cada uno con su imagen de
+portada (`.png` con el mismo nombre). Las carátulas de juegos están en
+`static/img/caratulas/` y se asignan por título en la sección `caratulas` de
+`juegos.json`; son de la carpeta de publicidad del local y pertenecen a los
+estudios de cada juego. Para actualizar un catálogo se
 edita ese JSON; el nombre de cada equipo debe ser igual al del proveedor de
 catálogo.
 
