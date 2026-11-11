@@ -922,3 +922,35 @@ pruebas y pendientes. La entrada más reciente va al final.
   horizontal) y con un token vencido.
 - **Pendientes:**
   - Fotos reales del local y de las consolas cuando estén disponibles.
+
+## 2026-11-11 — SOA: la página con el material real del local
+
+- **Tarjeta:** CACS-32 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-material-local`
+- **Qué se hizo:**
+  - Se revisó la carpeta de publicidad del local: catálogos de juegos,
+    tarifas, torneos, promociones, avisos de servicio y videos. No se abrieron
+    los archivos de finanzas.
+  - Portada con un video real del local de fondo (sin sonido, en bucle) y los
+    lemas del local ("Tu punto de diversión", "Juega · Disfruta · Repite").
+  - Franja con lo que ofrece el local: consolas Xbox, sala VIP, torneos,
+    ambiente gamer y snacks.
+  - Tarjetas de equipos con su nivel (Clásicos, Nueva Gen, Élite), el ahorro
+    de pagar la hora completa y un enlace a sus juegos.
+  - Sección "Juegos disponibles" con el catálogo real de cada equipo por
+    categoría y número de jugadores (`static/datos/juegos.json`); el número de
+    juegos también aparece al elegir la consola en la reserva.
+  - Sección "Conoce el local" con 4 videos cortos del sitio (8,5 MB en
+    total), que solo se reproducen mientras están en pantalla.
+  - Torneos (Halo: Reach y KOF 2002) y promociones del local, pasados a texto;
+    no se publican las piezas con personajes de terceros.
+  - "Visítanos" con la dirección, un botón de WhatsApp con mensaje listo y un
+    enlace para llegar en Google Maps.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px (sin desplazamiento horizontal); los
+  catálogos coinciden en número de juegos con los de la publicidad.
+- **Pendientes:**
+  - Confirmar el horario: la publicidad dice "todos los días de 3:00 p. m. a
+    9:00 p. m." y el catálogo del sistema tiene L-V 2:00-10:00 p. m. y S-D
+    3:00-9:00 p. m.
+  - Confirmar que los torneos y promociones siguen vigentes.

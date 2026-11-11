@@ -73,6 +73,12 @@ ilustración (`static/img/consola-<modalidad>.svg`, dibujos propios). La
 decoración animada (cuadrícula, objetos flotantes, nave y personajes) es
 original y se queda quieta si el sistema tiene activado "reducir movimiento".
 
+Contenido del local (CACS-32): el catálogo de juegos de cada equipo está en
+`static/datos/juegos.json` (tomado de los catálogos de publicidad del local) y
+los videos cortos del local en `static/video/`. Para actualizar un catálogo se
+edita ese JSON; el nombre de cada equipo debe ser igual al del proveedor de
+catálogo.
+
 En IntelliJ, cada configuración de ejecución debe tener como *Working
 directory* la carpeta de su proyecto (por ejemplo `soa/proveedor-catalogo`);
 si no, la base H2 se crea en otra carpeta.
