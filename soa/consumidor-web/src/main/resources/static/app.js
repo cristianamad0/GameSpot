@@ -843,6 +843,46 @@ function prepararVideos() {
   videos.forEach((video) => observador.observe(video));
 }
 
+// ---------- Reto 10 segundos, versión de práctica (CACS-35) ----------
+// Solo es una práctica en el navegador: no da descuentos. El reto válido se hace en el local.
+const reto = { corriendo: false, inicio: 0, cuadro: 0 };
+
+function formatoReto(segundos) {
+  return segundos.toFixed(2).padStart(5, '0');
+}
+
+function pintarCronometro() {
+  $('reto-tiempo').textContent = formatoReto((performance.now() - reto.inicio) / 1000);
+  reto.cuadro = requestAnimationFrame(pintarCronometro);
+}
+
+$('reto-boton').addEventListener('click', () => {
+  const boton = $('reto-boton');
+  if (!reto.corriendo) {
+    reto.corriendo = true;
+    reto.inicio = performance.now();
+    boton.textContent = '¡Detener!';
+    $('reto-resultado').textContent = 'Corre el tiempo… detenlo en 10,00.';
+    reto.cuadro = requestAnimationFrame(pintarCronometro);
+    return;
+  }
+  reto.corriendo = false;
+  cancelAnimationFrame(reto.cuadro);
+  const segundos = Math.round((performance.now() - reto.inicio) / 10) / 100;
+  $('reto-tiempo').textContent = formatoReto(segundos);
+  boton.textContent = 'Intentar de nuevo';
+  const diferencia = Math.round((segundos - 10) * 100) / 100;
+  const texto = Math.abs(diferencia).toFixed(2).replace('.', ',');
+  let mensaje;
+  if (diferencia === 0) {
+    mensaje = '¡10,00 exactos! Ven el fin de semana y hazlo en el local para pagar la mitad.';
+  } else {
+    const animo = Math.abs(diferencia) <= 0.3 ? '¡Casi lo logras!' : 'Sigue practicando.';
+    mensaje = (diferencia < 0 ? 'Te faltaron ' : 'Te pasaste por ') + texto + ' s. ' + animo;
+  }
+  $('reto-resultado').textContent = mensaje;
+});
+
 // ---------- Inicio ----------
 $('boton-estado').addEventListener('click', () => {
   revisarEstado();

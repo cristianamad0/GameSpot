@@ -56,7 +56,7 @@
         <a href="#equipos">Equipos</a>
         <a href="#juegos">Juegos</a>
         <a href="#local">El local</a>
-        <a href="#torneos">Torneos</a>
+        <a href="#promociones">Reto 10 s</a>
         <a href="#reservar">Reservar</a>
         <a href="#mis-reservas" id="enlace-mis-reservas" hidden>Mis reservas</a>
         <a href="#admin" id="enlace-admin" hidden>Administración</a>
@@ -95,6 +95,7 @@
             <a href="#reservar" id="boton-portada-reservar" class="boton boton--grande">Haz tu reserva</a>
             <a href="#equipos" class="boton boton--secundario boton--grande">Ver equipos y precios</a>
           </div>
+          <a class="portada__promo" href="#promociones">🎯 Fines de semana: <strong>Reto 10 segundos</strong>, tu cuenta a mitad de precio</a>
           <ul class="portada__datos" aria-label="Lo que ofrecemos">
             <li><strong id="dato-equipos">–</strong> equipos para jugar</li>
             <li><strong id="dato-desde">–</strong> la media hora desde</li>
@@ -180,10 +181,29 @@
         </div>
       </section>
 
+      <!-- CACS-35: única promoción vigente (fines de semana) con un cronómetro de práctica -->
+      <section id="promociones" class="contenedor seccion" aria-labelledby="titulo-promociones">
+        <h2 id="titulo-promociones">Promoción vigente</h2>
+        <div class="reto">
+          <div class="reto__texto">
+            <p class="reto__cuando">Sábados y domingos</p>
+            <h3>Reto 10 segundos</h3>
+            <p>Detén el cronómetro en 10 segundos exactos y <strong>tu cuenta queda a mitad de precio</strong>.</p>
+            <p class="suave">El reto que cuenta se hace en el local, los fines de semana. Pregunta las condiciones en caja.</p>
+          </div>
+          <div class="reto__juego">
+            <p class="reto__etiqueta">Práctica</p>
+            <output id="reto-tiempo" class="reto__tiempo" aria-live="off">00.00</output>
+            <button type="button" id="reto-boton" class="boton boton--grande">Iniciar</button>
+            <p id="reto-resultado" class="reto__resultado" aria-live="polite">Toca "Iniciar" y detén el cronómetro en 10,00.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- CACS-34: torneos que ya se jugaron, como historial del local -->
       <section id="torneos" class="contenedor seccion" aria-labelledby="titulo-torneos">
         <h2 id="titulo-torneos">Torneos realizados</h2>
-        <p class="suave">Así se han vivido las competencias en Game Spot. ¿Quieres jugar el próximo? Pregunta por WhatsApp.</p>
+        <p class="suave">Así se han vivido las competencias en Game Spot.</p>
         <div class="torneos">
           <article class="torneo torneo--halo">
             <p class="torneo__tipo">Torneo realizado <span class="torneo__estado">Finalizado</span></p>
@@ -204,29 +224,6 @@
               <li>🥇 Premio al campeón: <strong>$50.000 + 2 horas en Xbox</strong></li>
               <li>🥈 Premio al subcampeón: <strong>2 horas en Xbox</strong></li>
             </ul>
-          </article>
-          <article class="torneo torneo--proximo">
-            <p class="torneo__tipo">Próximamente</p>
-            <h3>¿Cuál quieres que sea el próximo?</h3>
-            <p>Escríbenos tu juego favorito y entérate primero de las fechas y los premios.</p>
-            <a class="boton boton--whatsapp" href="https://wa.me/573124525159?text=Hola%20Game%20Spot%2C%20quiero%20saber%20del%20pr%C3%B3ximo%20torneo" target="_blank" rel="noopener">Preguntar por WhatsApp</a>
-          </article>
-        </div>
-      </section>
-
-      <!-- Promociones del local -->
-      <section id="promociones" class="contenedor seccion" aria-labelledby="titulo-promociones">
-        <h2 id="titulo-promociones">Promociones</h2>
-        <div class="torneos">
-          <article class="torneo torneo--promo">
-            <p class="torneo__tipo">Promoción</p>
-            <h3>25 % de descuento en la segunda hora</h3>
-            <p>Muestra la historia de Game Spot en el local y te descontamos el 25 % de tu segunda hora.</p>
-          </article>
-          <article class="torneo torneo--promo">
-            <p class="torneo__tipo">Promoción</p>
-            <h3>30 minutos gratis al primer cliente del día</h3>
-            <p>El primero que llegue hoy juega media hora gratis (debes consumir algo para aplicar la promoción).</p>
           </article>
         </div>
       </section>
