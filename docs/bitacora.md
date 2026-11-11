@@ -741,6 +741,29 @@ pruebas y pendientes. La entrada más reciente va al final.
   - En PowerShell, guardar la contraseña de aplicación con comillas simples:
     con comillas dobles, un `$` se interpreta como variable.
 
+## 2026-11-10 — SOA: proveedor de catálogo
+
+- **Tarjeta:** CACS-25 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-catalogo`
+- **Qué se hizo:**
+  - Decisión del equipo: para la arquitectura SOA que pide la docente Diana
+    Velásquez, el negocio se divide en catálogo (proveedor 1) y reservas
+    (proveedor 2), cada uno con su base H2 en archivo, y los tres proyectos
+    van en `soa/` sin tocar el sistema actual.
+  - `soa/proveedor-catalogo`: aplicación Spring Boot independiente en el
+    puerto 8091 con `schema.sql` (DDL), `data.sql` (DML con los 6 equipos, 3
+    modalidades y el horario reales; solo inserta lo que falta, para no pisar
+    cambios al reiniciar), entidades JPA y repositorios.
+  - CRUD de equipos (`GET`, `POST`, `PUT`, `DELETE /api/equipos`), tarifas
+    (`GET` y `PUT /api/modalidades`) y horario (`GET /api/horarios`). Las
+    modificaciones exigen un JWT de rol ADMIN emitido por el proveedor de
+    reservas y firmado con el mismo `JWT_SECRETO` (401 sin token o con uno
+    inválido, 403 con otro rol).
+- **Pruebas:** `./mvnw test` en `soa/proveedor-catalogo`: 7 pruebas, 0 fallos
+  (CP-36a a CP-36g en `CatalogoTests`).
+- **Pendientes:**
+  - Ninguno de esta tarjeta.
+
 ## 2026-11-10 — SOA: proveedor de reservas con JWT
 
 - **Tarjeta:** CACS-26 (entrega final de Desarrollo Orientado a Servicios).
