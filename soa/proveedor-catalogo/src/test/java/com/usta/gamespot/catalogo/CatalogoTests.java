@@ -1,6 +1,8 @@
 package com.usta.gamespot.catalogo;
 
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -236,14 +238,16 @@ class CatalogoTests {
   }
 
   @Test
-  @DisplayName("CP-36g Entrega el horario de los 7 días de la semana")
+  @DisplayName("CP-36g Entrega el horario de los 7 días: todos de 3:00 a 9:00 p. m.")
   void entregaElHorario() throws Exception {
     mockMvc
         .perform(get("/api/horarios"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(7)))
         .andExpect(jsonPath("$[0].diaSemana").value(1))
-        .andExpect(jsonPath("$[0].horaApertura").value("14:00:00"))
+        .andExpect(jsonPath("$[*].horaApertura", everyItem(is("15:00:00"))))
+        .andExpect(jsonPath("$[*].horaCierre", everyItem(is("21:00:00"))))
+        .andExpect(jsonPath("$[0].horaApertura").value("15:00:00"))
         .andExpect(jsonPath("$[6].horaCierre").value("21:00:00"));
   }
 }
