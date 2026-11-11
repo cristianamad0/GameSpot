@@ -1,16 +1,40 @@
-// CACS-27: interfaz de la consumidora. Todas las llamadas van con Fetch al backend de la
-// consumidora (/api/portal/...), que a su vez llama a los proveedores con RestClient.
+// CACS-27 y CACS-29: interfaz de la consumidora. Todas las llamadas van con Fetch al backend de
+// la consumidora (/api/portal/...), que a su vez llama a los proveedores con RestClient.
 
 const ZONA = 'America/Bogota';
 const CLAVE_SESION = 'gamespot.soa.sesion';
+const PORCENTAJE_ADELANTO = 50;
 
 const pesos = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+const fechaLarga = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, weekday: 'long', day: 'numeric', month: 'long' });
 const fechaHora = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, dateStyle: 'medium', timeStyle: 'short' });
 const hora = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, hour: 'numeric', minute: '2-digit' });
+const hora24 = new Intl.DateTimeFormat('en-GB', { timeZone: ZONA, hour: '2-digit', minute: '2-digit' });
 const ETIQUETAS = { PENDIENTE_PAGO: 'Pendiente de pago', CONFIRMADA: 'Confirmada', CANCELADA: 'Cancelada' };
-const MOTIVOS = { OCUPADO: 'ocupado', PASADO: 'ya pasó', FUERA_DE_SERVICIO: 'fuera de servicio' };
+const MOTIVOS = { OCUPADO: 'Ocupado', PASADO: 'Ya pasó', FUERA_DE_SERVICIO: 'Fuera de servicio' };
+const DIAS = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const ICONOS = { 'xbox-360': '🎮', 'xbox-series-s': '🕹️', 'sala-vip-xbox-series-x': '👑' };
+const DESCRIPCIONES = {
+  'xbox-360': 'Los clásicos de siempre para jugar con amigos.',
+  'xbox-series-s': 'Nueva generación, juegos rápidos y en alta resolución.',
+  'sala-vip-xbox-series-x': 'Sala privada con Series X, ideal para grupos y torneos.',
+};
+
+// Fotos del local en static/img/. Cuando tengan una foto, cópienla a esa carpeta y pongan aquí el
+// nombre del archivo; mientras sea null se muestra el ícono de la modalidad.
+const FOTOS = {
+  local: null, // foto de fondo de la portada, por ejemplo 'local.jpg'
+  'xbox-360': null,
+  'xbox-series-s': null,
+  'sala-vip-xbox-series-x': null,
+};
 
 const $ = (id) => document.getElementById(id);
+
+// Estado de la reserva que se está armando.
+const reserva = { equipoId: null, fecha: null, inicio: null, duracionMinutos: 60, creada: null };
+let equipos = [];
+let pasoActual = 1;
 
 // ---------- Sesión (el JWT queda en sessionStorage del navegador) ----------
 function sesion() {
@@ -29,12 +53,14 @@ function cerrarSesion() {
   sessionStorage.removeItem(CLAVE_SESION);
   pintarSesion();
   cargarEquipos();
-  cargarMisReservas();
+  if (pasoActual === 3) {
+    pintarResumen();
+  }
 }
 
 // ---------- Fetch con manejo de errores ----------
 async function api(ruta, opciones = {}) {
-  const encabezados = { ...(opciones.headers || {}) };
+  const encabezados = {};
   if (opciones.body !== undefined) {
     encabezados['Content-Type'] = 'application/json';
   }
@@ -53,7 +79,12 @@ async function api(ruta, opciones = {}) {
     throw new Error('No se pudo conectar con la aplicación consumidora.');
   }
   const texto = await respuesta.text();
-  const datos = texto ? JSON.parse(texto) : null;
+  let datos = null;
+  try {
+    datos = texto ? JSON.parse(texto) : null;
+  } catch {
+    datos = null;
+  }
   if (!respuesta.ok) {
     const detalles = datos && datos.detalles && datos.detalles.length ? ' (' + datos.detalles.join('; ') + ')' : '';
     const error = new Error(((datos && datos.mensaje) || 'Error ' + respuesta.status) + detalles);
@@ -63,16 +94,46 @@ async function api(ruta, opciones = {}) {
   return datos;
 }
 
+let temporizadorAviso;
+
 function mostrarAviso(mensaje, esExito = false) {
   const aviso = $('aviso');
   aviso.textContent = mensaje;
   aviso.className = esExito ? 'aviso exito' : 'aviso';
   aviso.hidden = false;
-  aviso.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  clearTimeout(temporizadorAviso);
+  temporizadorAviso = setTimeout(() => (aviso.hidden = true), esExito ? 5000 : 8000);
 }
 
 function ocultarAviso() {
   $('aviso').hidden = true;
+}
+
+function elemento(etiqueta, clase, texto) {
+  const nuevo = document.createElement(etiqueta);
+  if (clase) {
+    nuevo.className = clase;
+  }
+  if (texto !== undefined) {
+    nuevo.textContent = texto;
+  }
+  return nuevo;
+}
+
+function boton(texto, clase, accion) {
+  const nuevo = elemento('button', 'boton ' + (clase || ''), texto);
+  nuevo.type = 'button';
+  nuevo.addEventListener('click', accion);
+  return nuevo;
+}
+
+function clave(texto) {
+  return texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 // ---------- Estado de los proveedores ----------
@@ -81,29 +142,56 @@ async function revisarEstado() {
     const estado = await api('/api/portal/estado');
     pintarEstado('estado-catalogo', estado.catalogo);
     pintarEstado('estado-reservas', estado.reservas);
+    const caidos = [];
+    if (estado.catalogo !== 'DISPONIBLE') {
+      caidos.push('catálogo (equipos, precios y horario)');
+    }
+    if (estado.reservas !== 'DISPONIBLE') {
+      caidos.push('reservas (ingreso y reservas)');
+    }
+    if (caidos.length) {
+      mostrarAviso('Servicio no disponible: ' + caidos.join(' y ') + '. Lo demás sigue funcionando.');
+    }
   } catch (error) {
     mostrarAviso(error.message);
   }
 }
 
 function pintarEstado(id, valor) {
-  const elemento = $(id);
+  const nodo = $(id);
   const disponible = valor === 'DISPONIBLE';
-  elemento.textContent = disponible ? 'disponible' : 'no disponible';
-  elemento.className = disponible ? 'ok' : 'caido';
+  nodo.textContent = disponible ? 'disponible' : 'no disponible';
+  nodo.className = disponible ? 'ok' : 'caido';
 }
 
-// ---------- Login ----------
+// ---------- Ingreso ----------
 function pintarSesion() {
   const actual = sesion();
-  $('panel-login').hidden = Boolean(actual);
+  const esAdmin = Boolean(actual && actual.rol === 'ADMIN');
+  $('boton-ingresar').hidden = Boolean(actual);
   $('boton-salir').hidden = !actual;
-  $('sesion-nombre').textContent = actual ? actual.nombre + (actual.rol === 'ADMIN' ? ' (administrador)' : '') : '';
+  $('sesion-nombre').textContent = actual ? 'Hola, ' + actual.nombre + (esAdmin ? ' (administrador)' : '') : '';
+  $('mis-reservas').hidden = !actual;
+  $('enlace-mis-reservas').hidden = !actual;
+  $('admin').hidden = !esAdmin;
+  $('enlace-admin').hidden = !esAdmin;
+  cargarMisReservas();
 }
+
+function abrirLogin() {
+  $('error-login').hidden = true;
+  $('dialogo-login').showModal();
+  $('login-email').focus();
+}
+
+$('boton-ingresar').addEventListener('click', abrirLogin);
+$('boton-login-confirmar').addEventListener('click', abrirLogin);
+$('boton-cerrar-login').addEventListener('click', () => $('dialogo-login').close());
+$('boton-salir').addEventListener('click', cerrarSesion);
 
 $('form-login').addEventListener('submit', async (evento) => {
   evento.preventDefault();
-  ocultarAviso();
+  $('error-login').hidden = true;
   try {
     const token = await api('/api/portal/login', {
       method: 'POST',
@@ -111,31 +199,117 @@ $('form-login').addEventListener('submit', async (evento) => {
     });
     guardarSesion(token);
     $('login-password').value = '';
+    $('dialogo-login').close();
     pintarSesion();
-    mostrarAviso('Bienvenido, ' + token.nombre + '.', true);
     cargarEquipos();
-    cargarMisReservas();
+    if (pasoActual === 3) {
+      pintarResumen();
+    }
+    mostrarAviso('Bienvenido, ' + token.nombre + '.', true);
   } catch (error) {
-    mostrarAviso(error.message);
+    $('error-login').textContent = error.message;
+    $('error-login').hidden = false;
   }
 });
 
-$('boton-salir').addEventListener('click', cerrarSesion);
-
 // ---------- Equipos (proveedor de catálogo) ----------
-let equipos = [];
-
 async function cargarEquipos() {
-  const tabla = $('tabla-equipos');
   try {
     equipos = await api('/api/portal/equipos');
   } catch (error) {
-    tabla.innerHTML = '';
-    tabla.append(filaMensaje(error.message, 5));
+    equipos = [];
+    const lista = $('lista-modalidades');
+    lista.replaceChildren(elemento('li', 'suave', error.message));
+    $('opciones-equipo').replaceChildren(elemento('p', 'suave', error.message));
+    $('tabla-admin').replaceChildren(filaMensaje(error.message, 5));
     return;
   }
-  const esAdmin = sesion() && sesion().rol === 'ADMIN';
-  tabla.innerHTML = '';
+  pintarModalidades();
+  pintarOpcionesEquipo();
+  pintarAdmin();
+}
+
+function pintarModalidades() {
+  const grupos = new Map();
+  for (const equipo of equipos) {
+    if (!grupos.has(equipo.modalidad)) {
+      grupos.set(equipo.modalidad, []);
+    }
+    grupos.get(equipo.modalidad).push(equipo);
+  }
+  $('dato-equipos').textContent = equipos.length;
+  const tarifas = equipos.map((e) => e.tarifaHoraPesos);
+  $('dato-desde').textContent = tarifas.length ? pesos.format(Math.min(...tarifas)) : '–';
+
+  const lista = $('lista-modalidades');
+  lista.replaceChildren();
+  for (const [modalidad, unidades] of grupos) {
+    const id = clave(modalidad);
+    const libres = unidades.filter((e) => e.sePuedeReservar);
+    const tarjeta = elemento('li', 'modalidad');
+
+    const imagen = elemento('div', 'modalidad__imagen');
+    imagen.append(elemento('span', '', ICONOS[id] || '🎮'));
+    imagen.firstChild.setAttribute('aria-hidden', 'true');
+    if (FOTOS[id]) {
+      const foto = document.createElement('img');
+      foto.alt = 'Foto de ' + modalidad + ' en Game Spot';
+      foto.addEventListener('error', () => foto.remove());
+      foto.src = 'img/' + FOTOS[id];
+      imagen.append(foto);
+    }
+
+    const cuerpo = elemento('div', 'modalidad__cuerpo');
+    const precio = elemento('p', 'modalidad__precio', pesos.format(unidades[0].tarifaHoraPesos) + ' ');
+    precio.append(elemento('small', '', 'por hora'));
+    cuerpo.append(
+      elemento('h3', '', modalidad),
+      elemento('p', 'suave', DESCRIPCIONES[id] || 'Disponible para reservar por bloques de 30 minutos.'),
+      precio,
+      elemento(
+        'p',
+        libres.length ? 'ok' : 'caido',
+        unidades.length + (unidades.length === 1 ? ' equipo' : ' equipos') + ' · ' +
+          (libres.length ? libres.length + ' en servicio' : 'fuera de servicio'),
+      ),
+    );
+    const accion = boton('Reservar ' + modalidad, '', () => {
+      elegirEquipo(libres[0].id);
+      $('reservar').scrollIntoView();
+    });
+    accion.disabled = libres.length === 0;
+    cuerpo.append(accion);
+    tarjeta.append(imagen, cuerpo);
+    lista.append(tarjeta);
+  }
+  if (!equipos.length) {
+    lista.append(elemento('li', 'suave', 'No hay equipos registrados.'));
+  }
+}
+
+function pintarOpcionesEquipo() {
+  const contenedor = $('opciones-equipo');
+  contenedor.replaceChildren();
+  for (const equipo of equipos) {
+    const opcion = elemento('button', 'opcion-equipo' + (equipo.id === reserva.equipoId ? ' elegida' : ''));
+    opcion.type = 'button';
+    opcion.disabled = !equipo.sePuedeReservar;
+    opcion.append(
+      elemento('strong', '', equipo.nombre),
+      elemento('span', '', equipo.modalidad),
+      elemento('span', 'precio', pesos.format(equipo.tarifaHoraPesos) + ' por hora'),
+    );
+    if (!equipo.sePuedeReservar) {
+      opcion.append(elemento('span', 'caido', 'Fuera de servicio'));
+    }
+    opcion.addEventListener('click', () => elegirEquipo(equipo.id));
+    contenedor.append(opcion);
+  }
+}
+
+function pintarAdmin() {
+  const tabla = $('tabla-admin');
+  tabla.replaceChildren();
   for (const equipo of equipos) {
     const fila = document.createElement('tr');
     fila.append(
@@ -145,26 +319,15 @@ async function cargarEquipos() {
       celda(equipo.sePuedeReservar ? 'Disponible' : 'Fuera de servicio'),
     );
     const acciones = document.createElement('td');
-    if (esAdmin) {
-      const boton = document.createElement('button');
-      boton.type = 'button';
-      boton.className = equipo.estaDisponible ? 'peligro' : 'secundario';
-      boton.textContent = equipo.estaDisponible ? 'Poner fuera de servicio' : 'Habilitar';
-      boton.addEventListener('click', () => cambiarEstadoEquipo(equipo));
-      acciones.append(boton);
-    }
+    acciones.append(
+      boton(
+        equipo.estaDisponible ? 'Poner fuera de servicio' : 'Habilitar',
+        equipo.estaDisponible ? 'boton--peligro boton--pequeno' : 'boton--secundario boton--pequeno',
+        () => cambiarEstadoEquipo(equipo),
+      ),
+    );
     fila.append(acciones);
     tabla.append(fila);
-  }
-  const selector = $('disp-equipo');
-  const elegido = selector.value;
-  selector.innerHTML = '';
-  for (const equipo of equipos) {
-    const opcion = new Option(equipo.nombre + ' · ' + pesos.format(equipo.tarifaHoraPesos) + '/h', equipo.id);
-    selector.append(opcion);
-  }
-  if (elegido) {
-    selector.value = elegido;
   }
 }
 
@@ -183,173 +346,353 @@ async function cambiarEstadoEquipo(equipo) {
   }
 }
 
-// ---------- Disponibilidad y reserva (operaciones integradas) ----------
+// ---------- Horario (proveedor de catálogo) ----------
+function horaLegible(texto) {
+  const [h, m] = texto.split(':').map(Number);
+  const sufijo = h < 12 ? 'a. m.' : 'p. m.';
+  return ((h + 11) % 12) + 1 + ':' + String(m).padStart(2, '0') + ' ' + sufijo;
+}
+
+async function cargarHorarios() {
+  const lista = $('lista-horario');
+  let horarios;
+  try {
+    horarios = await api('/api/portal/horarios');
+  } catch (error) {
+    lista.replaceChildren(elemento('dt', 'suave', error.message));
+    return;
+  }
+  // Agrupa los días seguidos que tienen el mismo horario (por ejemplo, lunes a viernes).
+  const grupos = [];
+  for (const dia of horarios) {
+    const horas = horaLegible(dia.horaApertura) + ' – ' + horaLegible(dia.horaCierre);
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && ultimo.horas === horas && ultimo.hasta === dia.diaSemana - 1) {
+      ultimo.hasta = dia.diaSemana;
+    } else {
+      grupos.push({ desde: dia.diaSemana, hasta: dia.diaSemana, horas });
+    }
+  }
+  lista.replaceChildren();
+  for (const grupo of grupos) {
+    const fila = elemento('div', 'horario__fila');
+    const dias = grupo.desde === grupo.hasta ? DIAS[grupo.desde] : DIAS[grupo.desde] + ' a ' + DIAS[grupo.hasta].toLowerCase();
+    fila.append(elemento('dt', '', dias), elemento('dd', '', grupo.horas));
+    lista.append(fila);
+  }
+}
+
+// ---------- Reserva guiada (operaciones integradas) ----------
 function hoyEnBogota() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: ZONA }).format(new Date());
 }
 
-$('form-disponibilidad').addEventListener('submit', async (evento) => {
-  evento.preventDefault();
-  await cargarDisponibilidad();
+function equipoElegido() {
+  return equipos.find((e) => e.id === reserva.equipoId);
+}
+
+function irAPaso(numero) {
+  pasoActual = numero;
+  for (let paso = 1; paso <= 4; paso++) {
+    $('paso-' + paso).hidden = paso !== numero;
+  }
+  document.querySelectorAll('.progreso li').forEach((item) => {
+    const paso = Number(item.dataset.paso);
+    item.classList.toggle('actual', paso === numero);
+    item.classList.toggle('hecho', paso < numero);
+    if (paso === numero) {
+      item.setAttribute('aria-current', 'step');
+    } else {
+      item.removeAttribute('aria-current');
+    }
+  });
+}
+
+document.querySelectorAll('[data-ir-a]').forEach((control) =>
+  control.addEventListener('click', () => {
+    const paso = Number(control.dataset.irA);
+    if (paso === 1) {
+      reserva.creada = null;
+      pintarOpcionesEquipo();
+    }
+    irAPaso(paso);
+  }),
+);
+
+function elegirEquipo(id) {
+  ocultarAviso();
+  reserva.equipoId = id;
+  reserva.inicio = null;
+  reserva.creada = null;
+  const equipo = equipoElegido();
+  $('equipo-elegido').textContent = equipo
+    ? 'Consola elegida: ' + equipo.nombre + ' (' + pesos.format(equipo.tarifaHoraPesos) + ' por hora)'
+    : '';
+  pintarOpcionesEquipo();
+  irAPaso(2);
+  cargarDisponibilidad();
+}
+
+$('res-fecha').addEventListener('change', () => {
+  reserva.inicio = null;
+  cargarDisponibilidad();
 });
 
+$('res-duracion').addEventListener('change', () => {
+  reserva.duracionMinutos = Number($('res-duracion').value);
+  pintarPrecioPrevio();
+});
+
+function calcularPrecio(equipo, minutos) {
+  // Misma regla del proveedor de reservas: precio redondeado hacia arriba y adelanto del 50 %.
+  const total = Math.ceil((equipo.tarifaHoraPesos * minutos) / 60);
+  return { total, adelanto: Math.ceil((total * PORCENTAJE_ADELANTO) / 100) };
+}
+
+function pintarPrecioPrevio() {
+  const equipo = equipoElegido();
+  $('boton-continuar').disabled = !reserva.inicio;
+  if (!equipo || !reserva.inicio) {
+    $('precio-previo').textContent = reserva.inicio ? '' : 'Toca un bloque libre para elegir la hora de inicio.';
+    return;
+  }
+  const precio = calcularPrecio(equipo, reserva.duracionMinutos);
+  $('precio-previo').textContent =
+    'Desde las ' + hora.format(new Date(reserva.inicio)) + ' · Total ' + pesos.format(precio.total) +
+    ' · Adelanto ' + pesos.format(precio.adelanto);
+}
+
 async function cargarDisponibilidad() {
-  ocultarAviso();
   const contenedor = $('bloques');
-  contenedor.innerHTML = '';
-  const equipoId = $('disp-equipo').value;
-  const fecha = $('disp-fecha').value;
-  if (!equipoId || !fecha) {
-    mostrarAviso('Elige un equipo y una fecha.');
+  contenedor.replaceChildren(elemento('p', 'suave', 'Consultando disponibilidad…'));
+  reserva.fecha = $('res-fecha').value;
+  pintarPrecioPrevio();
+  if (!reserva.equipoId || !reserva.fecha) {
+    contenedor.replaceChildren(elemento('p', 'suave', 'Elige un día.'));
     return;
   }
   try {
-    const disponibilidad = await api('/api/portal/equipos/' + equipoId + '/disponibilidad?fecha=' + fecha);
+    const disponibilidad = await api(
+      '/api/portal/equipos/' + reserva.equipoId + '/disponibilidad?fecha=' + reserva.fecha,
+    );
+    contenedor.replaceChildren();
     if (!disponibilidad.atiende) {
-      contenedor.textContent = 'El local no atiende ese día.';
+      contenedor.append(elemento('p', 'suave', 'El local no atiende ese día.'));
       return;
     }
     for (const bloque of disponibilidad.bloques) {
-      const boton = document.createElement('button');
-      boton.type = 'button';
-      boton.className = 'bloque ' + (bloque.estaLibre ? 'libre' : 'no-libre');
-      boton.disabled = !bloque.estaLibre;
-      boton.textContent = hora.format(new Date(bloque.inicio)) + (bloque.estaLibre ? ' · libre' : ' · ' + MOTIVOS[bloque.motivo]);
-      boton.addEventListener('click', () => {
-        document.querySelectorAll('.bloque.elegido').forEach((b) => b.classList.remove('elegido'));
-        boton.classList.add('elegido');
-        $('res-hora').value = new Intl.DateTimeFormat('en-GB', { timeZone: ZONA, hour: '2-digit', minute: '2-digit' }).format(new Date(bloque.inicio));
+      const opcion = elemento('button', 'bloque ' + (bloque.estaLibre ? 'libre' : 'no-libre'));
+      opcion.type = 'button';
+      opcion.disabled = !bloque.estaLibre;
+      opcion.append(
+        hora.format(new Date(bloque.inicio)),
+        elemento('small', '', bloque.estaLibre ? 'Libre' : MOTIVOS[bloque.motivo] || bloque.motivo),
+      );
+      if (bloque.inicio === reserva.inicio) {
+        opcion.classList.add('elegido');
+      }
+      opcion.addEventListener('click', () => {
+        contenedor.querySelectorAll('.elegido').forEach((b) => b.classList.remove('elegido'));
+        opcion.classList.add('elegido');
+        reserva.inicio = bloque.inicio;
+        pintarPrecioPrevio();
       });
-      contenedor.append(boton);
+      contenedor.append(opcion);
+    }
+    if (!disponibilidad.bloques.some((b) => b.estaLibre)) {
+      contenedor.append(elemento('p', 'suave', 'No quedan bloques libres ese día; prueba otra fecha.'));
     }
   } catch (error) {
-    mostrarAviso(error.message);
+    contenedor.replaceChildren(elemento('p', 'caido', error.message));
   }
 }
 
-$('form-reserva').addEventListener('submit', async (evento) => {
-  evento.preventDefault();
-  ocultarAviso();
-  if (!sesion()) {
-    mostrarAviso('Inicia sesión para reservar.');
+$('boton-continuar').addEventListener('click', () => {
+  if (!reserva.inicio) {
+    mostrarAviso('Elige la hora de inicio tocando un bloque libre.');
     return;
   }
+  irAPaso(3);
+  pintarResumen();
+});
+
+function pintarResumen() {
+  const equipo = equipoElegido();
+  const actual = sesion();
+  const resumen = $('resumen');
+  resumen.replaceChildren();
+  if (!equipo || !reserva.inicio) {
+    irAPaso(1);
+    return;
+  }
+  const inicio = new Date(reserva.inicio);
+  const fin = new Date(inicio.getTime() + reserva.duracionMinutos * 60000);
+  const precio = calcularPrecio(equipo, reserva.duracionMinutos);
+  const filas = [
+    ['A nombre de', actual ? actual.nombre + ' (' + actual.email + ')' : 'Ingresa para confirmar'],
+    ['Consola', equipo.nombre + ' · ' + equipo.modalidad],
+    ['Día', fechaLarga.format(inicio)],
+    ['Hora', hora.format(inicio) + ' a ' + hora.format(fin)],
+    ['Precio total', pesos.format(precio.total)],
+    ['Adelanto (50 %)', pesos.format(precio.adelanto)],
+  ];
+  for (const [titulo, valor] of filas) {
+    const dd = elemento('dd', titulo === 'Adelanto (50 %)' ? 'total' : '', valor);
+    resumen.append(elemento('dt', '', titulo), dd);
+  }
+  $('confirmar-login').hidden = Boolean(actual);
+  $('boton-confirmar').disabled = !actual;
+}
+
+$('boton-confirmar').addEventListener('click', async () => {
+  ocultarAviso();
+  if (!sesion()) {
+    abrirLogin();
+    return;
+  }
+  const boton = $('boton-confirmar');
+  boton.disabled = true;
   try {
-    const reserva = await api('/api/portal/reservas', {
+    const creada = await api('/api/portal/reservas', {
       method: 'POST',
       conToken: true,
       body: {
-        equipoId: Number($('disp-equipo').value),
-        fecha: $('disp-fecha').value || null,
-        hora: $('res-hora').value || null,
-        duracionMinutos: Number($('res-duracion').value),
+        equipoId: reserva.equipoId,
+        fecha: reserva.fecha,
+        hora: hora24.format(new Date(reserva.inicio)),
+        duracionMinutos: reserva.duracionMinutos,
       },
     });
-    mostrarAviso(
-      'Reserva creada: ' + reserva.nombreEquipo + ', ' + fechaHora.format(new Date(reserva.inicio)) +
-        '. Paga el adelanto de ' + pesos.format(reserva.adelantoPesos) + ' para confirmarla.',
-      true,
-    );
-    cargarDisponibilidad();
+    reserva.creada = creada;
+    $('texto-exito').textContent =
+      creada.nombreEquipo + ', ' + fechaHora.format(new Date(creada.inicio)) + ' a nombre de ' +
+      sesion().nombre + '. Total ' + pesos.format(creada.precioTotalPesos) + '. Paga el adelanto de ' +
+      pesos.format(creada.adelantoPesos) + ' para confirmarla.';
+    $('boton-pagar-ahora').hidden = false;
+    irAPaso(4);
     cargarMisReservas();
   } catch (error) {
     mostrarAviso(error.message);
     if (error.status === 401) {
       cerrarSesion();
+      abrirLogin();
+    } else if (error.status === 409) {
+      irAPaso(2);
+      reserva.inicio = null;
+      cargarDisponibilidad();
+    }
+  } finally {
+    boton.disabled = !sesion();
+  }
+});
+
+$('boton-pagar-ahora').addEventListener('click', async () => {
+  if (reserva.creada) {
+    const pagada = await cambiarEstadoReserva(reserva.creada.id, 'pago');
+    if (pagada) {
+      $('texto-exito').textContent =
+        '¡Te esperamos! Tu turno en ' + pagada.nombreEquipo + ' quedó confirmado para el ' +
+        fechaHora.format(new Date(pagada.inicio));
+      $('boton-pagar-ahora').hidden = true;
     }
   }
 });
 
+$('boton-portada-reservar').addEventListener('click', () => {
+  reserva.creada = null;
+  irAPaso(reserva.equipoId ? 2 : 1);
+});
+
 // ---------- Mis reservas (proveedor de reservas) ----------
 async function cargarMisReservas() {
-  const tabla = $('tabla-reservas');
-  tabla.innerHTML = '';
+  const lista = $('lista-reservas');
   if (!sesion()) {
-    tabla.append(filaMensaje('Inicia sesión para ver tus reservas.', 6));
+    lista.replaceChildren();
     return;
   }
   let reservas;
   try {
     reservas = await api('/api/portal/reservas/mias', { conToken: true });
   } catch (error) {
-    tabla.append(filaMensaje(error.message, 6));
+    lista.replaceChildren(elemento('li', 'caido', error.message));
     return;
   }
+  lista.replaceChildren();
   if (reservas.length === 0) {
-    tabla.append(filaMensaje('Aún no tienes reservas.', 6));
+    lista.append(elemento('li', 'suave', 'Aún no tienes reservas. ¡Haz la primera!'));
     return;
   }
-  for (const reserva of reservas) {
-    const fila = document.createElement('tr');
-    const estado = document.createElement('span');
-    estado.className = 'etiqueta ' + reserva.estado;
-    estado.textContent = ETIQUETAS[reserva.estado] || reserva.estado;
-    const celdaEstado = document.createElement('td');
-    celdaEstado.append(estado);
-    fila.append(
-      celda(reserva.nombreEquipo),
-      celda(fechaHora.format(new Date(reserva.inicio)) + ' – ' + hora.format(new Date(reserva.fin))),
-      celda(pesos.format(reserva.precioTotalPesos)),
-      celda(pesos.format(reserva.adelantoPesos)),
-      celdaEstado,
+  for (const item of reservas) {
+    const tarjeta = elemento('li', 'reserva');
+    const encabezado = elemento('div', 'reserva__encabezado');
+    encabezado.append(
+      elemento('h3', '', item.nombreEquipo),
+      elemento('span', 'etiqueta ' + item.estado, ETIQUETAS[item.estado] || item.estado),
     );
-    const acciones = document.createElement('td');
-    if (reserva.estado === 'PENDIENTE_PAGO') {
-      acciones.append(botonAccion('Pagar adelanto', '', () => cambiarEstadoReserva(reserva.id, 'pago')));
+    tarjeta.append(
+      encabezado,
+      elemento('p', '', fechaHora.format(new Date(item.inicio)) + ' – ' + hora.format(new Date(item.fin))),
+      elemento('p', '', 'Total ' + pesos.format(item.precioTotalPesos) + ' · Adelanto ' + pesos.format(item.adelantoPesos)),
+    );
+    const acciones = elemento('div', 'acciones');
+    if (item.estado === 'PENDIENTE_PAGO') {
+      acciones.append(boton('Pagar adelanto', 'boton--pequeno', () => cambiarEstadoReserva(item.id, 'pago')));
     }
-    if (reserva.estado !== 'CANCELADA') {
-      acciones.append(botonAccion('Cancelar', 'peligro', () => cambiarEstadoReserva(reserva.id, 'cancelacion')));
+    if (item.estado !== 'CANCELADA') {
+      acciones.append(boton('Cancelar', 'boton--peligro boton--pequeno', () => cambiarEstadoReserva(item.id, 'cancelacion')));
     }
-    fila.append(acciones);
-    tabla.append(fila);
+    if (acciones.children.length) {
+      tarjeta.append(acciones);
+    }
+    lista.append(tarjeta);
   }
 }
 
 async function cambiarEstadoReserva(id, accion) {
   ocultarAviso();
   try {
-    const reserva = await api('/api/portal/reservas/' + id + '/' + accion, { method: 'PATCH', conToken: true });
-    mostrarAviso('Reserva ' + (accion === 'pago' ? 'confirmada' : 'cancelada') + ': ' + reserva.nombreEquipo + '.', true);
+    const actualizada = await api('/api/portal/reservas/' + id + '/' + accion, { method: 'PATCH', conToken: true });
+    mostrarAviso(
+      'Reserva ' + (accion === 'pago' ? 'confirmada' : 'cancelada') + ': ' + actualizada.nombreEquipo + '.',
+      true,
+    );
     cargarMisReservas();
-    if ($('bloques').children.length) {
+    if (pasoActual === 2) {
       cargarDisponibilidad();
     }
+    return actualizada;
   } catch (error) {
     mostrarAviso(error.message);
+    return null;
   }
 }
 
 // ---------- Ayudas de tabla ----------
 function celda(texto) {
-  const td = document.createElement('td');
-  td.textContent = texto;
-  return td;
+  return elemento('td', '', texto);
 }
 
 function filaMensaje(texto, columnas) {
   const fila = document.createElement('tr');
-  const td = document.createElement('td');
+  const td = elemento('td', 'suave', texto);
   td.colSpan = columnas;
-  td.className = 'suave';
-  td.textContent = texto;
   fila.append(td);
   return fila;
 }
 
-function botonAccion(texto, clase, accion) {
-  const boton = document.createElement('button');
-  boton.type = 'button';
-  boton.className = clase;
-  boton.textContent = texto;
-  boton.style.marginRight = '6px';
-  boton.addEventListener('click', accion);
-  return boton;
-}
-
 // ---------- Inicio ----------
-$('boton-estado').addEventListener('click', revisarEstado);
-$('disp-fecha').value = hoyEnBogota();
+$('boton-estado').addEventListener('click', () => {
+  revisarEstado();
+  cargarEquipos();
+  cargarHorarios();
+});
+if (FOTOS.local) {
+  $('inicio').style.setProperty('--foto-portada', "url('img/" + FOTOS.local + "')");
+}
+$('res-fecha').value = hoyEnBogota();
+$('res-fecha').min = hoyEnBogota();
+irAPaso(1);
 pintarSesion();
 revisarEstado();
 cargarEquipos();
-cargarMisReservas();
+cargarHorarios();
