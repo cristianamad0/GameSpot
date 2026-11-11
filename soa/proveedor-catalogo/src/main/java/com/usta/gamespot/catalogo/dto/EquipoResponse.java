@@ -10,6 +10,7 @@ import com.usta.gamespot.catalogo.model.Equipo;
  * @param modalidadId id de su modalidad
  * @param modalidad nombre de la modalidad
  * @param tarifaHoraPesos tarifa por hora vigente
+ * @param tarifaMediaHoraPesos tarifa vigente de un bloque suelto de 30 minutos
  * @param estaDisponible false si está fuera de servicio
  * @param sePuedeReservar true si el equipo está disponible y su modalidad activa
  */
@@ -19,6 +20,7 @@ public record EquipoResponse(
     Long modalidadId,
     String modalidad,
     int tarifaHoraPesos,
+    int tarifaMediaHoraPesos,
     boolean estaDisponible,
     boolean sePuedeReservar) {
 
@@ -35,6 +37,7 @@ public record EquipoResponse(
         equipo.getModalidad().getId(),
         equipo.getModalidad().getNombre(),
         equipo.getModalidad().getTarifaHoraPesos(),
+        equipo.getModalidad().getTarifaMediaHoraPesos(),
         equipo.isEstaDisponible(),
         equipo.isEstaDisponible() && equipo.getModalidad().isEstaActiva());
   }

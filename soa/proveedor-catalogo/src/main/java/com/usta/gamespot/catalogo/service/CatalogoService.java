@@ -134,6 +134,7 @@ public class CatalogoService {
   public ModalidadResponse actualizarTarifa(Long id, TarifaRequest request) {
     Modalidad modalidad = buscarModalidad(id);
     modalidad.setTarifaHoraPesos(request.tarifaHoraPesos());
+    modalidad.setTarifaMediaHoraPesos(request.tarifaMediaHoraPesos());
     modalidad.setEstaActiva(request.estaActiva());
     return ModalidadResponse.de(modalidadRepository.save(modalidad));
   }
