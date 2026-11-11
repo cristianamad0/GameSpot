@@ -8,6 +8,7 @@ package com.usta.gamespot.portal.dto;
  * @param modalidadId id de su modalidad
  * @param modalidad nombre de la modalidad
  * @param tarifaHoraPesos tarifa por hora vigente
+ * @param tarifaMediaHoraPesos tarifa vigente de un bloque suelto de 30 minutos (CACS-30)
  * @param estaDisponible false si está fuera de servicio
  * @param sePuedeReservar true si está disponible y su modalidad activa
  */
@@ -17,5 +18,6 @@ public record EquipoDto(
     Long modalidadId,
     String modalidad,
     int tarifaHoraPesos,
+    int tarifaMediaHoraPesos,
     boolean estaDisponible,
     boolean sePuedeReservar) {}

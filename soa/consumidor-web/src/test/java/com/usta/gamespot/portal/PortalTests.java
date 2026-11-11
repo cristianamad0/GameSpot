@@ -64,9 +64,10 @@ class PortalTests {
   @MockitoBean private ReservasCliente reservasCliente;
 
   private final EquipoDto seriesS =
-      new EquipoDto(3L, "Xbox Series S #2", 2L, "Xbox Series S", 6000, true, true);
+      new EquipoDto(3L, "Xbox Series S #2", 2L, "Xbox Series S", 5000, 3000, true, true);
   private final EquipoDto fueraDeServicio =
-      new EquipoDto(6L, "Sala VIP Xbox Series X", 3L, "Sala VIP Xbox Series X", 7000, false, false);
+      new EquipoDto(
+          6L, "Sala VIP Xbox Series X", 3L, "Sala VIP Xbox Series X", 10000, 6000, false, false);
 
   @BeforeEach
   void catalogoBase() {
@@ -118,10 +119,11 @@ class PortalTests {
   }
 
   @Test
-  @DisplayName("CP-38c Reservar toma nombre y tarifa del catálogo y crea la reserva en el proveedor de reservas")
+  @DisplayName("CP-38c Reservar toma nombre y tarifas (hora y media hora) del catálogo y crea la reserva en el proveedor de reservas")
   void reservarIntegrado() throws Exception {
     CrearReservaDto esperado =
-        new CrearReservaDto(3L, "Xbox Series S #2", 6000, Instant.parse("2099-03-02T21:00:00Z"), 60);
+        new CrearReservaDto(
+            3L, "Xbox Series S #2", 5000, 3000, Instant.parse("2099-03-02T21:00:00Z"), 60);
     when(reservasCliente.crear(eq(esperado), eq(TOKEN)))
         .thenReturn(
             new ReservaDto(
@@ -130,8 +132,8 @@ class PortalTests {
                 "Xbox Series S #2",
                 esperado.inicio(),
                 Instant.parse("2099-03-02T22:00:00Z"),
-                6000,
-                3000,
+                5000,
+                2500,
                 "PENDIENTE_PAGO",
                 "laura@gamespot.demo"));
     mockMvc
@@ -142,7 +144,7 @@ class PortalTests {
                 .content(reserva(3, "16:00", 60)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.estado").value("PENDIENTE_PAGO"))
-        .andExpect(jsonPath("$.adelantoPesos").value(3000));
+        .andExpect(jsonPath("$.adelantoPesos").value(2500));
     verify(reservasCliente).crear(esperado, TOKEN);
   }
 

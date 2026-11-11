@@ -40,7 +40,7 @@ class ClientesHttpTests {
         .andRespond(
             withSuccess(
                 "[{\"id\":1,\"nombre\":\"Xbox 360 #1\",\"modalidadId\":1,\"modalidad\":\"Xbox 360\","
-                    + "\"tarifaHoraPesos\":5000,\"estaDisponible\":true,\"sePuedeReservar\":true}]",
+                    + "\"tarifaHoraPesos\":5000,\"tarifaMediaHoraPesos\":3000,\"estaDisponible\":true,\"sePuedeReservar\":true}]",
                 MediaType.APPLICATION_JSON));
 
     var equipos = new CatalogoCliente(constructor.build()).listarEquipos();
@@ -66,7 +66,8 @@ class ClientesHttpTests {
                         + "\"detalles\":[]}"));
     ReservasCliente cliente = new ReservasCliente(constructor.build());
     CrearReservaDto reserva =
-        new CrearReservaDto(3L, "Xbox Series S #2", 6000, Instant.parse("2099-03-02T21:00:00Z"), 60);
+        new CrearReservaDto(
+            3L, "Xbox Series S #2", 5000, 3000, Instant.parse("2099-03-02T21:00:00Z"), 60);
 
     ErrorProveedorException error =
         assertThrows(ErrorProveedorException.class, () -> cliente.crear(reserva, "Bearer abc"));

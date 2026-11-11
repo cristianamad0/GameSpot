@@ -10,13 +10,16 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800&display=swap"
     />
+    <link rel="icon" type="image/webp" href="img/logo-icono.webp" />
     <link rel="stylesheet" href="estilos.css" />
   </head>
   <body>
     <!-- CACS-29: portada y reserva guiada. Todo lo que se muestra viene de la consumidora
          (/api/portal/...), que lo pide a los proveedores con RestClient. -->
     <header class="barra">
-      <a class="logo" href="#inicio">GAME <span>SPOT</span></a>
+      <a class="logo" href="#inicio">
+        <img src="img/logo-horizontal.webp" alt="Game Spot, tu espacio gamer" width="150" height="52" />
+      </a>
       <nav class="menu" aria-label="Secciones">
         <a href="#equipos">Equipos</a>
         <a href="#reservar">Reservar</a>
@@ -34,7 +37,8 @@
       <!-- Portada -->
       <section id="inicio" class="portada">
         <div class="contenedor portada__contenido">
-          <p class="portada__etiqueta">Sala de videojuegos · Villavicencio</p>
+          <img class="portada__emblema" src="img/logo-emblema.webp" alt="" width="360" height="360" />
+          <p class="portada__etiqueta">Tu espacio gamer · Villavicencio</p>
           <h1 class="portada__titulo">Reserva tu turno y <span>llega a jugar</span></h1>
           <p class="portada__texto">
             Aparta tu consola o la sala VIP en bloques de 30 minutos, mira al instante qué horas
@@ -46,7 +50,7 @@
           </div>
           <ul class="portada__datos" aria-label="Lo que ofrecemos">
             <li><strong id="dato-equipos">–</strong> equipos para jugar</li>
-            <li><strong id="dato-desde">–</strong> la hora desde</li>
+            <li><strong id="dato-desde">–</strong> la media hora desde</li>
             <li><strong>30 min</strong> bloques de reserva</li>
           </ul>
         </div>
@@ -68,7 +72,7 @@
           <ol class="pasos">
             <li class="paso">
               <span class="paso__numero" aria-hidden="true">1</span>
-              <div><h3>Elige tu consola</h3><p>Xbox 360, Series S o la sala VIP con Series X.</p></div>
+              <div><h3>Elige tu consola</h3><p>Xbox 360, Xbox Series S o la sala VIP con Series X.</p></div>
             </li>
             <li class="paso">
               <span class="paso__numero" aria-hidden="true">2</span>
@@ -160,7 +164,7 @@
         <div class="tarjeta tabla-desplazable">
           <table>
             <thead>
-              <tr><th>Equipo</th><th>Modalidad</th><th>Tarifa por hora</th><th>Estado</th><th></th></tr>
+              <tr><th>Equipo</th><th>Modalidad</th><th>Hora / media hora</th><th>Estado</th><th></th></tr>
             </thead>
             <tbody id="tabla-admin"></tbody>
           </table>

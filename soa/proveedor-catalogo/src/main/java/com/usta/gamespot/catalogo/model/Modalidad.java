@@ -12,7 +12,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Tipo de equipo con su tarifa por hora, por ejemplo "Xbox Series S". Tabla: modalidades. */
+/**
+ * Tipo de equipo con su tarifa por hora y por media hora, por ejemplo "Xbox Series S". Tabla:
+ * modalidades.
+ */
 @Entity
 @Table(name = "modalidades")
 @Getter
@@ -31,6 +34,10 @@ public class Modalidad {
 
   @Column(name = "tarifa_hora_pesos", nullable = false)
   private Integer tarifaHoraPesos;
+
+  /** CACS-30: precio de un bloque suelto de 30 minutos (no es la mitad de la hora). */
+  @Column(name = "tarifa_media_hora_pesos", nullable = false)
+  private Integer tarifaMediaHoraPesos;
 
   @Column(name = "esta_activa", nullable = false)
   @Builder.Default

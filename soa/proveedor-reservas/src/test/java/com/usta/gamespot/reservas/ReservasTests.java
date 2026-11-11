@@ -57,7 +57,8 @@ class ReservasTests {
   private static String reserva(long equipoId, String inicio, int duracionMinutos) {
     return "{\"equipoId\":"
         + equipoId
-        + ",\"nombreEquipo\":\"Xbox Series S #2\",\"tarifaHoraPesos\":6000,\"inicio\":\""
+        + ",\"nombreEquipo\":\"Xbox Series S #2\",\"tarifaHoraPesos\":5000,"
+        + "\"tarifaMediaHoraPesos\":3000,\"inicio\":\""
         + inicio
         + "\",\"duracionMinutos\":"
         + duracionMinutos
@@ -106,8 +107,8 @@ class ReservasTests {
     crear(laura(), reserva(3, TRES_PM, 90))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.estado").value("PENDIENTE_PAGO"))
-        .andExpect(jsonPath("$.precioTotalPesos").value(9000))
-        .andExpect(jsonPath("$.adelantoPesos").value(4500))
+        .andExpect(jsonPath("$.precioTotalPesos").value(8000))
+        .andExpect(jsonPath("$.adelantoPesos").value(4000))
         .andExpect(jsonPath("$.fin").value("2099-03-02T21:30:00Z"))
         .andExpect(jsonPath("$.emailCliente").value("laura@gamespot.demo"));
   }
@@ -128,7 +129,7 @@ class ReservasTests {
     crear(token, "{\"equipoId\":3,\"duracionMinutos\":300}")
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.mensaje").value("Datos inválidos"))
-        .andExpect(jsonPath("$.detalles", hasSize(4)));
+        .andExpect(jsonPath("$.detalles", hasSize(5)));
   }
 
   @Test
@@ -192,6 +193,26 @@ class ReservasTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.estado").value("CANCELADA"));
     crear(andres(), reserva(3, TRES_PM, 60)).andExpect(status().isCreated());
+  }
+
+  @Test
+  @DisplayName(
+      "CP-37i El precio cobra cada hora a la tarifa por hora y la media hora que sobra a su propia"
+          + " tarifa")
+  void precioConMediaHora() throws Exception {
+    String token = laura();
+    crear(token, reserva(3, TRES_PM, 30))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.precioTotalPesos").value(3000))
+        .andExpect(jsonPath("$.adelantoPesos").value(1500));
+    crear(token, reserva(4, TRES_PM, 60))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.precioTotalPesos").value(5000))
+        .andExpect(jsonPath("$.adelantoPesos").value(2500));
+    crear(token, reserva(5, TRES_PM, 150))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.precioTotalPesos").value(13000))
+        .andExpect(jsonPath("$.adelantoPesos").value(6500));
   }
 
   @Test

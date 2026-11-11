@@ -7,7 +7,7 @@ puerto y base de datos, que se comunican por HTTP con JSON.
 
 | Aplicación | Carpeta | Puerto | Capacidad | Datos que administra |
 | --- | --- | --- | --- | --- |
-| Proveedor 1 | `proveedor-catalogo` | 8091 | Catálogo: equipos, modalidades con su tarifa y horario de atención | H2 en `proveedor-catalogo/data/catalogo` |
+| Proveedor 1 | `proveedor-catalogo` | 8091 | Catálogo: equipos, modalidades con su tarifa por hora y por media hora, y horario de atención | H2 en `proveedor-catalogo/data/catalogo` |
 | Proveedor 2 | `proveedor-reservas` | 8092 | Reservas por bloques de 30 minutos y autenticación JWT | H2 en `proveedor-reservas/data/reservas` |
 | Consumidora | `consumidor-web` | 8080 | Interfaz web (HTML, CSS, JavaScript con Fetch) y backend que llama a los dos proveedores con RestClient | No guarda datos propios |
 
@@ -100,8 +100,8 @@ Son datos de demostración cargados por `proveedor-reservas/src/main/resources/d
 | POST | `/api/equipos` | ADMIN | 201 equipo creado; 400 datos inválidos; 404 modalidad inexistente; 409 nombre repetido |
 | PUT | `/api/equipos/{id}` | ADMIN | 200 equipo actualizado; 400; 404; 409 |
 | DELETE | `/api/equipos/{id}` | ADMIN | 204; 404 |
-| GET | `/api/modalidades` | No | 200 modalidades con su tarifa |
-| PUT | `/api/modalidades/{id}` | ADMIN | 200 modalidad; 400 tarifa fuera de 1 a 1.000.000; 404 |
+| GET | `/api/modalidades` | No | 200 modalidades con su tarifa por hora y por media hora |
+| PUT | `/api/modalidades/{id}` | ADMIN | 200 modalidad; 400 si falta una tarifa o está fuera de 1 a 1.000.000; 404 |
 | GET | `/api/horarios` | No | 200 horario de los 7 días |
 
 Sin token o con un token inválido, las rutas con JWT responden 401; con un
@@ -142,8 +142,8 @@ Cada proyecto tiene sus pruebas automatizadas (`./mvnw test` en su carpeta):
 
 | Proyecto | Clase | Casos |
 | --- | --- | --- |
-| `proveedor-catalogo` | `CatalogoTests`: listado con los datos de `data.sql`, consulta y 404, CRUD completo, validaciones (400 y 409), JWT (401 sin token o inválido, 403 cliente), tarifa y horario | CP-36a a CP-36g |
-| `proveedor-reservas` | `ReservasTests`: login y 401, precio y adelanto, bloques inválidos (400), cruces (409), reservas propias y ocupación pública, pago, cancelación lógica y 403, 401 sin token | CP-37a a CP-37h |
+| `proveedor-catalogo` | `CatalogoTests`: listado con los datos de `data.sql`, consulta y 404, CRUD completo, validaciones (400 y 409), JWT (401 sin token o inválido, 403 cliente), tarifas, horario y corrección de una base anterior | CP-36a a CP-36h |
+| `proveedor-reservas` | `ReservasTests`: login y 401, precio y adelanto, bloques inválidos (400), cruces (409), reservas propias y ocupación pública, pago, cancelación lógica y 403, 401 sin token, precio con tarifa de media hora | CP-37a a CP-37i |
 | `consumidor-web` | `PortalTests` y `ClientesHttpTests`: integración de los dos proveedores, validaciones, proveedor detenido (503), página web, horario, rutas y token del RestClient | CP-38a a CP-38j |
 
 La colección de Postman está en `postman/GameSpot-SOA.postman_collection.json`
