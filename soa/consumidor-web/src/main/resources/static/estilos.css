@@ -322,24 +322,9 @@ select {
   max-width: 820px;
 }
 
-.portada__etiqueta {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--primario);
-  color: var(--primario);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 .portada__titulo {
   font-size: clamp(2rem, 6vw, 3.6rem);
   font-weight: 800;
-}
-
-.portada__titulo span {
-  color: var(--primario);
-  text-shadow: 0 0 22px var(--acento-brillo);
 }
 
 .portada__texto {
@@ -1225,15 +1210,6 @@ main,
 
 .portada .portada__contenido {
   z-index: 2;
-}
-
-.portada__lema {
-  margin: -4px 0 10px;
-  font-family: var(--titulo);
-  font-size: 0.95rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--acento);
 }
 
 .ventajas ul {
@@ -2278,5 +2254,187 @@ main .seccion > p.suave {
 
   .reto__nube {
     display: none;
+  }
+}
+
+/* ---------- CACS-44: título de la portada con la voz del barrio ---------- */
+.portada__abierto {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 14px;
+  color: var(--suave);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+/* Punto "encendido" del horario. */
+.portada__punto {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--exito);
+}
+
+.portada__punto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--exito);
+  animation: portada-latido 2s ease-out infinite;
+}
+
+.portada .portada__titulo {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  margin: 0 0 18px;
+  font-size: 1rem;
+  line-height: 0.95;
+}
+
+.portada__titulo-arriba {
+  font-family: var(--cuerpo);
+  font-size: clamp(1.5rem, 4vw, 2.3rem);
+  font-weight: 800;
+  color: var(--texto);
+}
+
+.portada__titulo-grande {
+  position: relative;
+  padding-bottom: 0.12em;
+  font-size: clamp(3.4rem, 12vw, 6.4rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--primario);
+  text-shadow:
+    0 0 26px var(--primario-brillo),
+    4px 4px 0 #7c2d12;
+}
+
+/* Subrayado hecho "a mano" debajo de GAMER. */
+.portada__titulo-grande::after {
+  content: '';
+  position: absolute;
+  left: 2%;
+  right: 4%;
+  bottom: -0.08em;
+  height: 0.22em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'%3E%3Cpath d='M3 13 C 60 4, 110 18, 170 9 S 260 6, 297 11' fill='none' stroke='%237dd3fc' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E")
+    center / 100% 100% no-repeat;
+}
+
+.portada__titulo-abajo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 0.25em;
+  font-family: var(--cuerpo);
+  font-size: clamp(1.4rem, 3.6vw, 2.1rem);
+  font-weight: 800;
+  color: var(--texto);
+}
+
+/* Calcomanía pegada de lado junto al título. */
+.portada__calcomania {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: #c084fc;
+  color: var(--primario-texto);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
+  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+  font-weight: 800;
+  line-height: 1.2;
+  transform: rotate(-5deg);
+  animation: portada-calcomania 6s ease-in-out infinite;
+}
+
+.portada__texto {
+  font-size: 1.08rem;
+}
+
+/* Las cifras van como una boleta con cortes punteados. */
+.portada .portada__datos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0 0 18px;
+  padding: 0;
+  border: 1px dashed rgba(251, 191, 36, 0.55);
+  border-radius: 12px;
+  background: rgba(15, 23, 41, 0.7);
+}
+
+.portada__datos li {
+  padding: 12px 20px;
+}
+
+.portada__datos li + li {
+  border-left: 1px dashed rgba(251, 191, 36, 0.4);
+}
+
+.portada__datos strong {
+  font-size: 1.35rem;
+}
+
+.portada__promo {
+  display: block;
+  width: fit-content;
+  margin-bottom: 0;
+}
+
+@media (max-width: 560px) {
+  /* En el celular la boleta queda en tres columnas iguales. */
+  .portada .portada__datos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+
+  .portada__datos li {
+    padding: 10px;
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+
+  .portada__datos strong {
+    font-size: 1.15rem;
+  }
+}
+
+@keyframes portada-latido {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes portada-calcomania {
+  0%,
+  88%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  92% {
+    transform: rotate(2deg) scale(1.05);
+  }
+  96% {
+    transform: rotate(-8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portada__punto::after,
+  .portada__calcomania {
+    animation: none;
   }
 }
