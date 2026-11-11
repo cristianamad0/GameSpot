@@ -1,20 +1,24 @@
-/* CACS-29: identidad visual de Game Spot (la misma del frontend Angular): tema oscuro con
-   acentos neón. Los textos cumplen contraste AA y los estados siempre llevan texto. */
+/* CACS-29 y CACS-30: identidad visual de Game Spot con los colores del logo: fondo azul noche,
+   neón dorado (acción principal) y azul cielo (acentos). Los textos cumplen contraste AA y los
+   estados siempre llevan texto. */
 :root {
   color-scheme: dark;
-  --fondo: #0b0f1f;
-  --superficie: #141a33;
-  --superficie-2: #1c2445;
-  --borde: #2c3768;
+  --fondo: #070b16;
+  --superficie: #0f1729;
+  --superficie-2: #16213a;
+  --borde: #26365a;
   --texto: #eef1ff;
   --suave: #aab3d9;
-  --primario: #9333ea;
-  --primario-hover: #7e22ce;
-  --primario-brillo: rgba(168, 85, 247, 0.45);
-  --acento: #22d3ee;
-  --acento-brillo: rgba(34, 211, 238, 0.35);
+  /* Dorado del logo: botones principales, con texto oscuro encima (contraste 11:1). */
+  --primario: #fbbf24;
+  --primario-hover: #f59e0b;
+  --primario-texto: #0b1020;
+  --primario-brillo: rgba(251, 191, 36, 0.4);
+  /* Azul cielo del logo: acentos, precios y foco. */
+  --acento: #7dd3fc;
+  --acento-brillo: rgba(56, 189, 248, 0.4);
   --exito: #34d399;
-  --aviso: #fbbf24;
+  --aviso: #fdba74;
   --error: #f87171;
   --titulo: 'Orbitron', 'Segoe UI', sans-serif;
   --cuerpo: 'Inter', 'Segoe UI', Roboto, sans-serif;
@@ -37,8 +41,8 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(900px 500px at 85% -10%, rgba(147, 51, 234, 0.22), transparent 60%),
-    radial-gradient(700px 400px at -10% 110%, rgba(34, 211, 238, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 85% -10%, rgba(251, 191, 36, 0.12), transparent 60%),
+    radial-gradient(700px 400px at -10% 110%, rgba(56, 189, 248, 0.14), transparent 60%),
     var(--fondo);
   background-attachment: fixed;
   color: var(--texto);
@@ -113,17 +117,15 @@ a {
 }
 
 .logo {
-  font-family: var(--titulo);
-  font-weight: 800;
-  font-size: 1.3rem;
-  color: var(--texto);
-  text-decoration: none;
-  letter-spacing: 0.06em;
+  display: inline-flex;
 }
 
-.logo span {
-  color: var(--acento);
-  text-shadow: 0 0 14px var(--acento-brillo);
+.logo img {
+  display: block;
+  height: 52px;
+  width: auto;
+  /* El logo trae fondo oscuro; "lighten" lo funde con el fondo de la barra. */
+  mix-blend-mode: lighten;
 }
 
 .menu {
@@ -163,9 +165,9 @@ a {
   border-radius: var(--radio-pequeno);
   border: 1px solid transparent;
   background: var(--primario);
-  color: #fff;
+  color: var(--primario-texto);
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
@@ -280,6 +282,32 @@ select {
   z-index: 1;
 }
 
+.portada__emblema {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .portada__emblema {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    width: min(34vw, 380px);
+    height: auto;
+    transform: translateY(-50%);
+    /* La imagen trae fondo oscuro: se desvanecen sus bordes para fundirla con la portada. */
+    mask-image: radial-gradient(closest-side, #000 86%, transparent 100%);
+    mix-blend-mode: lighten;
+  }
+
+  .portada .portada__titulo,
+  .portada .portada__texto,
+  .portada .portada__acciones,
+  .portada .portada__datos {
+    max-width: calc(100% - min(34vw, 380px) - 40px);
+  }
+}
+
 .portada__titulo,
 .portada__acciones,
 .portada__datos {
@@ -290,8 +318,8 @@ select {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid var(--acento);
-  color: var(--acento);
+  border: 1px solid var(--primario);
+  color: var(--primario);
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -302,7 +330,7 @@ select {
 }
 
 .portada__titulo span {
-  color: var(--acento);
+  color: var(--primario);
   text-shadow: 0 0 22px var(--acento-brillo);
 }
 
@@ -385,7 +413,7 @@ select {
   aspect-ratio: 16 / 9;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #2a1a5e, #0e3a4a);
+  background: linear-gradient(135deg, #1a2440, #0c3350);
   font-size: 3.4rem;
 }
 
@@ -414,6 +442,16 @@ select {
 .modalidad__precio small {
   font-family: var(--cuerpo);
   font-size: 0.85rem;
+  color: var(--suave);
+}
+
+.modalidad__media {
+  margin: 0;
+  font-weight: 600;
+}
+
+.modalidad__media small {
+  font-weight: 400;
   color: var(--suave);
 }
 
@@ -453,6 +491,7 @@ select {
   height: 40px;
   border-radius: 50%;
   background: var(--primario);
+  color: var(--primario-texto);
   font-family: var(--titulo);
   font-weight: 800;
   box-shadow: 0 0 18px var(--primario-brillo);
@@ -512,7 +551,7 @@ select {
 
 .progreso li.actual {
   border-color: var(--primario);
-  background: rgba(147, 51, 234, 0.2);
+  background: rgba(251, 191, 36, 0.14);
   color: var(--texto);
 }
 
@@ -831,8 +870,14 @@ th {
 }
 
 @media (max-width: 560px) {
+  /* En el celular la barra ocupa varias líneas: deja de quedar fija para no tapar el contenido. */
   .barra {
+    position: static;
     padding: 10px 16px;
+  }
+
+  html {
+    scroll-padding-top: 0;
   }
 
   .progreso li {

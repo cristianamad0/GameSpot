@@ -238,7 +238,7 @@ function pintarModalidades() {
     grupos.get(equipo.modalidad).push(equipo);
   }
   $('dato-equipos').textContent = equipos.length;
-  const tarifas = equipos.map((e) => e.tarifaHoraPesos);
+  const tarifas = equipos.map((e) => e.tarifaMediaHoraPesos);
   $('dato-desde').textContent = tarifas.length ? pesos.format(Math.min(...tarifas)) : '–';
 
   const lista = $('lista-modalidades');
@@ -261,11 +261,14 @@ function pintarModalidades() {
 
     const cuerpo = elemento('div', 'modalidad__cuerpo');
     const precio = elemento('p', 'modalidad__precio', pesos.format(unidades[0].tarifaHoraPesos) + ' ');
-    precio.append(elemento('small', '', 'por hora'));
+    precio.append(elemento('small', '', 'la hora'));
+    const media = elemento('p', 'modalidad__media', pesos.format(unidades[0].tarifaMediaHoraPesos) + ' ');
+    media.append(elemento('small', '', 'la media hora'));
     cuerpo.append(
       elemento('h3', '', modalidad),
       elemento('p', 'suave', DESCRIPCIONES[id] || 'Disponible para reservar por bloques de 30 minutos.'),
       precio,
+      media,
       elemento(
         'p',
         libres.length ? 'ok' : 'caido',
@@ -297,7 +300,8 @@ function pintarOpcionesEquipo() {
     opcion.append(
       elemento('strong', '', equipo.nombre),
       elemento('span', '', equipo.modalidad),
-      elemento('span', 'precio', pesos.format(equipo.tarifaHoraPesos) + ' por hora'),
+      elemento('span', 'precio', pesos.format(equipo.tarifaHoraPesos) + ' la hora'),
+      elemento('span', '', pesos.format(equipo.tarifaMediaHoraPesos) + ' la media hora'),
     );
     if (!equipo.sePuedeReservar) {
       opcion.append(elemento('span', 'caido', 'Fuera de servicio'));
@@ -315,7 +319,7 @@ function pintarAdmin() {
     fila.append(
       celda(equipo.nombre),
       celda(equipo.modalidad),
-      celda(pesos.format(equipo.tarifaHoraPesos)),
+      celda(pesos.format(equipo.tarifaHoraPesos) + ' / ' + pesos.format(equipo.tarifaMediaHoraPesos)),
       celda(equipo.sePuedeReservar ? 'Disponible' : 'Fuera de servicio'),
     );
     const acciones = document.createElement('td');
@@ -426,7 +430,8 @@ function elegirEquipo(id) {
   reserva.creada = null;
   const equipo = equipoElegido();
   $('equipo-elegido').textContent = equipo
-    ? 'Consola elegida: ' + equipo.nombre + ' (' + pesos.format(equipo.tarifaHoraPesos) + ' por hora)'
+    ? 'Consola elegida: ' + equipo.nombre + ' (' + pesos.format(equipo.tarifaHoraPesos) + ' la hora, ' +
+      pesos.format(equipo.tarifaMediaHoraPesos) + ' la media hora)'
     : '';
   pintarOpcionesEquipo();
   irAPaso(2);
@@ -444,8 +449,11 @@ $('res-duracion').addEventListener('change', () => {
 });
 
 function calcularPrecio(equipo, minutos) {
-  // Misma regla del proveedor de reservas: precio redondeado hacia arriba y adelanto del 50 %.
-  const total = Math.ceil((equipo.tarifaHoraPesos * minutos) / 60);
+  // Misma regla del proveedor de reservas (CACS-30): cada hora completa a la tarifa por hora y la
+  // media hora que sobre a su propia tarifa; el adelanto es el 50 %.
+  const horasCompletas = Math.floor(minutos / 60);
+  const sobraMediaHora = minutos % 60 !== 0;
+  const total = horasCompletas * equipo.tarifaHoraPesos + (sobraMediaHora ? equipo.tarifaMediaHoraPesos : 0);
   return { total, adelanto: Math.ceil((total * PORCENTAJE_ADELANTO) / 100) };
 }
 

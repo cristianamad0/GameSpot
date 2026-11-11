@@ -103,9 +103,10 @@ public class PortalService {
   }
 
   /**
-   * Reserva un equipo: operación integrada. Consulta el equipo, su tarifa y el horario en el
+   * Reserva un equipo: operación integrada. Consulta el equipo, sus tarifas y el horario en el
    * catálogo, valida que el equipo se pueda reservar y que el bloque quede dentro del horario, y
-   * crea la reserva en el proveedor de reservas con el nombre y la tarifa del catálogo.
+   * crea la reserva en el proveedor de reservas con el nombre y las tarifas (hora y media hora) del
+   * catálogo.
    *
    * @param request equipo, fecha, hora y duración
    * @param autorizacion encabezado Authorization del navegador
@@ -139,6 +140,7 @@ public class PortalService {
             equipo.id(),
             equipo.nombre(),
             equipo.tarifaHoraPesos(),
+            equipo.tarifaMediaHoraPesos(),
             enNegocio(request.fecha(), request.hora()),
             request.duracionMinutos());
     return reservasCliente.crear(reserva, autorizacion);
