@@ -863,3 +863,36 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Corregir precios y equipos con los datos que envíe el propietario.
   - Agregar las fotos del local cuando estén disponibles.
+
+## 2026-11-11 — SOA: precios reales con tarifa de media hora y logo
+
+- **Tarjeta:** CACS-30 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-precios-media-hora` (parte de `feat/soa-portal-presentacion`).
+- **Qué se hizo:**
+  - Equipos y precios corregidos por el propietario: dos Xbox 360 ($4.000 la
+    hora, $2.500 la media hora), dos Xbox Series S ($5.000 y $3.000) y la sala
+    VIP con Xbox Series X ($10.000 y $6.000).
+  - `proveedor-catalogo`: columna `tarifa_media_hora_pesos` (DDL en
+    `schema.sql`, con `alter table ... add column if not exists` para las
+    bases que ya existían) y corrección única en `data.sql`: solo actúa
+    mientras falte la tarifa de media hora, así después no pisa los cambios
+    hechos por la API. La tarifa nueva va en la entidad, los DTO y
+    `PUT /api/modalidades/{id}`.
+  - `proveedor-reservas`: el precio es cada hora completa a la tarifa por hora
+    más la tarifa de media hora si sobra media hora; el adelanto sigue siendo
+    el 50 %.
+  - `consumidor-web`: pasa la tarifa de media hora del catálogo al proveedor de
+    reservas y la página muestra ambos precios; logo de Game Spot en la barra,
+    en la portada y como ícono, con los colores del logo (dorado y azul cielo).
+  - Postman: cuerpos con la tarifa de media hora; el `PUT` de tarifa usa los
+    precios reales del Xbox 360 para no dejar datos de prueba en la base.
+- **Pruebas:** `./mvnw test`: catálogo 8 pruebas (nueva CP-36h: corrección de
+  una base anterior), reservas 9 (nueva CP-37i: 30, 60 y 150 minutos) y
+  consumidora 10; 0 fallos. Newman: carpetas 1 a 4, 38 solicitudes y 40
+  comprobaciones; carpeta 5 con el catálogo detenido, 2 y 3; 0 fallos. Prueba a
+  mano: la base existente quedó con 5 equipos y los precios nuevos, una reserva
+  de 90 minutos de Series S costó $8.000 y la página se ve bien a 360 px.
+- **Pendientes:**
+  - Actualizar el documento técnico en inglés con la tarifa de media hora
+    antes de la entrega final del 18 de noviembre.
+  - Fotos del local cuando estén disponibles.

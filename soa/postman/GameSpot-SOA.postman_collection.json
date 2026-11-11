@@ -617,7 +617,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tarifaHoraPesos\": 5000,\n  \"estaActiva\": true\n}",
+              "raw": "{\n  \"tarifaHoraPesos\": 4000,\n  \"tarifaMediaHoraPesos\": 2500,\n  \"estaActiva\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -758,7 +758,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 6000,\n  \"inicio\": \"{{inicio}}\",\n  \"duracionMinutos\": 60\n}",
+              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 5000,\n  \"tarifaMediaHoraPesos\": 3000,\n  \"inicio\": \"{{inicio}}\",\n  \"duracionMinutos\": 60\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -774,7 +774,7 @@
                 "exec": [
                   "pm.test(\"Responde 201\", function () { pm.response.to.have.status(201); });",
                   "pm.collectionVariables.set('reservaId', pm.response.json().id);",
-                  "pm.test('Adelanto del 50 %', function () { pm.expect(pm.response.json().adelantoPesos).to.eql(3000); });"
+                  "pm.test('Adelanto del 50 %', function () { pm.expect(pm.response.json().adelantoPesos).to.eql(2500); });"
                 ]
               }
             },
@@ -818,7 +818,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 6000,\n  \"inicio\": \"{{inicio}}\",\n  \"duracionMinutos\": 30\n}",
+              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 5000,\n  \"tarifaMediaHoraPesos\": 3000,\n  \"inicio\": \"{{inicio}}\",\n  \"duracionMinutos\": 30\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -864,7 +864,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 6000,\n  \"inicio\": \"2099-03-02T20:15:00Z\",\n  \"duracionMinutos\": 60\n}",
+              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 5000,\n  \"tarifaMediaHoraPesos\": 3000,\n  \"inicio\": \"2099-03-02T20:15:00Z\",\n  \"duracionMinutos\": 60\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -906,7 +906,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 6000,\n  \"inicio\": \"2099-03-02T20:00:00Z\",\n  \"duracionMinutos\": 60\n}",
+              "raw": "{\n  \"equipoId\": 2,\n  \"nombreEquipo\": \"Xbox Series S #1\",\n  \"tarifaHoraPesos\": 5000,\n  \"tarifaMediaHoraPesos\": 3000,\n  \"inicio\": \"2099-03-02T20:00:00Z\",\n  \"duracionMinutos\": 60\n}",
               "options": {
                 "raw": {
                   "language": "json"
