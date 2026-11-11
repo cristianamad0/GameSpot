@@ -44,8 +44,10 @@ insert into equipos (nombre, modalidad_id)
 select 'Xbox 360 #2', id from modalidades where nombre = 'Xbox 360'
 and not exists (select 1 from equipos where nombre = 'Xbox 360 #2');
 
--- Lunes a viernes de 14:00 a 22:00; sábado y domingo de 15:00 a 21:00.
+-- CACS-33: todos los días de 15:00 a 21:00 (horario confirmado por el equipo el
+-- 11/11/2026, igual al de la publicidad del local). El merge también corrige las
+-- bases que ya existen al arrancar.
 merge into horarios_atencion (dia_semana, hora_apertura, hora_cierre) key (dia_semana) values
-  (1, '14:00:00', '22:00:00'), (2, '14:00:00', '22:00:00'), (3, '14:00:00', '22:00:00'),
-  (4, '14:00:00', '22:00:00'), (5, '14:00:00', '22:00:00'),
+  (1, '15:00:00', '21:00:00'), (2, '15:00:00', '21:00:00'), (3, '15:00:00', '21:00:00'),
+  (4, '15:00:00', '21:00:00'), (5, '15:00:00', '21:00:00'),
   (6, '15:00:00', '21:00:00'), (7, '15:00:00', '21:00:00');
