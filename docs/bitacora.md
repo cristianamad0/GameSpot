@@ -1047,3 +1047,21 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
   Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: portada sin video y logo más grande
+
+- **Tarjeta:** CACS-38 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-portada-logo` (parte de `feat/soa-titulos-centrados`).
+- **Qué se hizo:**
+  - Se quitó el video de fondo de la portada; los videos siguen en "Conoce el
+    local".
+  - El logo de la portada pasa de 380 a 500 px en computador y ahora también
+    se ve en el celular, arriba y centrado; el título se ajusta para quedar en
+    dos líneas.
+  - `application.yaml` de la consumidora: `Cache-Control: no-cache` para los
+    archivos estáticos. El navegador revalida en cada visita y siempre muestra
+    la última versión, sin necesidad de Ctrl + F5.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y a 360 px, sin desplazamiento horizontal; los
+  estilos responden con `Cache-Control: no-cache`.
+- **Pendientes:** ninguno.
