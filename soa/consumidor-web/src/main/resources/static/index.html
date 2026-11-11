@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Spot · Reservas</title>
+    <link rel="stylesheet" href="estilos.css" />
+  </head>
+  <body>
+    <header class="barra">
+      <h1>Game Spot <span>Reservas</span></h1>
+      <div class="sesion" id="sesion">
+        <span id="sesion-nombre"></span>
+        <button type="button" id="boton-salir" class="secundario" hidden>Salir</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="estado-servicios" aria-label="Estado de los servicios">
+        <span>Catálogo (8091): <strong id="estado-catalogo">consultando…</strong></span>
+        <span>Reservas (8092): <strong id="estado-reservas">consultando…</strong></span>
+        <button type="button" id="boton-estado" class="secundario">Revisar</button>
+      </section>
+
+      <div id="aviso" class="aviso" role="alert" hidden></div>
+
+      <section id="panel-login" class="tarjeta">
+        <h2>Iniciar sesión</h2>
+        <form id="form-login" novalidate>
+          <label>Correo <input type="email" id="login-email" autocomplete="username" /></label>
+          <label>Contraseña
+            <input type="password" id="login-password" autocomplete="current-password" />
+          </label>
+          <button type="submit">Ingresar</button>
+        </form>
+        <p class="suave">Cuentas de prueba: laura@gamespot.demo / ClienteDemo123 y
+          admin@gamespot.demo / AdminDemo123.</p>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Equipos <small>(proveedor de catálogo)</small></h2>
+        <table>
+          <thead>
+            <tr><th>Equipo</th><th>Modalidad</th><th>Tarifa por hora</th><th>Estado</th><th></th></tr>
+          </thead>
+          <tbody id="tabla-equipos"></tbody>
+        </table>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Reservar <small>(usa los dos proveedores)</small></h2>
+        <form id="form-disponibilidad" class="fila" novalidate>
+          <label>Equipo <select id="disp-equipo"></select></label>
+          <label>Fecha <input type="date" id="disp-fecha" /></label>
+          <button type="submit" class="secundario">Ver disponibilidad</button>
+        </form>
+        <div id="bloques" class="bloques" aria-live="polite"></div>
+        <form id="form-reserva" class="fila" novalidate>
+          <label>Hora de inicio <input type="time" id="res-hora" step="1800" /></label>
+          <label>Duración
+            <select id="res-duracion">
+              <option value="30">30 minutos</option>
+              <option value="60" selected>1 hora</option>
+              <option value="90">1 hora 30 minutos</option>
+              <option value="120">2 horas</option>
+              <option value="180">3 horas</option>
+            </select>
+          </label>
+          <button type="submit">Reservar</button>
+        </form>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Mis reservas <small>(proveedor de reservas)</small></h2>
+        <table>
+          <thead>
+            <tr><th>Equipo</th><th>Fecha y hora</th><th>Precio</th><th>Adelanto</th><th>Estado</th><th></th></tr>
+          </thead>
+          <tbody id="tabla-reservas">
+            <tr><td colspan="6" class="suave">Inicia sesión para ver tus reservas.</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

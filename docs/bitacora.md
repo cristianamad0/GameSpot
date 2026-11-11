@@ -741,6 +741,79 @@ pruebas y pendientes. La entrada más reciente va al final.
   - En PowerShell, guardar la contraseña de aplicación con comillas simples:
     con comillas dobles, un `$` se interpreta como variable.
 
+## 2026-11-10 — SOA: proveedor de catálogo
+
+- **Tarjeta:** CACS-25 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-catalogo`
+- **Qué se hizo:**
+  - Decisión del equipo: para la arquitectura SOA que pide la docente Diana
+    Velásquez, el negocio se divide en catálogo (proveedor 1) y reservas
+    (proveedor 2), cada uno con su base H2 en archivo, y los tres proyectos
+    van en `soa/` sin tocar el sistema actual.
+  - `soa/proveedor-catalogo`: aplicación Spring Boot independiente en el
+    puerto 8091 con `schema.sql` (DDL), `data.sql` (DML con los 6 equipos, 3
+    modalidades y el horario reales; solo inserta lo que falta, para no pisar
+    cambios al reiniciar), entidades JPA y repositorios.
+  - CRUD de equipos (`GET`, `POST`, `PUT`, `DELETE /api/equipos`), tarifas
+    (`GET` y `PUT /api/modalidades`) y horario (`GET /api/horarios`). Las
+    modificaciones exigen un JWT de rol ADMIN emitido por el proveedor de
+    reservas y firmado con el mismo `JWT_SECRETO` (401 sin token o con uno
+    inválido, 403 con otro rol).
+- **Pruebas:** `./mvnw test` en `soa/proveedor-catalogo`: 7 pruebas, 0 fallos
+  (CP-36a a CP-36g en `CatalogoTests`).
+- **Pendientes:**
+  - Ninguno de esta tarjeta.
+
+## 2026-11-10 — SOA: proveedor de reservas con JWT
+
+- **Tarjeta:** CACS-26 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-reservas`
+- **Qué se hizo:**
+  - `soa/proveedor-reservas`: aplicación Spring Boot independiente en el
+    puerto 8092 con H2 en archivo (`./data/reservas`), `schema.sql` (DDL),
+    `data.sql` (DML con tres usuarios de prueba y contraseñas en BCrypt),
+    entidades JPA y repositorios.
+  - `POST /api/auth/login` emite un JWT firmado con `JWT_SECRETO` (rol en el
+    token). `FiltroJwt` exige el token en todo `/api/reservas` salvo la
+    ocupación, que es pública.
+  - Reservas: crear (bloques en :00 o :30, múltiplos de 30, en el futuro, sin
+    cruces con reservas activas del mismo equipo, 409 si se cruzan), mis
+    reservas, ocupación de un día, pago simulado del adelanto y cancelación
+    lógica (la reserva queda en CANCELADA y su bloque se libera).
+- **Pruebas:** `./mvnw test` en `soa/proveedor-reservas`: 8 pruebas, 0
+  fallos (CP-37a a CP-37h en `ReservasTests`).
+- **Pendientes:**
+  - La detección de cruces se hace en el servicio; con H2 no hay restricción
+    de exclusión como en PostgreSQL.
+
+## 2026-11-10 — SOA: aplicación consumidora web
+
+- **Tarjeta:** CACS-27 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-consumidor`
+- **Qué se hizo:**
+  - `soa/consumidor-web`: aplicación Spring Boot independiente en el puerto
+    8080. Sirve una página en HTML, CSS y JavaScript (`static/`) que llama con
+    Fetch a su propio backend (`/api/portal/...`).
+  - El backend llama a los dos proveedores con un RestClient por proveedor
+    (`ClientesConfig`), con URL configurables (`CATALOGO_URL` y
+    `RESERVAS_URL`) y tiempos de espera de 2 y 5 segundos.
+  - Operaciones integradas: la disponibilidad del día cruza el horario del
+    catálogo con la ocupación del proveedor de reservas, y reservar toma el
+    nombre y la tarifa del equipo del catálogo, valida el horario y que el
+    equipo se pueda reservar, y crea la reserva en el proveedor de reservas.
+  - Errores: un proveedor detenido da 503 con el nombre del servicio; los
+    errores de un proveedor (400, 401, 403, 409) llegan con su código y su
+    mensaje. `/api/portal/estado` dice si cada proveedor responde.
+  - Probado a mano con las tres aplicaciones: sesión de Laura, reserva de
+    4:00 p. m. creada con los dos proveedores, pago del adelanto, catálogo
+    detenido (la página muestra el aviso y "Mis reservas" sigue funcionando) y
+    la reserva conservada al reiniciar los proveedores. Capturas en
+    `soa/evidencias/`.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 9 pruebas, 0 fallos
+  (CP-38a a CP-38i en `PortalTests` y `ClientesHttpTests`).
+- **Pendientes:**
+  - Colección de Postman y documentación técnica (CACS-28).
+
 ## 2026-11-10 — SOA: colección de Postman y documentación técnica
 
 - **Tarjeta:** CACS-28 (entrega final de Desarrollo Orientado a Servicios).
