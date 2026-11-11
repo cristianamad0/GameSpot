@@ -13,7 +13,9 @@ const hora24 = new Intl.DateTimeFormat('en-GB', { timeZone: ZONA, hour: '2-digit
 const ETIQUETAS = { PENDIENTE_PAGO: 'Pendiente de pago', CONFIRMADA: 'Confirmada', CANCELADA: 'Cancelada' };
 const MOTIVOS = { OCUPADO: 'Ocupado', PASADO: 'Ya pasó', FUERA_DE_SERVICIO: 'Fuera de servicio' };
 const DIAS = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-const ICONOS = { 'xbox-360': '🎮', 'xbox-series-s': '🕹️', 'sala-vip-xbox-series-x': '👑' };
+// CACS-31: ilustraciones propias de cada modalidad (img/consola-<modalidad>.svg). Si una modalidad
+// nueva no tiene ilustración, se muestra el ícono de control.
+const ILUSTRACIONES = ['xbox-360', 'xbox-series-s', 'sala-vip-xbox-series-x'];
 const DESCRIPCIONES = {
   'xbox-360': 'Los clásicos de siempre para jugar con amigos.',
   'xbox-series-s': 'Nueva generación, juegos rápidos y en alta resolución.',
@@ -21,7 +23,7 @@ const DESCRIPCIONES = {
 };
 
 // Fotos del local en static/img/. Cuando tengan una foto, cópienla a esa carpeta y pongan aquí el
-// nombre del archivo; mientras sea null se muestra el ícono de la modalidad.
+// nombre del archivo; mientras sea null se muestra la ilustración de la modalidad.
 const FOTOS = {
   local: null, // foto de fondo de la portada, por ejemplo 'local.jpg'
   'xbox-360': null,
@@ -249,13 +251,15 @@ function pintarModalidades() {
     const tarjeta = elemento('li', 'modalidad');
 
     const imagen = elemento('div', 'modalidad__imagen');
-    imagen.append(elemento('span', '', ICONOS[id] || '🎮'));
-    imagen.firstChild.setAttribute('aria-hidden', 'true');
-    if (FOTOS[id]) {
+    const icono = elemento('span', '', '🎮');
+    icono.setAttribute('aria-hidden', 'true');
+    imagen.append(icono);
+    if (FOTOS[id] || ILUSTRACIONES.includes(id)) {
       const foto = document.createElement('img');
-      foto.alt = 'Foto de ' + modalidad + ' en Game Spot';
+      foto.className = FOTOS[id] ? 'foto' : 'ilustracion';
+      foto.alt = (FOTOS[id] ? 'Foto de ' : 'Ilustración de ') + modalidad + ' en Game Spot';
       foto.addEventListener('error', () => foto.remove());
-      foto.src = 'img/' + FOTOS[id];
+      foto.src = 'img/' + (FOTOS[id] || 'consola-' + id + '.svg');
       imagen.append(foto);
     }
 
@@ -622,6 +626,12 @@ async function cargarMisReservas() {
   try {
     reservas = await api('/api/portal/reservas/mias', { conToken: true });
   } catch (error) {
+    if (error.status === 401) {
+      // CACS-31: el token venció (dura 2 horas) o ya no es válido: se cierra la sesión.
+      cerrarSesion();
+      mostrarAviso('Tu sesión venció. Ingresa de nuevo para ver y hacer reservas.');
+      return;
+    }
     lista.replaceChildren(elemento('li', 'caido', error.message));
     return;
   }
