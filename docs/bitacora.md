@@ -1083,3 +1083,24 @@ pruebas y pendientes. La entrada más reciente va al final.
   Prueba a mano a 1280 x 760 px (escena completa visible) y a 360 px, sin
   desplazamiento horizontal.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: logo visible sobre la pandilla y videos con reproducción automática
+
+- **Tarjeta:** CACS-40 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-logo-videos`
+- **Qué se hizo:**
+  - El salto del muñeco verde baja de 95 a 60 px y el logo queda por encima de
+    la escena (`z-index: 3`): el texto "TU ESPACIO GAMER" se ve completo
+    durante toda la animación.
+  - Los videos de "Conoce el local" se reproducen solos y sin sonido mientras
+    están en pantalla, también con "reducir movimiento" (en el PC del equipo
+    quedaban quietos por esa opción de Windows). Si el visitante pausa uno con
+    su botón, ese video no vuelve a arrancar solo.
+  - Se quitó el código que pausaba el video de fondo de la portada, que ya no
+    existe desde CACS-38.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px, 960 px y 375 px: el muñeco verde no alcanza el
+  texto del logo en el punto más alto del salto; los cuatro videos arrancan al
+  llegar a la sección, se pausan al salir y el que se pausa a mano sigue
+  pausado al volver.
+- **Pendientes:** ninguno.
