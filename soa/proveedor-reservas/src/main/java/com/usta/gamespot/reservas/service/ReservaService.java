@@ -26,7 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * CACS-26: reglas de las reservas. Los bloques empiezan en :00 o :30 y duran múltiplos de 30
  * minutos; un equipo no puede tener dos reservas activas que se crucen; el adelanto es el 50 % del
- * precio. El horario de atención y la disponibilidad del equipo los valida la aplicación
+ * precio. CACS-30: el precio es cada hora completa a la tarifa por hora más, si sobra media hora, la
+ * tarifa de media hora (por ejemplo, 90 minutos de Series S = 5.000 + 3.000). El horario de atención y la disponibilidad del equipo los valida la aplicación
  * consumidora con el proveedor de catálogo antes de llamar aquí.
  */
 @Service
@@ -73,7 +74,9 @@ public class ReservaService {
         .isEmpty()) {
       throw new ConflictoException("El bloque ya está reservado para ese equipo");
     }
-    int precioTotalPesos = Math.ceilDiv(request.tarifaHoraPesos() * duracionMinutos, 60);
+    int precioTotalPesos =
+        calcularPrecioPesos(
+            request.tarifaHoraPesos(), request.tarifaMediaHoraPesos(), duracionMinutos);
     int adelantoPesos = Math.ceilDiv(precioTotalPesos * PORCENTAJE_ADELANTO, 100);
     Reserva reserva =
         Reserva.builder()
@@ -87,6 +90,22 @@ public class ReservaService {
             .creadaEn(ahora)
             .build();
     return ReservaResponse.de(reservaRepository.save(reserva));
+  }
+
+  /**
+   * CACS-30: precio de una reserva. Cada hora completa vale la tarifa por hora y la media hora que
+   * sobre vale la tarifa de media hora, que no es necesariamente la mitad de la hora.
+   *
+   * @param tarifaHoraPesos tarifa por hora
+   * @param tarifaMediaHoraPesos tarifa de un bloque suelto de 30 minutos
+   * @param duracionMinutos duración, múltiplo de 30
+   * @return precio total en pesos
+   */
+  public static int calcularPrecioPesos(
+      int tarifaHoraPesos, int tarifaMediaHoraPesos, int duracionMinutos) {
+    int horasCompletas = duracionMinutos / 60;
+    boolean sobraMediaHora = duracionMinutos % 60 != 0;
+    return horasCompletas * tarifaHoraPesos + (sobraMediaHora ? tarifaMediaHoraPesos : 0);
   }
 
   /**
