@@ -4,84 +4,199 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Game Spot · Reservas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800&display=swap"
+    />
     <link rel="stylesheet" href="estilos.css" />
   </head>
   <body>
+    <!-- CACS-29: portada y reserva guiada. Todo lo que se muestra viene de la consumidora
+         (/api/portal/...), que lo pide a los proveedores con RestClient. -->
     <header class="barra">
-      <h1>Game Spot <span>Reservas</span></h1>
-      <div class="sesion" id="sesion">
-        <span id="sesion-nombre"></span>
-        <button type="button" id="boton-salir" class="secundario" hidden>Salir</button>
+      <a class="logo" href="#inicio">GAME <span>SPOT</span></a>
+      <nav class="menu" aria-label="Secciones">
+        <a href="#equipos">Equipos</a>
+        <a href="#reservar">Reservar</a>
+        <a href="#mis-reservas" id="enlace-mis-reservas" hidden>Mis reservas</a>
+        <a href="#admin" id="enlace-admin" hidden>Administración</a>
+      </nav>
+      <div class="sesion">
+        <span id="sesion-nombre" class="sesion__nombre"></span>
+        <button type="button" id="boton-ingresar" class="boton boton--secundario">Ingresar</button>
+        <button type="button" id="boton-salir" class="boton boton--secundario" hidden>Salir</button>
       </div>
     </header>
 
     <main>
-      <section class="estado-servicios" aria-label="Estado de los servicios">
-        <span>Catálogo (8091): <strong id="estado-catalogo">consultando…</strong></span>
-        <span>Reservas (8092): <strong id="estado-reservas">consultando…</strong></span>
-        <button type="button" id="boton-estado" class="secundario">Revisar</button>
+      <!-- Portada -->
+      <section id="inicio" class="portada">
+        <div class="contenedor portada__contenido">
+          <p class="portada__etiqueta">Sala de videojuegos · Villavicencio</p>
+          <h1 class="portada__titulo">Reserva tu turno y <span>llega a jugar</span></h1>
+          <p class="portada__texto">
+            Aparta tu consola o la sala VIP en bloques de 30 minutos, mira al instante qué horas
+            están libres y asegura tu lugar pagando el 50 % de adelanto.
+          </p>
+          <div class="portada__acciones">
+            <a href="#reservar" id="boton-portada-reservar" class="boton boton--grande">Haz tu reserva</a>
+            <a href="#equipos" class="boton boton--secundario boton--grande">Ver equipos y precios</a>
+          </div>
+          <ul class="portada__datos" aria-label="Lo que ofrecemos">
+            <li><strong id="dato-equipos">–</strong> equipos para jugar</li>
+            <li><strong id="dato-desde">–</strong> la hora desde</li>
+            <li><strong>30 min</strong> bloques de reserva</li>
+          </ul>
+        </div>
       </section>
 
-      <div id="aviso" class="aviso" role="alert" hidden></div>
-
-      <section id="panel-login" class="tarjeta">
-        <h2>Iniciar sesión</h2>
-        <form id="form-login" novalidate>
-          <label>Correo <input type="email" id="login-email" autocomplete="username" /></label>
-          <label>Contraseña
-            <input type="password" id="login-password" autocomplete="current-password" />
-          </label>
-          <button type="submit">Ingresar</button>
-        </form>
-        <p class="suave">Cuentas de prueba: laura@gamespot.demo / ClienteDemo123 y
-          admin@gamespot.demo / AdminDemo123.</p>
+      <!-- Equipos (proveedor de catálogo) -->
+      <section id="equipos" class="contenedor seccion" aria-labelledby="titulo-equipos">
+        <h2 id="titulo-equipos">Nuestros equipos</h2>
+        <p class="suave">Precios y disponibilidad en vivo desde el servicio de catálogo.</p>
+        <ul id="lista-modalidades" class="modalidades" aria-live="polite">
+          <li class="suave">Cargando equipos…</li>
+        </ul>
       </section>
 
-      <section class="tarjeta">
-        <h2>Equipos <small>(proveedor de catálogo)</small></h2>
-        <table>
-          <thead>
-            <tr><th>Equipo</th><th>Modalidad</th><th>Tarifa por hora</th><th>Estado</th><th></th></tr>
-          </thead>
-          <tbody id="tabla-equipos"></tbody>
-        </table>
+      <!-- Pasos y horario -->
+      <section class="contenedor seccion seccion--doble">
+        <div>
+          <h2>Así de fácil</h2>
+          <ol class="pasos">
+            <li class="paso">
+              <span class="paso__numero" aria-hidden="true">1</span>
+              <div><h3>Elige tu consola</h3><p>Xbox 360, Series S o la sala VIP con Series X.</p></div>
+            </li>
+            <li class="paso">
+              <span class="paso__numero" aria-hidden="true">2</span>
+              <div><h3>Escoge día y hora</h3><p>Ves los bloques libres en tiempo real.</p></div>
+            </li>
+            <li class="paso">
+              <span class="paso__numero" aria-hidden="true">3</span>
+              <div><h3>Confirma y paga el adelanto</h3><p>El 50 % asegura tu turno; el resto lo pagas en el local.</p></div>
+            </li>
+          </ol>
+        </div>
+        <div class="tarjeta horario">
+          <h2>Horario</h2>
+          <dl id="lista-horario"><dt class="suave">Cargando horario…</dt></dl>
+        </div>
       </section>
 
-      <section class="tarjeta">
-        <h2>Reservar <small>(usa los dos proveedores)</small></h2>
-        <form id="form-disponibilidad" class="fila" novalidate>
-          <label>Equipo <select id="disp-equipo"></select></label>
-          <label>Fecha <input type="date" id="disp-fecha" /></label>
-          <button type="submit" class="secundario">Ver disponibilidad</button>
-        </form>
-        <div id="bloques" class="bloques" aria-live="polite"></div>
-        <form id="form-reserva" class="fila" novalidate>
-          <label>Hora de inicio <input type="time" id="res-hora" step="1800" /></label>
-          <label>Duración
-            <select id="res-duracion">
-              <option value="30">30 minutos</option>
-              <option value="60" selected>1 hora</option>
-              <option value="90">1 hora 30 minutos</option>
-              <option value="120">2 horas</option>
-              <option value="180">3 horas</option>
-            </select>
-          </label>
-          <button type="submit">Reservar</button>
-        </form>
+      <!-- Reserva guiada (usa los dos proveedores) -->
+      <section id="reservar" class="contenedor seccion" aria-labelledby="titulo-reservar">
+        <h2 id="titulo-reservar">Haz tu reserva</h2>
+        <ol class="progreso" aria-label="Pasos de la reserva">
+          <li data-paso="1">Consola</li>
+          <li data-paso="2">Día y hora</li>
+          <li data-paso="3">Confirmar</li>
+        </ol>
+
+        <div class="tarjeta asistente">
+          <div id="paso-1" class="paso-panel">
+            <h3>1. ¿Con qué quieres jugar?</h3>
+            <div id="opciones-equipo" class="opciones-equipo"></div>
+          </div>
+
+          <div id="paso-2" class="paso-panel" hidden>
+            <h3>2. Elige el día y la hora de inicio</h3>
+            <p class="suave" id="equipo-elegido"></p>
+            <div class="fila">
+              <label>Día <input type="date" id="res-fecha" /></label>
+              <label>¿Cuánto tiempo?
+                <select id="res-duracion">
+                  <option value="30">30 minutos</option>
+                  <option value="60" selected>1 hora</option>
+                  <option value="90">1 hora 30 minutos</option>
+                  <option value="120">2 horas</option>
+                  <option value="180">3 horas</option>
+                </select>
+              </label>
+            </div>
+            <div id="bloques" class="bloques" aria-live="polite"></div>
+            <p id="precio-previo" class="precio-previo"></p>
+            <div class="acciones">
+              <button type="button" class="boton boton--secundario" data-ir-a="1">Cambiar consola</button>
+              <button type="button" id="boton-continuar" class="boton" disabled>Continuar</button>
+            </div>
+          </div>
+
+          <div id="paso-3" class="paso-panel" hidden>
+            <h3>3. Revisa y confirma</h3>
+            <dl id="resumen" class="resumen"></dl>
+            <div id="confirmar-login" class="nota" hidden>
+              Para confirmar, ingresa con tu cuenta.
+              <button type="button" id="boton-login-confirmar" class="boton boton--secundario">Ingresar</button>
+            </div>
+            <div class="acciones">
+              <button type="button" class="boton boton--secundario" data-ir-a="2">Volver</button>
+              <button type="button" id="boton-confirmar" class="boton boton--grande">Confirmar reserva</button>
+            </div>
+          </div>
+
+          <div id="paso-4" class="paso-panel exito-panel" hidden>
+            <h3>¡Reserva creada!</h3>
+            <p id="texto-exito"></p>
+            <div class="acciones">
+              <button type="button" id="boton-pagar-ahora" class="boton">Pagar adelanto ahora</button>
+              <button type="button" class="boton boton--secundario" data-ir-a="1">Hacer otra reserva</button>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section class="tarjeta">
-        <h2>Mis reservas <small>(proveedor de reservas)</small></h2>
-        <table>
-          <thead>
-            <tr><th>Equipo</th><th>Fecha y hora</th><th>Precio</th><th>Adelanto</th><th>Estado</th><th></th></tr>
-          </thead>
-          <tbody id="tabla-reservas">
-            <tr><td colspan="6" class="suave">Inicia sesión para ver tus reservas.</td></tr>
-          </tbody>
-        </table>
+      <!-- Mis reservas (proveedor de reservas) -->
+      <section id="mis-reservas" class="contenedor seccion" aria-labelledby="titulo-mis-reservas" hidden>
+        <h2 id="titulo-mis-reservas">Mis reservas</h2>
+        <ul id="lista-reservas" class="reservas"></ul>
+      </section>
+
+      <!-- Administración (requiere JWT con rol ADMIN) -->
+      <section id="admin" class="contenedor seccion" aria-labelledby="titulo-admin" hidden>
+        <h2 id="titulo-admin">Administración de equipos</h2>
+        <div class="tarjeta tabla-desplazable">
+          <table>
+            <thead>
+              <tr><th>Equipo</th><th>Modalidad</th><th>Tarifa por hora</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody id="tabla-admin"></tbody>
+          </table>
+        </div>
       </section>
     </main>
+
+    <footer class="pie">
+      <div class="contenedor pie__contenido">
+        <section class="estado-servicios" aria-label="Estado de los servicios">
+          <span>Catálogo (8091): <strong id="estado-catalogo">consultando…</strong></span>
+          <span>Reservas (8092): <strong id="estado-reservas">consultando…</strong></span>
+          <button type="button" id="boton-estado" class="boton boton--secundario boton--pequeno">Revisar</button>
+        </section>
+        <p class="suave">Game Spot · Villavicencio · Proyecto de Desarrollo Orientado a Servicios</p>
+      </div>
+    </footer>
+
+    <div id="aviso" class="aviso" role="alert" hidden></div>
+
+    <dialog id="dialogo-login" class="dialogo" aria-labelledby="titulo-login">
+      <form id="form-login" novalidate>
+        <h2 id="titulo-login">Ingresar</h2>
+        <label>Correo <input type="email" id="login-email" autocomplete="username" /></label>
+        <label>Contraseña
+          <input type="password" id="login-password" autocomplete="current-password" />
+        </label>
+        <p id="error-login" class="error" role="alert" hidden></p>
+        <div class="acciones">
+          <button type="button" id="boton-cerrar-login" class="boton boton--secundario">Cancelar</button>
+          <button type="submit" class="boton">Ingresar</button>
+        </div>
+        <p class="suave pequeno">Cuentas de prueba: laura@gamespot.demo / ClienteDemo123 y
+          admin@gamespot.demo / AdminDemo123.</p>
+      </form>
+    </dialog>
 
     <script src="app.js"></script>
   </body>

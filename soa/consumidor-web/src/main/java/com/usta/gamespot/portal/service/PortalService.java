@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,17 @@ public class PortalService {
    */
   public List<EquipoDto> equipos() {
     return catalogoCliente.listarEquipos();
+  }
+
+  /**
+   * CACS-29: horario de atención (solo proveedor 1), ordenado de lunes a domingo.
+   *
+   * @return el horario de cada día que atiende el local
+   */
+  public List<HorarioDto> horarios() {
+    return catalogoCliente.listarHorarios().stream()
+        .sorted(Comparator.comparingInt(HorarioDto::diaSemana))
+        .toList();
   }
 
   /**
