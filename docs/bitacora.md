@@ -1121,3 +1121,20 @@ pruebas y pendientes. La entrada más reciente va al final.
   animaciones corren, el salto de la A no alcanza el texto del logo y no hay
   desplazamiento horizontal.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: botones Y, X, A y B negros con la letra de color
+
+- **Tarjeta:** CACS-42 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-botones-negros`
+- **Qué se hizo:**
+  - Siguiendo la referencia que compartió el equipo, los cuatro botones de la
+    portada pasan a ser negros brillantes con la letra grande de su color y un
+    aro del mismo color para que se distingan del fondo oscuro. Brazos y pies
+    también son negros con borde de color.
+  - Colores más cercanos a la referencia: A verde lima, B rojo anaranjado,
+    X azul cian y Y amarillo.
+  - Las animaciones de CACS-39 no cambian.
+- **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
+  Prueba a mano a 1280 px y 375 px: las letras se leen, los botones se
+  distinguen del fondo y no hay desplazamiento horizontal.
+- **Pendientes:** ninguno.

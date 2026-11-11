@@ -1899,28 +1899,29 @@ main .seccion > p.suave {
   filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.45));
 }
 
+/* CACS-42: colores de las letras de los botones de acción. */
 .luchador--verde {
   left: 13%;
-  color: #4ade80;
+  color: #9be22a;
   animation: salto-grande 3.2s ease-in-out infinite;
 }
 
 .luchador--amarillo {
   left: 33%;
-  color: #facc15;
+  color: #f5e400;
   animation: empujon 1.6s ease-in-out infinite alternate;
 }
 
 .luchador--azul {
   left: 46%;
-  color: #38bdf8;
+  color: #22b5e3;
   animation: empujon 1.6s ease-in-out infinite alternate;
   animation-delay: -0.05s;
 }
 
 .luchador--rojo {
   left: 64%;
-  color: #f87171;
+  color: #f2502e;
   animation: caida 5s ease-in-out infinite;
 }
 
