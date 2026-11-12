@@ -10,7 +10,13 @@ const fechaLarga = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, weekday: '
 const fechaHora = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, dateStyle: 'medium', timeStyle: 'short' });
 const hora = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, hour: 'numeric', minute: '2-digit' });
 const hora24 = new Intl.DateTimeFormat('en-GB', { timeZone: ZONA, hour: '2-digit', minute: '2-digit' });
-const ETIQUETAS = { PENDIENTE_PAGO: 'Pendiente de pago', CONFIRMADA: 'Confirmada', CANCELADA: 'Cancelada' };
+const ETIQUETAS = {
+  PENDIENTE_PAGO: 'Pendiente de pago',
+  CONFIRMADA: 'Confirmada',
+  CANCELADA: 'Cancelada',
+  // CACS-47: sin pagar después de 15 minutos.
+  EXPIRADA: 'Vencida',
+};
 const MOTIVOS = { OCUPADO: 'Ocupado', PASADO: 'Ya pasó', FUERA_DE_SERVICIO: 'Fuera de servicio' };
 const DIAS = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 // CACS-31: ilustraciones propias de cada modalidad (img/consola-<modalidad>.svg). Si una modalidad
@@ -613,7 +619,8 @@ $('boton-confirmar').addEventListener('click', async () => {
     $('texto-exito').textContent =
       creada.nombreEquipo + ', ' + fechaHora.format(new Date(creada.inicio)) + ' a nombre de ' +
       sesion().nombre + '. Total ' + pesos.format(creada.precioTotalPesos) + '. Paga el adelanto de ' +
-      pesos.format(creada.adelantoPesos) + ' para confirmarla.';
+      pesos.format(creada.adelantoPesos) + ' antes de las ' + hora.format(new Date(creada.pagarAntesDe)) +
+      ' (tienes 15 minutos) para confirmarla; si no, la reserva vence y el turno se libera.';
     $('boton-pagar-ahora').hidden = false;
     irAPaso(4);
     cargarMisReservas();
@@ -686,12 +693,31 @@ async function cargarMisReservas() {
       elemento('p', '', fechaHora.format(new Date(item.inicio)) + ' – ' + hora.format(new Date(item.fin))),
       elemento('p', '', 'Total ' + pesos.format(item.precioTotalPesos) + ' · Adelanto ' + pesos.format(item.adelantoPesos)),
     );
+    // CACS-47: plazo de pago y reglas de vencimiento y de adelanto sin devolución.
+    if (item.estado === 'PENDIENTE_PAGO' && item.pagarAntesDe) {
+      tarjeta.append(
+        elemento('p', 'reserva__plazo', 'Paga el adelanto antes de las ' + hora.format(new Date(item.pagarAntesDe)) + ' o la reserva vence.'),
+      );
+    }
+    if (item.estado === 'EXPIRADA') {
+      tarjeta.append(elemento('p', 'suave', 'No se pagó el adelanto dentro de 15 minutos; el turno quedó libre.'));
+    }
     const acciones = elemento('div', 'acciones');
     if (item.estado === 'PENDIENTE_PAGO') {
       acciones.append(boton('Pagar adelanto', 'boton--pequeno', () => cambiarEstadoReserva(item.id, 'pago')));
     }
-    if (item.estado !== 'CANCELADA') {
-      acciones.append(boton('Cancelar', 'boton--peligro boton--pequeno', () => cambiarEstadoReserva(item.id, 'cancelacion')));
+    if (item.estado === 'PENDIENTE_PAGO' || item.estado === 'CONFIRMADA') {
+      acciones.append(
+        boton('Cancelar', 'boton--peligro boton--pequeno', () => {
+          const aviso =
+            item.estado === 'CONFIRMADA'
+              ? 'Si cancelas, el adelanto de ' + pesos.format(item.adelantoPesos) + ' no se devuelve. ¿Cancelar la reserva?'
+              : '¿Cancelar la reserva?';
+          if (window.confirm(aviso)) {
+            cambiarEstadoReserva(item.id, 'cancelacion');
+          }
+        }),
+      );
     }
     if (acciones.children.length) {
       tarjeta.append(acciones);

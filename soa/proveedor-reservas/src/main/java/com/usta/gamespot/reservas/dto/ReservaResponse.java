@@ -14,8 +14,9 @@ import java.time.Instant;
  * @param fin final
  * @param precioTotalPesos precio total
  * @param adelantoPesos adelanto (50 % del precio)
- * @param estado PENDIENTE_PAGO, CONFIRMADA o CANCELADA
+ * @param estado PENDIENTE_PAGO, CONFIRMADA, CANCELADA o EXPIRADA
  * @param emailCliente correo de quien reservó
+ * @param pagarAntesDe hasta cuándo se puede pagar el adelanto; null si ya no está pendiente
  */
 public record ReservaResponse(
     Long id,
@@ -26,15 +27,18 @@ public record ReservaResponse(
     int precioTotalPesos,
     int adelantoPesos,
     EstadoReserva estado,
-    String emailCliente) {
+    String emailCliente,
+    Instant pagarAntesDe) {
 
   /**
-   * Convierte la entidad en el DTO de respuesta.
+   * Convierte la entidad en el DTO de respuesta con el estado que ve el cliente.
    *
    * @param reserva la reserva
+   * @param estado estado vigente (EXPIRADA si venció el plazo de pago)
+   * @param pagarAntesDe límite para pagar, o null si ya no está pendiente
    * @return el DTO
    */
-  public static ReservaResponse de(Reserva reserva) {
+  public static ReservaResponse de(Reserva reserva, EstadoReserva estado, Instant pagarAntesDe) {
     return new ReservaResponse(
         reserva.getId(),
         reserva.getEquipoId(),
@@ -43,7 +47,8 @@ public record ReservaResponse(
         reserva.getFin(),
         reserva.getPrecioTotalPesos(),
         reserva.getAdelantoPesos(),
-        reserva.getEstado(),
-        reserva.getUsuario().getEmail());
+        estado,
+        reserva.getUsuario().getEmail(),
+        pagarAntesDe);
   }
 }

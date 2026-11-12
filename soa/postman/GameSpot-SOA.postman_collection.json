@@ -774,7 +774,8 @@
                 "exec": [
                   "pm.test(\"Responde 201\", function () { pm.response.to.have.status(201); });",
                   "pm.collectionVariables.set('reservaId', pm.response.json().id);",
-                  "pm.test('Adelanto del 50 %', function () { pm.expect(pm.response.json().adelantoPesos).to.eql(2500); });"
+                  "pm.test('Adelanto del 50 %', function () { pm.expect(pm.response.json().adelantoPesos).to.eql(2500); });",
+                  "pm.test('Informa el límite de pago de 15 minutos (CACS-47)', function () { pm.expect(pm.response.json().pagarAntesDe).to.be.a('string'); });"
                 ]
               }
             },

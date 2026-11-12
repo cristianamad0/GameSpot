@@ -1,5 +1,6 @@
 package com.usta.gamespot.reservas;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -8,12 +9,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +34,16 @@ class ReservasTests {
   private static final String TRES_PM = "2099-03-02T20:00:00Z";
 
   @Autowired private MockMvc mockMvc;
+  @Autowired private JdbcTemplate jdbc;
+  @Autowired private EntityManager entityManager;
+
+  /** Simula que la reserva se creó hace {@code minutos} minutos (CACS-47). */
+  private void crearHace(long id, int minutos) {
+    entityManager.flush();
+    jdbc.update(
+        "update reservas set creada_en = dateadd('MINUTE', ?, creada_en) where id = ?", -minutos, id);
+    entityManager.clear();
+  }
 
   private String token(String email, String password) throws Exception {
     String respuesta =
@@ -226,5 +239,59 @@ class ReservasTests {
     mockMvc
         .perform(get("/api/reservas/9999").header("Authorization", laura()))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @DisplayName(
+      "CP-37j Una reserva sin pagar vence a los 15 minutos: queda EXPIRADA, libera el bloque y"
+          + " pagarla o cancelarla da 409")
+  void reservaSinPagarVence() throws Exception {
+    String token = laura();
+    long id = crearYObtenerId(token, reserva(3, TRES_PM, 60));
+    crearHace(id, 16);
+
+    mockMvc
+        .perform(get("/api/reservas/mias").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].estado").value("EXPIRADA"))
+        .andExpect(jsonPath("$[0].pagarAntesDe").doesNotExist());
+    mockMvc
+        .perform(get("/api/reservas/ocupacion").param("equipoId", "3").param("fecha", "2099-03-02"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(0)));
+    mockMvc
+        .perform(patch("/api/reservas/" + id + "/pago").header("Authorization", token))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.mensaje", containsString("venció")));
+    mockMvc
+        .perform(patch("/api/reservas/" + id + "/cancelacion").header("Authorization", token))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.mensaje", containsString("ya venció")));
+    crear(andres(), reserva(3, TRES_PM, 60)).andExpect(status().isCreated());
+  }
+
+  @Test
+  @DisplayName(
+      "CP-37k Dentro de los 15 minutos la reserva sigue pendiente, informa su límite de pago y"
+          + " bloquea el turno; pagada ya no vence")
+  void reservaDentroDelPlazo() throws Exception {
+    String token = laura();
+    long id = crearYObtenerId(token, reserva(3, TRES_PM, 60));
+    mockMvc
+        .perform(get("/api/reservas/" + id).header("Authorization", token))
+        .andExpect(jsonPath("$.estado").value("PENDIENTE_PAGO"))
+        .andExpect(jsonPath("$.pagarAntesDe").exists());
+    crearHace(id, 14);
+    crear(andres(), reserva(3, TRES_PM, 60)).andExpect(status().isConflict());
+
+    mockMvc
+        .perform(patch("/api/reservas/" + id + "/pago").header("Authorization", token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.estado").value("CONFIRMADA"));
+    crearHace(id, 60);
+    mockMvc
+        .perform(get("/api/reservas/" + id).header("Authorization", token))
+        .andExpect(jsonPath("$.estado").value("CONFIRMADA"));
+    crear(andres(), reserva(3, TRES_PM, 60)).andExpect(status().isConflict());
   }
 }

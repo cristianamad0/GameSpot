@@ -12,8 +12,9 @@ import java.time.Instant;
  * @param fin final
  * @param precioTotalPesos precio total
  * @param adelantoPesos adelanto
- * @param estado PENDIENTE_PAGO, CONFIRMADA o CANCELADA
+ * @param estado PENDIENTE_PAGO, CONFIRMADA, CANCELADA o EXPIRADA
  * @param emailCliente correo de quien reservó
+ * @param pagarAntesDe CACS-47: límite para pagar el adelanto; null si ya no está pendiente
  */
 public record ReservaDto(
     Long id,
@@ -24,4 +25,5 @@ public record ReservaDto(
     int precioTotalPesos,
     int adelantoPesos,
     String estado,
-    String emailCliente) {}
+    String emailCliente,
+    Instant pagarAntesDe) {}

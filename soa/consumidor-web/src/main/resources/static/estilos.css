@@ -787,6 +787,16 @@ select {
   color: var(--suave);
 }
 
+/* CACS-47: reserva sin pagar a los 15 minutos. */
+.EXPIRADA {
+  color: var(--suave);
+}
+
+.reserva__plazo {
+  color: var(--aviso);
+  font-weight: 600;
+}
+
 /* ---------- Administración ---------- */
 .tabla-desplazable {
   overflow-x: auto;
