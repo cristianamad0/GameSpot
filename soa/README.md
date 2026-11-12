@@ -129,8 +129,8 @@ token de `CLIENTE`, 403.
 | GET | `/api/reservas/mias` | Sí | 200 reservas propias, de la más reciente a la más antigua |
 | GET | `/api/reservas/{id}` | Sí | 200; 403 si es de otro usuario; 404 |
 | GET | `/api/reservas/ocupacion?equipoId=&fecha=` | No | 200 intervalos ocupados del día (sin datos del cliente) |
-| PATCH | `/api/reservas/{id}/pago` | Sí | 200 reserva `CONFIRMADA`; 409 si no estaba pendiente |
-| PATCH | `/api/reservas/{id}/cancelacion` | Sí | 200 reserva `CANCELADA` (cancelación lógica); 409 si ya estaba cancelada |
+| PATCH | `/api/reservas/{id}/pago` | Sí | 200 reserva `CONFIRMADA`; 409 si no estaba pendiente o ya venció (15 minutos) |
+| PATCH | `/api/reservas/{id}/cancelacion` | Sí | 200 reserva `CANCELADA` (cancelación lógica; el adelanto no se devuelve); 409 si ya estaba cancelada o ya venció |
 
 ### Consumidora (8080)
 
@@ -156,7 +156,7 @@ Cada proyecto tiene sus pruebas automatizadas (`./mvnw test` en su carpeta):
 | Proyecto | Clase | Casos |
 | --- | --- | --- |
 | `proveedor-catalogo` | `CatalogoTests`: listado con los datos de `data.sql`, consulta y 404, CRUD completo, validaciones (400 y 409), JWT (401 sin token o inválido, 403 cliente), tarifas, horario y corrección de una base anterior | CP-36a a CP-36h |
-| `proveedor-reservas` | `ReservasTests`: login y 401, precio y adelanto, bloques inválidos (400), cruces (409), reservas propias y ocupación pública, pago, cancelación lógica y 403, 401 sin token, precio con tarifa de media hora | CP-37a a CP-37i |
+| `proveedor-reservas` | `ReservasTests`: login y 401, precio y adelanto, bloques inválidos (400), cruces (409), reservas propias y ocupación pública, pago, cancelación lógica y 403, 401 sin token, precio con tarifa de media hora, vencimiento a los 15 minutos | CP-37a a CP-37k |
 | `consumidor-web` | `PortalTests` y `ClientesHttpTests`: integración de los dos proveedores, validaciones, proveedor detenido (503), página web, horario, rutas y token del RestClient | CP-38a a CP-38j |
 
 La colección de Postman está en `postman/GameSpot-SOA.postman_collection.json`
@@ -172,9 +172,9 @@ prueba con las tres aplicaciones están en `evidencias/`.
 | Sin cruces | Un equipo no tiene dos reservas activas que se crucen | Implementada (CP-37d) |
 | Precio | Cada hora completa a la tarifa por hora y la media hora que sobra a la tarifa de media hora | Implementada (CP-37b, CP-37i) |
 | Adelanto | 50 % del precio; pagarlo confirma la reserva | Implementada (CP-37f) |
-| Adelanto sin devolución | Si se cancela una reserva confirmada, el adelanto no se devuelve; no hay operación de reembolso | Implementada; falta el aviso en la página |
+| Adelanto sin devolución | Si se cancela una reserva confirmada, el adelanto no se devuelve; no hay operación de reembolso y la página lo advierte antes de cancelar | Implementada |
 | Cancelación lógica | La reserva no se borra: pasa a `CANCELADA` y libera el bloque | Implementada (CP-37g) |
-| Vencimiento | Una reserva sin pagar a los 15 minutos vence (`EXPIRADA`) y libera el bloque | Definida; no implementada en esta versión |
+| Vencimiento | Una reserva sin pagar a los 15 minutos vence (`EXPIRADA`): libera el bloque y ya no se puede pagar ni cancelar (409). Se calcula con `creada_en`, no se guarda; la respuesta trae `pagarAntesDe` | Implementada (CP-37j, CP-37k) |
 | Tiempo adicional | Cobro del tiempo jugado después de los bloques reservados | Fuera del alcance; después del flujo principal |
 
 ## Documentación
