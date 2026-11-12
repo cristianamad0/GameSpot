@@ -135,7 +135,8 @@ class PortalTests {
                 5000,
                 2500,
                 "PENDIENTE_PAGO",
-                "laura@gamespot.demo"));
+                "laura@gamespot.demo",
+                Instant.parse("2099-03-02T21:25:00Z")));
     mockMvc
         .perform(
             post("/api/portal/reservas")
@@ -144,7 +145,8 @@ class PortalTests {
                 .content(reserva(3, "16:00", 60)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.estado").value("PENDIENTE_PAGO"))
-        .andExpect(jsonPath("$.adelantoPesos").value(2500));
+        .andExpect(jsonPath("$.adelantoPesos").value(2500))
+        .andExpect(jsonPath("$.pagarAntesDe").value("2099-03-02T21:25:00Z"));
     verify(reservasCliente).crear(esperado, TOKEN);
   }
 
