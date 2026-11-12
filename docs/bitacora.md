@@ -1224,3 +1224,28 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pendientes:**
   - Implementar el vencimiento de 15 minutos y el aviso de adelanto sin
     devolución en la página; luego actualizar la tabla de reglas.
+
+## 2026-11-11 — SOA: vencimiento a los 15 minutos y adelanto sin devolución
+
+- **Tarjeta:** CACS-47 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-vencimiento-reservas` (parte de `feat/soa-documentacion-final`).
+- **Qué se hizo:**
+  - Proveedor de reservas: una reserva sin pagar vence a los 15 minutos de
+    creada. El vencimiento se calcula con `creada_en` y no se guarda: la
+    consulta de cruces y ocupación (`buscarActivasQueSeCruzan`) solo cuenta
+    las pendientes de los últimos 15 minutos, las respuestas muestran el estado
+    `EXPIRADA` y pagarla o cancelarla responde 409 con un mensaje claro. Así
+    vence a tiempo sin tarea programada y las bases existentes no cambian.
+  - `ReservaResponse` (y `ReservaDto` en la consumidora) suma `pagarAntesDe`,
+    el límite para pagar.
+  - Página: el mensaje de reserva creada y "Mis reservas" muestran la hora
+    límite de pago; la etiqueta "Vencida"; una nota con las dos reglas antes
+    de confirmar; y, al cancelar una reserva confirmada, una confirmación que
+    avisa que el adelanto no se devuelve.
+  - Postman comprueba `pagarAntesDe`; README, documentación técnica (inglés y
+    español) y PDF dicen que las dos reglas están implementadas.
+- **Pruebas:** `./mvnw test`: proveedor de reservas 11 pruebas (nuevas CP-37j y
+  CP-37k), consumidora 10 (CP-38c revisa `pagarAntesDe`), catálogo 8; 29 en
+  total, 0 fallos. Prueba a mano con una copia aparte de las tres
+  aplicaciones: plazo visible, nota de reglas y aviso al cancelar.
+- **Pendientes:** ninguno.
