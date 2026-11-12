@@ -1199,3 +1199,28 @@ pruebas y pendientes. La entrada más reciente va al final.
 - **Pruebas:** `./mvnw test` en `soa/consumidor-web`: 10 pruebas, 0 fallos.
   Prueba a mano a 1280 px y 360 px, sin desplazamiento horizontal.
 - **Pendientes:** ninguno.
+
+## 2026-11-11 — SOA: documentación técnica final en inglés y en español
+
+- **Tarjeta:** CACS-46 (entrega final de Desarrollo Orientado a Servicios).
+- **Rama:** `feat/soa-documentacion-final`
+- **Qué se hizo:**
+  - Se actualizó la documentación técnica en inglés (APA 7) y se agregó la
+    versión en español con el mismo contenido, cada una en DOCX y PDF, en
+    `soa/documentacion/`.
+  - Datos al día: cinco equipos, tarifa por hora y por media hora, horario
+    fijo de 3:00 a 9:00 p. m. todos los días, `/api/portal/horarios`, DTO con
+    la tarifa de media hora y 27 pruebas con sus casos (CP-36a a CP-38j).
+  - Nueva sección de reglas del negocio, que responde a la retroalimentación
+    de la docente: horario fijo, adelanto sin devolución, vencimiento de 15
+    minutos (definido, no implementado en esta versión) y tiempo adicional
+    fuera del alcance, después del flujo principal.
+  - Siete capturas nuevas en `soa/evidencias/` (tomadas con una copia aparte
+    de las tres aplicaciones, incluida la del catálogo detenido) en lugar de
+    las tres anteriores.
+  - El README del SOA suma las reglas del negocio y la lista de documentos.
+- **Pruebas:** documentos revisados página por página en PDF (28 páginas en
+  inglés y 29 en español).
+- **Pendientes:**
+  - Implementar el vencimiento de 15 minutos y el aviso de adelanto sin
+    devolución en la página; luego actualizar la tabla de reglas.

@@ -162,3 +162,26 @@ Cada proyecto tiene sus pruebas automatizadas (`./mvnw test` en su carpeta):
 La colección de Postman está en `postman/GameSpot-SOA.postman_collection.json`
 (importar en Postman y ejecutar las carpetas en orden). Las capturas de la
 prueba con las tres aplicaciones están en `evidencias/`.
+
+## Reglas del negocio
+
+| Regla | Definición | Estado |
+| --- | --- | --- |
+| Horario | Todos los días de 3:00 a 9:00 p. m. (hora de Bogotá); la reserva debe caber completa | Implementada (CP-36g, CP-38d) |
+| Bloques | Inicio a las :00 o :30; duración múltiplo de 30, de 30 a 240 minutos; en el futuro | Implementada (CP-37c) |
+| Sin cruces | Un equipo no tiene dos reservas activas que se crucen | Implementada (CP-37d) |
+| Precio | Cada hora completa a la tarifa por hora y la media hora que sobra a la tarifa de media hora | Implementada (CP-37b, CP-37i) |
+| Adelanto | 50 % del precio; pagarlo confirma la reserva | Implementada (CP-37f) |
+| Adelanto sin devolución | Si se cancela una reserva confirmada, el adelanto no se devuelve; no hay operación de reembolso | Implementada; falta el aviso en la página |
+| Cancelación lógica | La reserva no se borra: pasa a `CANCELADA` y libera el bloque | Implementada (CP-37g) |
+| Vencimiento | Una reserva sin pagar a los 15 minutos vence (`EXPIRADA`) y libera el bloque | Definida; no implementada en esta versión |
+| Tiempo adicional | Cobro del tiempo jugado después de los bloques reservados | Fuera del alcance; después del flujo principal |
+
+## Documentación
+
+| Archivo | Contenido |
+| --- | --- |
+| `documentacion/GameSpot_SOA_Technical_Documentation.docx` y `.pdf` | Documentación técnica final en inglés (APA 7) |
+| `documentacion/GameSpot_SOA_Documentacion_Tecnica.docx` y `.pdf` | La misma documentación en español |
+| `documentacion/Diagrama_SOA_GameSpot.png` | Diagrama de la arquitectura |
+| `evidencias/` | Capturas de la prueba de punta a punta (11 de noviembre de 2026), incluido el proveedor de catálogo detenido |
