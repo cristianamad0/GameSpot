@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="10.26.1">
+<file name="backend\src\main\java\com\usta\gamespot\BackendApplication.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\config\PagosConfig.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\config\ProgramacionConfig.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\config\PropiedadesPagos.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\config\ProveedorPagos.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\config\SecurityConfig.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\AdminEquiposController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\AdminReservasController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\AdminUsuariosController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\AuthController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\CatalogoController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\PagoAnticipoController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\PagoWompiController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\PuntosFidelidadController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\controller\ReservaController.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\AjustePuntosRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ApiError.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\AuthResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\CancelacionReservaRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\CatalogoResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\CheckoutWompiResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\CrearReservaRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\DisponibilidadEquipoRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\DisponibilidadResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\EquipoAdminResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\HistorialReservasResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\LoginRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ModalidadAdminResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ModalidadRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\MovimientoPuntosResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\PagoAnticipoRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\PagoAnticipoResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ProveedorPagosResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\RegistroRequest.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ReservaAdminResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ReservaExpiradaConPagoResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ReservaResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\ResultadoSimulado.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\SaldoPuntosResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\TransaccionWompi.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\dto\UsuarioResumenResponse.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\BloqueOcupadoException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\EmailYaRegistradoException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\EquipoFueraDeServicioException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\EquipoNoEncontradoException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\FirmaWompiInvalidaException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\GlobalExceptionHandler.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\ModalidadNoEncontradaException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\PlazoPagoVencidoException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\ProveedorPagosNoDisponibleException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\ReservaAjenaException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\ReservaInvalidaException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\ReservaNoEncontradaException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\SaldoPuntosInsuficienteException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\TransaccionWompiNoEncontradaException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\TransicionReservaInvalidaException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\exception\UsuarioNoEncontradoException.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\model\Rol.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\model\Usuario.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\security\JwtAuthFilter.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\security\JwtService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\AdminEquiposService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\AdminReservasService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\AdminUsuariosService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\AuthService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\CatalogoService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\ClienteWompi.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\ClienteWompiHttp.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\EnviadorCorreo.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\EnviadorCorreoSmtp.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\ExpiracionReservasService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\FirmasWompi.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\NotificacionService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\PagoAnticipoService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\PagoWompiService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\ProveedorAnticipos.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\ProveedorAnticiposSimulado.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\PuntosFidelidadService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\RegistroResultadoPago.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\ReservaService.java">
+</file>
+<file name="backend\src\main\java\com\usta\gamespot\service\UsuarioDetailsService.java">
+</file>
+</checkstyle>
