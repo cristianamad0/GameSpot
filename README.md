@@ -288,8 +288,12 @@ npx ng test --watch=false
 
 ## Calidad de código
 
-El reporte de análisis estático y la forma de repetirlo están en
-[docs/calidad/analisis-estatico.md](docs/calidad/analisis-estatico.md).
+Hay dos mediciones de análisis estático, cada una con la forma de repetirla:
+
+- 7 de octubre de 2026:
+  [docs/calidad/analisis-estatico.md](docs/calidad/analisis-estatico.md).
+- 18 de noviembre de 2026, con la comparación entre las dos:
+  [docs/calidad/analisis-estatico-2026-11-18.md](docs/calidad/analisis-estatico-2026-11-18.md).
 
 ## Forma de trabajo
 
