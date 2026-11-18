@@ -1249,3 +1249,22 @@ pruebas y pendientes. La entrada más reciente va al final.
   total, 0 fallos. Prueba a mano con una copia aparte de las tres
   aplicaciones: plazo visible, nota de reglas y aviso al cancelar.
 - **Pendientes:** ninguno.
+
+## 2026-11-18 — Calidad: segunda medición de análisis estático
+
+- **Tarjeta:** CACS-48 (entrega final de Gerencia de Software, evidencia de
+  análisis estático).
+- **Rama:** `feat/analisis-estatico-final`
+- **Qué se hizo:**
+  - Reporte `docs/calidad/analisis-estatico-2026-11-18.md` sobre el backend de
+    `dev` (commit `7706427`), con Lizard 1.24.1, Checkstyle 10.26.1 y PMD
+    7.17.0, y su comparación con la medición del 7 de octubre.
+  - Salidas sin procesar junto al reporte: Lizard en texto, Checkstyle y PMD
+    en XML, con rutas relativas.
+  - El README enlaza las dos mediciones.
+- **Pruebas:** no aplica (solo documentación). Resultado de la medición:
+  complejidad máxima 9 (antes 6), promedio 1,6, 0 métodos sobre 10;
+  Checkstyle 0 advertencias en 81 archivos; PMD 0 hallazgos.
+- **Pendientes:**
+  - Checkstyle y PMD no se comparan de frente con el 7 de octubre porque
+    cambiaron la versión y las reglas; el reporte lo explica.
